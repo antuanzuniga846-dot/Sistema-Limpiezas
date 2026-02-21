@@ -1081,6 +1081,10 @@
     // Tag para generadores
     setUserTag(user);
 
+     // ✅ SOLO 1 SESIÓN POR USUARIO:
+  // tumba cualquier otra sesión activa del mismo usuario
+  await supabase.auth.signOut({ scope: "others" });
+
     if(window.showToast) window.showToast("success","Bienvenido",`Sesión iniciada: ${user}`);
     await refreshGate();
   };
@@ -1139,3 +1143,4 @@
 
 </body>
 </html>
+
