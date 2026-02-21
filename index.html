@@ -1189,11 +1189,10 @@ function generarNDPreview(){
   // 1) CONFIG (pon tus datos)
   // =========================
   const SUPABASE_URL = "https://matvtyrmzytbdznlmfns.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_5QA7FGPRirqXNJ_v0xbJyw_h5D8XLs5"; // la sb_publishable_...
+  const SUPABASE_KEY = "sb_publishable_5QA7FGPRirqXNJ_v0xbJyw_h5D8XLs5"; // sb_publishable_...
   const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
   // Dominio “falso” para convertir usuario -> email interno
-  // (puedes dejarlo así; solo es para construir el email)
   const USER_DOMAIN = "sistema.local";
 
   // =========================
@@ -1209,20 +1208,18 @@ function generarNDPreview(){
   function getUserAndPass() {
     const user = (document.getElementById("authUser")?.value || "").trim().toLowerCase();
     const pass = (document.getElementById("authPass")?.value || "").trim();
-
-    // Muy básico: evita espacios raros
     const cleanUser = user.replace(/\s+/g, "");
-
     return { user: cleanUser, pass };
   }
 
   function userToEmail(user) {
-    // convierte usuario a un "email" interno
     return `${user}@${USER_DOMAIN}`;
   }
 
+  // =========================
+  // 3) AUTORIZACIÓN (allowlist)
+  // =========================
   async function isAuthorized() {
-    // Requiere que hayas creado la tabla public.autorizados y su policy SELECT
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.user) return false;
 
@@ -1239,6 +1236,17 @@ function generarNDPreview(){
     return !!data;
   }
 
+  // Guarda el “tag” del usuario (lo que irá donde antes decía cm088320)
+  function setUserTag(tag) {
+    const t = String(tag || "").trim();
+    if (!t) return;
+    window.currentUserTag = t;
+    localStorage.setItem("userTag", t);
+  }
+
+  // =========================
+  // 4) PROTEGER APP (Gate)
+  // =========================
   async function refreshGate() {
     const { data: { session } } = await supabase.auth.getSession();
     const logged = !!session?.user;
@@ -1250,7 +1258,13 @@ function generarNDPreview(){
       return;
     }
 
-    // Si está logueado, revisa autorización (lista blanca)
+    // Recuperar username desde email interno al recargar:
+    // ejemplo: vo2000194@sistema.local -> vo2000194
+    const email = session.user.email || "";
+    const username = email.includes("@") ? email.split("@")[0] : "";
+    if (username) setUserTag(username);
+
+    // Revisa autorización
     const ok = await isAuthorized();
     if (!ok) {
       await supabase.auth.signOut();
@@ -1265,7 +1279,7 @@ function generarNDPreview(){
   }
 
   // =========================
-  // 3) AUTH (Usuario + Pass)
+  // 5) AUTH (Usuario + Pass)
   // =========================
   window.authRegister = async () => {
     setMsg("");
@@ -1284,8 +1298,6 @@ function generarNDPreview(){
 
     if (error) return setMsg(error.message);
 
-    // Nota: si tienes confirmación de email activa, el usuario quedará “pendiente”.
-    // Recomendación: desactivar confirmación mientras desarrollas.
     setMsg("✅ Usuario creado. Ahora intenta entrar. (Si confirmación está activa, revisa el correo).");
   };
 
@@ -1303,6 +1315,9 @@ function generarNDPreview(){
     });
 
     if (error) return setMsg(error.message);
+
+    // ✅ Guardar tag del usuario que escribió (para usarlo en tus líneas)
+    setUserTag(user);
 
     if (window.showToast) window.showToast("success", "Bienvenido", "Sesión iniciada.");
     await refreshGate();
@@ -1328,7 +1343,7 @@ function generarNDPreview(){
   };
 
   // =========================
-  // 4) GUARDAR HISTORIAL
+  // 6) GUARDAR HISTORIAL
   // =========================
   async function guardarGeneracion(tipo, entradas, salida) {
     const { data: { session } } = await supabase.auth.getSession();
@@ -1346,7 +1361,7 @@ function generarNDPreview(){
   }
 
   // =========================
-  // 5) ENGANCHAR TUS GENERADORES
+  // 7) ENGANCHAR TUS GENERADORES
   // =========================
   const originalGenerarPlantilla = window.generarPlantilla;
   if (typeof originalGenerarPlantilla === "function") {
@@ -1374,9 +1389,13 @@ function generarNDPreview(){
   }
 
   // =========================
-  // 6) INIT
+  // 8) INIT
   // =========================
   document.addEventListener("DOMContentLoaded", async () => {
+    // Si el usuario refresca, intentamos cargar tag desde localStorage también
+    const saved = localStorage.getItem("userTag");
+    if (saved) window.currentUserTag = saved;
+
     await refreshGate();
     supabase.auth.onAuthStateChange(async () => {
       await refreshGate();
@@ -1385,4 +1404,5 @@ function generarNDPreview(){
 </script>
 </body>
 </html>
+
 
