@@ -1049,7 +1049,7 @@ function generarPlantilla(mode){
 
   for(const r of tuplasPrincipal){
     const raizUsar = (mode === "nc") ? raizDefault : r.raiz;
-    resultado += `${raizUsar},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${getUsuarioActual()},,02\n`;
+    resultado += `${raizUsar},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${getUsuarioActual(),,02\n`;
     count++;
   }
 
@@ -1066,7 +1066,7 @@ function generarPlantilla(mode){
 
     for(const r of tuplasExtra){
       const raizUsar = (mode === "nc") ? raizExtra : r.raiz; // NC usa raíz extra, ND usa raíz en fila
-      resultado += `${raizUsar},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${getUsuarioActual()},,02\n`;
+      resultado += `${raizUsar},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${getUsuarioActual(),,02\n`;
       count++;
     }
   });
@@ -1162,7 +1162,7 @@ function generarNDPreview(){
 
   const tuplasPrincipal = parseTablaND(textoPrincipal);
   for(const r of tuplasPrincipal){
-    resultado += `${r.raiz},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${getUsuarioActual()},,02\n`;
+    resultado += `${r.raiz},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${getUsuarioActual(),,02\n`;
     count++;
   }
 
@@ -1171,7 +1171,7 @@ function generarNDPreview(){
     const tablaExtra = rule.querySelector(".ruleTabla")?.value || "";
     const tuplasExtra = parseTablaND(tablaExtra);
     for(const r of tuplasExtra){
-      resultado += `${r.raiz},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${getUsuarioActual()},,02\n`;
+      resultado += `${r.raiz},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${getUsuarioActual(),,02\n`;
       count++;
     }
   });
@@ -1404,5 +1404,6 @@ function generarNDPreview(){
 </script>
 </body>
 </html>
+
 
 
