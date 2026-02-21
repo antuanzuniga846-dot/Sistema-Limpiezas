@@ -1134,13 +1134,23 @@
   }
 
   document.addEventListener("DOMContentLoaded", async () => {
-    const saved = localStorage.getItem("userTag");
-    if(saved) window.currentUserTag = saved;
+
+  const { data: { session } } = await supabase.auth.getSession();
+
+  // 👇 Si hay sesión activa y se recargó la página → cerrar sesión
+  if (session) {
+    await supabase.auth.signOut();
+  }
+
+  await refreshGate();
+
+  supabase.auth.onAuthStateChange(async () => {
     await refreshGate();
-    supabase.auth.onAuthStateChange(async () => await refreshGate());
   });
+});
 </script>
 
 </body>
 </html>
+
 
