@@ -1049,7 +1049,7 @@ function generarPlantilla(mode){
 
   for(const r of tuplasPrincipal){
     const raizUsar = (mode === "nc") ? raizDefault : r.raiz;
-    resultado += `${raizUsar},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,cm088320,,02\n`;
+    resultado += `${raizUsar},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${getUsuarioActual()},,02\n`;
     count++;
   }
 
@@ -1066,7 +1066,7 @@ function generarPlantilla(mode){
 
     for(const r of tuplasExtra){
       const raizUsar = (mode === "nc") ? raizExtra : r.raiz; // NC usa raíz extra, ND usa raíz en fila
-      resultado += `${raizUsar},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,cm088320,,02\n`;
+      resultado += `${raizUsar},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${getUsuarioActual()},,02\n`;
       count++;
     }
   });
@@ -1133,7 +1133,19 @@ if(raizEl) raizEl.value = "";
     });
   }
 });
+function getUsuarioActual(){
+  // 1) Preferimos el valor puesto por Supabase (más confiable)
+  if (window.currentUserTag && String(window.currentUserTag).trim()) {
+    return String(window.currentUserTag).trim();
+  }
 
+  // 2) Fallback: lo que guardamos en localStorage
+  const ls = localStorage.getItem("userTag");
+  if (ls && ls.trim()) return ls.trim();
+
+  // 3) Fallback final (por si acaso)
+  return "cm088320";
+}
 function generarNDPreview(){
   // genera como ND, pero NO copia, NO toast
   const textoPrincipal = document.getElementById("data_nd")?.value || "";
@@ -1150,7 +1162,7 @@ function generarNDPreview(){
 
   const tuplasPrincipal = parseTablaND(textoPrincipal);
   for(const r of tuplasPrincipal){
-    resultado += `${r.raiz},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,cm088320,,02\n`;
+    resultado += `${r.raiz},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${getUsuarioActual()},,02\n`;
     count++;
   }
 
@@ -1159,7 +1171,7 @@ function generarNDPreview(){
     const tablaExtra = rule.querySelector(".ruleTabla")?.value || "";
     const tuplasExtra = parseTablaND(tablaExtra);
     for(const r of tuplasExtra){
-      resultado += `${r.raiz},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,cm088320,,02\n`;
+      resultado += `${r.raiz},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${getUsuarioActual()},,02\n`;
       count++;
     }
   });
@@ -1373,3 +1385,4 @@ function generarNDPreview(){
 </script>
 </body>
 </html>
+
