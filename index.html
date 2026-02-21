@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sistema de Limpiezas | Ultra Dashboard</title>
+
+<style>
+  :root{
+    --bg1:#0b1220; --bg2:#0f2230;
+    --card: rgba(255,255,255,.06);
+    --card2: rgba(255,255,255,.08);
+    --stroke: rgba(255,255,255,.12);
+    --text:#e8f1ff;
+    --muted: rgba(232,241,255,.72);
+    --shadow: 0 18px 55px rgba(0,0,0,.55);
+
+    --accent1:#00d8f5;
+    --accent2:#0072ff;
+    --success:#22c55e;
+    --danger:#ef4444;
+    --warning:#f59e0b;
+
+    --radius: 18px;
+  }
+
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: var(--text);
+    background:
+      radial-gradient(1100px 600px at 20% 0%, rgba(0,216,245,.18), transparent 55%),
+      radial-gradient(1000px 700px at 90% 10%, rgba(0,114,255,.16), transparent 60%),
+      linear-gradient(180deg, var(--bg1), var(--bg2));
+    min-height:100vh;
+  }
+
+  /* ===== Layout ===== */
+  .app{
+    display:grid;
+    grid-template-columns: 260px 1fr;
+    min-height:100vh;
+  }
+
+  /* ===== Sidebar ===== */
+  .sidebar{
+    padding: 18px 14px;
+    border-right: 1px solid var(--stroke);
+    background: rgba(0,0,0,.18);
+    backdrop-filter: blur(10px);
+  }
+
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding: 10px 10px 16px;
+  }
+  .logo{
+    width:38px; height:38px;
+    border-radius: 14px;
+    display:grid; place-items:center;
+    background: linear-gradient(135deg, rgba(0,216,245,.8), rgba(0,114,255,.8));
+    box-shadow: 0 14px 30px rgba(0,114,255,.22);
+    font-weight:900;
+    color:#051019;
+  }
+  .brand h1{
+    margin:0;
+    font-size: 16px;
+    letter-spacing:.3px;
+  }
+  .brand p{
+    margin: 3px 0 0;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .nav{
+    margin-top: 8px;
+    display:grid;
+    gap: 8px;
+  }
+  .nav button{
+    width:100%;
+    border:none;
+    cursor:pointer;
+    padding: 12px 12px;
+    border-radius: 14px;
+    background: transparent;
+    color: var(--text);
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    font-weight: 700;
+    transition: .18s ease;
+    border: 1px solid transparent;
+  }
+  .nav button:hover{
+    background: rgba(255,255,255,.06);
+    border-color: rgba(255,255,255,.08);
+  }
+  .nav button.active{
+    background: linear-gradient(90deg, rgba(0,216,245,.18), rgba(0,114,255,.18));
+    border-color: rgba(255,255,255,.12);
+  }
+  .icon{
+    width: 28px; height: 28px;
+    border-radius: 10px;
+    display:grid; place-items:center;
+    background: rgba(255,255,255,.08);
+  }
+
+  .sideFooter{
+    margin-top: 16px;
+    padding: 12px 10px;
+    border-top: 1px solid var(--stroke);
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  /* ===== Main ===== */
+  .main{
+    padding: 18px;
+  }
+
+  .topbar{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--stroke);
+    border-radius: var(--radius);
+    background: rgba(255,255,255,.06);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 16px 45px rgba(0,0,0,.28);
+  }
+  .topbar h2{
+    margin:0;
+    font-size: 18px;
+  }
+  .topbar .sub{
+    margin-top: 5px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .meta{
+    text-align:right;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.5;
+    white-space: nowrap;
+  }
+
+  .content{
+    margin-top: 16px;
+  }
+
+  .page{ display:none; }
+  .page.active{ display:block; }
+
+  /* ===== Cards / Grid ===== */
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 14px;
+  }
+  .card{
+    grid-column: span 12;
+    border: 1px solid var(--stroke);
+    border-radius: var(--radius);
+    background: var(--card);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow);
+    overflow:hidden;
+  }
+  .cardHeader{
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--stroke);
+    background: linear-gradient(180deg, rgba(255,255,255,.06), transparent 70%);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap: 10px;
+  }
+  .cardHeader h3{
+    margin:0;
+    font-size: 14px;
+    letter-spacing:.2px;
+  }
+  .cardHeader span{
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .cardBody{ padding: 14px 16px 16px; }
+
+  .kpi{
+    grid-column: span 4;
+    padding: 14px 14px 16px;
+    border: 1px solid var(--stroke);
+    border-radius: var(--radius);
+    background: var(--card);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow);
+  }
+  .kpi .label{
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .kpi .value{
+    margin-top: 6px;
+    font-size: 22px;
+    font-weight: 900;
+  }
+  .kpi .hint{
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  @media (max-width: 980px){
+    .app{ grid-template-columns: 1fr; }
+    .sidebar{ position: sticky; top:0; z-index: 20; }
+    .kpi{ grid-column: span 12; }
+  }
+
+  /* ===== Form ===== */
+  .formGrid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 14px;
+  }
+  @media (max-width: 900px){
+    .formGrid{ grid-template-columns: 1fr; }
+  }
+
+  label{
+    display:block;
+    font-size: 12px;
+    font-weight: 800;
+    margin-bottom: 6px;
+    color: rgba(232,241,255,.92);
+  }
+  input, select, textarea{
+    width:100%;
+    padding: 12px 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,.14);
+    background: rgba(0,0,0,.22);
+    color: var(--text);
+    outline:none;
+    transition: .16s ease;
+    font-size: 14px;
+  }
+  input:focus, select:focus, textarea:focus{
+    border-color: rgba(0,216,245,.65);
+    box-shadow: 0 0 0 4px rgba(0,216,245,.18);
+  }
+  textarea{
+    resize: vertical;
+    min-height: 140px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  }
+  #resultado{
+    min-height: 180px;
+    background: rgba(255,255,255,.06);
+  }
+
+  .hintText{
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .actions{
+    margin-top: 12px;
+    display:flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items:center;
+    justify-content: space-between;
+  }
+  .btnRow{ display:flex; gap:10px; flex-wrap:wrap; }
+
+  button.btn{
+    border:none;
+    border-radius: 14px;
+    padding: 12px 14px;
+    cursor:pointer;
+    font-weight: 900;
+    transition: .18s ease;
+    user-select:none;
+    display:inline-flex;
+    align-items:center;
+    gap: 10px;
+  }
+  .btnPrimary{
+    color: #06131f;
+    background: linear-gradient(90deg, var(--accent1), var(--accent2));
+    box-shadow: 0 18px 35px rgba(0,114,255,.25);
+  }
+  .btnPrimary:hover{ transform: translateY(-1px); }
+  .btnPrimary:active{ transform: translateY(0px) scale(.99); }
+
+  .btnGhost{
+    color: var(--text);
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.12);
+  }
+  .btnGhost:hover{ background: rgba(255,255,255,.10); }
+
+  .statLine{
+    color: var(--muted);
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .pill{
+    display:inline-flex;
+    align-items:center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,.14);
+    background: rgba(255,255,255,.06);
+    color: rgba(232,241,255,.86);
+    font-size: 12px;
+  }
+  .dot{
+    width:6px;height:6px;border-radius:999px;background: var(--accent1);
+    display:inline-block;
+  }
+
+  /* ===== Rules ===== */
+  .rulesWrap{ display:grid; gap: 10px; margin-top: 10px; }
+  .ruleItem{
+    border:1px solid rgba(255,255,255,.14);
+    border-radius: 16px;
+    padding: 12px;
+    background: rgba(255,255,255,.06);
+  }
+  .ruleTop{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .ruleGrid{
+    display:grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  /* ===== Toast ===== */
+  .toast{
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    width: min(420px, calc(100% - 36px));
+    padding: 12px 14px;
+    border-radius: 16px;
+    color: #06131f;
+    box-shadow: 0 18px 50px rgba(0,0,0,.40);
+    transform: translateY(18px);
+    opacity: 0;
+    pointer-events: none;
+    transition: .22s ease;
+    z-index: 9999;
+    display:flex;
+    gap: 10px;
+    align-items:flex-start;
+    backdrop-filter: blur(10px);
+  }
+  .toast.show{ opacity:1; transform: translateY(0); }
+  .toast.success{ background: rgba(34,197,94,.92); }
+  .toast.error{ background: rgba(239,68,68,.92); }
+  .toast.warn{ background: rgba(245,158,11,.92); }
+
+  .toastIcon{
+    width: 26px;
+    height: 26px;
+    border-radius: 12px;
+    display:grid;
+    place-items:center;
+    background: rgba(255,255,255,.35);
+    font-weight: 900;
+    flex: 0 0 auto;
+    margin-top: 1px;
+  }
+  .toastText strong{ display:block; font-size: 13px; }
+  .toastText span{ display:block; font-size: 12px; margin-top: 2px; }
+
+</style>
+</head>
+
+<body>
+  <div id="authGate" style="position:fixed; inset:0; display:none; place-items:center; padding:18px; background:rgba(0,0,0,.55); backdrop-filter: blur(10px); z-index:99999;">
+  <div style="width:min(520px, 100%); border:1px solid rgba(255,255,255,.14); border-radius:18px; padding:16px; background:rgba(255,255,255,.08); box-shadow: 0 18px 55px rgba(0,0,0,.55);">
+    <h3 style="margin:0 0 6px;">Iniciar sesión</h3>
+    <p style="margin:0 0 14px; color:rgba(232,241,255,.72); font-size:12px;">Acceso al Sistema de Limpiezas</p>
+
+    <label>Email</label>
+    <input id="authEmail" type="email" placeholder="tu@email.com" />
+
+    <label style="margin-top:10px;">Contraseña</label>
+    <input id="authPass" type="password" placeholder="••••••••" />
+
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+      <button class="btn btnPrimary" type="button" onclick="authLogin()">Entrar</button>
+      <button class="btn btnGhost" type="button" onclick="authRegister()">Crear cuenta</button>
+      <button class="btn btnGhost" type="button" onclick="authLogout()">Salir</button>
+    </div>
+
+    <div style="margin-top:10px; color:rgba(232,241,255,.72); font-size:12px;" id="authMsg"></div>
+  </div>
+</div>
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">📊</div>
+      <div>
+        <h1>Sistema de Limpiezas</h1>
+        <p>Ultra Dashboard</p>
+      </div>
+    </div>
+
+    <div class="nav">
+  <button type="button" class="navBtn active" data-page="home" onclick="go('home')">
+    <span class="icon">🏠</span> Inicio
+  </button>
+
+  <button type="button" class="navBtn" data-page="gen-nc" onclick="go('gen-nc')">
+    <span class="icon">🧾</span> Generador NC
+  </button>
+
+  <button type="button" class="navBtn" data-page="gen-nd" onclick="go('gen-nd')">
+    <span class="icon">📄</span> Generador ND
+  </button>
+
+    <button type="button" class="navBtn" data-page="gen-acometida" onclick="go('gen-acometida')">
+    <span class="icon">📄</span> Acometidas
+  </button>
+
+  <button type="button" class="navBtn" data-page="help" onclick="go('help')">
+    <span class="icon">❓</span> Ayuda
+  </button>
+</div>
+
+    <div class="sideFooter">
+      <div class="pill"><span class="dot"></span>Estado: Listo</div>
+      <div style="margin-top:10px;">Tip: pega tablas de Excel/SAP tal cual.</div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h2 id="pageTitle">Inicio</h2>
+        <div class="sub" id="pageSub">Panel de control y accesos rápidos.</div>
+      </div>
+      <div class="meta">
+        <div id="metaFecha">Fecha: --/--/----</div>
+        <div id="metaHora">Hora: --:--</div>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- HOME -->
+      <section class="page active" id="page-home">
+        <div class="grid">
+          <div class="kpi">
+            <div class="label">Registros generados</div>
+            <div class="value" id="kpiTotal">0</div>
+            <div class="hint">Total de líneas generadas en la última ejecución.</div>
+          </div>
+
+          <div class="kpi">
+            <div class="label">Raíces extras</div>
+            <div class="value" id="kpiExtras">0</div>
+            <div class="hint">Cantidad de reglas extras activas.</div>
+          </div>
+
+          <div class="kpi">
+            <div class="label">Estado</div>
+            <div class="value">OK</div>
+            <div class="hint">Todo listo para generar y copiar.</div>
+          </div>
+
+          <div class="card">
+            <div class="cardHeader">
+              <h3>Accesos rápidos</h3>
+              <span>Ir directo a tareas</span>
+            </div>
+            <div class="cardBody">
+              <div class="btnRow">
+                <button class="btn btnPrimary" onclick="go('gen-nc')">⚡ Ir al Generador NC</button>
+                <button class="btn btnPrimary" onclick="go('gen-nd')">⚡ Ir al Generador ND</button>
+                <button class="btn btnPrimary" onclick="go('gen-acometida')">⚡ Ir al Generador Acometida</button>
+
+                <button class="btn btnGhost" onclick="seedDemo()">🧪 Cargar demo</button>
+              </div>
+              <div class="hintText" style="margin-top:10px;">
+                * “Cargar demo” llena un ejemplo para que pruebes la generación.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+  <!-- GENERATOR ACOMETIDA-->
+
+        <section class="page" id="page-gen-acometida">
+  <div class="card">
+    <div class="cardHeader">
+      <h3>Generador Acometida</h3>
+      <span>Formato Acometida</span>
+    </div>
+
+    <div class="cardBody">
+      <div class="formGrid">
+        <div style="grid-column: 1 / -1;">
+          <label>Acometida Completa</label>
+          <textarea id="data_acometida"></textarea>
+        </div>
+
+        <div style="grid-column: 1 / -1;">
+          <div class="ruleTop"> 
+          </div>
+          <div class="rulesWrap" id="rules_acometida"></div>
+        </div>
+
+        <div style="grid-column: 1 / -1;">
+          <label>Resultado (Acometida)</label>
+          <textarea id="resultado_acometida" readonly></textarea>
+        </div>
+      </div>
+
+      <div class="actions">
+        <div class="btnRow">
+          <button class="btn btnPrimary" onclick="generarAcometidaUltra()">⚡ Generar y Copiar</button>
+          <button class="btn btnGhost" onclick="copiarResultado('acometida')">📋 Copiar</button>
+          <button class="btn btnGhost" onclick="limpiarTodo('acometida')">🧹 Limpiar</button>
+        </div>
+        <div class="statLine">
+          <span class="pill"><span class="dot"></span>Registros: <b id="count_acometida">0</b></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+      <!-- GENERATOR NC-->
+
+      <section class="page" id="page-gen-nc">
+  <div class="card">
+    <div class="cardHeader">
+      <h3>Generador NC</h3>
+      <span>CM,908,... (Recuperación)</span>
+    </div>
+
+    <div class="cardBody">
+      <div class="formGrid">
+        <div>
+          <label>Raíz principal (NC)</label>
+          <input id="raiz_nc" type="text" placeholder="Ej: 1.1180330">
+        </div>
+
+        <div>
+          <label>Tipo</label>
+          <input value="NC" disabled>
+          <div class="hintText">Este generador siempre crea NC.</div>
+        </div>
+
+        <div style="grid-column: 1 / -1;">
+          <label>Tabla principal (NC)</label>
+          <textarea id="data_nc"></textarea>
+        </div>
+
+        <div style="grid-column: 1 / -1;">
+          <div class="ruleTop">
+            <div>
+              <label style="margin:0;">Raíces extras (NC)</label>
+              <div class="hintText">Cada raíz extra trae su propia tabla completa.</div>
+            </div>
+            <button class="btn btnGhost" onclick="agregarRegla('nc')">➕ Agregar raíz extra</button>
+          </div>
+          <div class="rulesWrap" id="rules_nc"></div>
+        </div>
+
+        <div style="grid-column: 1 / -1;">
+          <label>Resultado (NC)</label>
+          <textarea id="resultado_nc" readonly></textarea>
+        </div>
+      </div>
+
+      <div class="actions">
+        <div class="btnRow">
+          <button class="btn btnPrimary" onclick="generarPlantilla('nc')">⚡ Generar y Copiar</button>
+          <button class="btn btnGhost" onclick="copiarResultado('nc')">📋 Copiar</button>
+          <button class="btn btnGhost" onclick="limpiarTodo('nc')">🧹 Limpiar</button>
+        </div>
+        <div class="statLine">
+          <span class="pill"><span class="dot"></span>Registros: <b id="count_nc">0</b></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- GENERATOR ND -->
+ <section class="page" id="page-gen-nd">
+  <div class="card">
+    <div class="cardHeader">
+      <h3>Generador ND</h3>
+      <span>IN,911,... (Reversión)</span>
+    </div>
+
+    <div class="cardBody">
+      <div class="formGrid">
+        <div>
+          <label>Tipo</label>
+          <input value="ND" disabled>
+          <div class="hintText">Este generador siempre crea ND.</div>
+        </div>
+
+        <div style="grid-column: 1 / -1;">
+          <label>Tabla principal (ND)</label>
+          <textarea id="data_nd"></textarea>
+        </div>
+
+        <div style="grid-column: 1 / -1;">
+          <div class="ruleTop">
+            <div>
+              <label style="margin:0;">Raíces extras (ND)</label>
+              <div class="hintText">Cada raíz extra trae su propia tabla completa.</div>
+            </div>
+            <button class="btn btnGhost" onclick="agregarRegla('nd')">➕ Agregar raíz extra</button>
+          </div>
+          <div class="rulesWrap" id="rules_nd"></div>
+        </div>
+
+        <div style="grid-column: 1 / -1;">
+          <label>Resultado (ND)</label>
+          <textarea id="resultado_nd" readonly></textarea>
+        </div>
+      </div>
+
+      <div class="actions">
+        <div class="btnRow">
+          <button class="btn btnPrimary" onclick="generarPlantilla('nd')">⚡ Generar y Copiar</button>
+          <button class="btn btnGhost" onclick="copiarResultado('nd')">📋 Copiar</button>
+          <button class="btn btnGhost" onclick="limpiarTodo('nd')">🧹 Limpiar</button>
+        </div>
+        <div class="statLine">
+          <span class="pill"><span class="dot"></span>Registros: <b id="count_nd">0</b></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+      <!-- REPORTS -->
+      <section class="page" id="page-reports">
+        <div class="card">
+          <div class="cardHeader">
+            <h3>Reversión.</h3>
+            <span>Resumen rápido</span>
+          </div>
+          <div class="cardBody">
+            <p style="color:var(--muted); margin-top:0;">
+              Aquí puedes poner exportación, historial o conteos. Si quieres, te agrego:
+              <b>historial en pantalla</b> y <b>export CSV</b>.
+            </p>
+            <div class="pill"><span class="dot"></span>Último total: <b id="repTotal">0</b></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- HELP -->
+      <section class="page" id="page-help">
+        <div class="card">
+          <div class="cardHeader">
+            <h3>Ayuda</h3>
+            <span>Cómo pegar y generar</span>
+          </div>
+          <div class="cardBody" style="color:var(--muted);">
+            <ul>
+              <li>Pega la tabla con encabezados: <b>Factura</b>, <b>Billing Account</b>, <b>Monto a Pagar</b>.</li>
+              <li>Si usas raíces extras: agrega una regla y pega una tabla completa ahí.</li>
+              <li>El resultado sale sin “principal/extra”, todo seguido.</li>
+              <li>Si no copia, abre en <b>https</b> o <b>localhost</b>.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast" aria-live="polite" aria-atomic="true">
+  <div class="toastIcon" id="toastIcon">✓</div>
+  <div class="toastText">
+    <strong id="toastTitle">Listo</strong>
+    <span id="toastMsg">Acción completada.</span>
+  </div>
+</div>
+
+<script>
+  // ===== NAV =====
+  const navBtns = document.querySelectorAll(".navBtn");
+  function go(page){
+  // activar botón
+  document.querySelectorAll(".navBtn").forEach(b => {
+    b.classList.toggle("active", b.dataset.page === page);
+  });
+
+  // mostrar sección
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  const target = document.getElementById("page-" + page);
+  if(!target){
+    console.warn("No existe la página:", "page-" + page);
+    return;
+  }
+  target.classList.add("active");
+
+  // títulos
+  const title = document.getElementById("pageTitle");
+  const sub = document.getElementById("pageSub");
+
+  const map = {
+    home: ["Inicio", "Panel de control y accesos rápidos."],
+    "gen-nc": ["Generador NC", "Genera el formato NC (IN,911,...)."],
+    "gen-nd": ["Generador ND", "Genera el formato ND (CM,908,...)."],
+    "gen-acometida": ["Generador Acometida", "Genera formatos para acometidas."],
+    reports: ["Reportes", "Resumen y métricas (expandible)."],
+    help: ["Ayuda", "Guía rápida de uso."]
+  };
+
+  if(map[page]){
+    title.textContent = map[page][0];
+    sub.textContent = map[page][1];
+  }
+}
+
+// listeners (IMPORTANTE: que se ejecute al cargar)
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".navBtn").forEach(b => {
+    b.addEventListener("click", () => go(b.dataset.page));
+  });
+
+  // página inicial
+  go("home");
+});
+  // ===== Meta fecha/hora =====
+  function actualizarMeta(){
+    const f = document.getElementById("metaFecha");
+    const h = document.getElementById("metaHora");
+    if(!f || !h) return;
+
+    const ahora = new Date();
+    const dia = String(ahora.getDate()).padStart(2,'0');
+    const mes = String(ahora.getMonth()+1).padStart(2,'0');
+    const anio = ahora.getFullYear();
+
+    let hora = ahora.getHours();
+    const min = String(ahora.getMinutes()).padStart(2,'0');
+    const ampm = hora >= 12 ? "p.m." : "a.m.";
+    hora = hora % 12; hora = hora ? hora : 12;
+
+    f.textContent = `Fecha: ${dia}/${mes}/${anio}`;
+    h.textContent = `Hora: ${hora}:${min} ${ampm}`;
+  }
+  document.addEventListener("DOMContentLoaded", () => {
+    actualizarMeta();
+    setInterval(actualizarMeta, 10000);
+  });
+
+  // ===== Toast =====
+  let toastTimer = null;
+  function showToast(type, title, msg){
+    const toast = document.getElementById("toast");
+    const icon = document.getElementById("toastIcon");
+    const t = document.getElementById("toastTitle");
+    const m = document.getElementById("toastMsg");
+    if(!toast) return;
+
+    toast.classList.remove("success","error","warn");
+    toast.classList.add(type);
+
+    icon.textContent = (type === "success") ? "✓" : (type === "warn") ? "!" : "×";
+    t.textContent = title;
+    m.textContent = msg;
+
+    toast.classList.remove("show");
+    void toast.offsetWidth;
+    toast.classList.add("show");
+
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=> toast.classList.remove("show"), 2800);
+  }
+  //===== Generador para Nc =====//
+function parseTablaNC(texto){
+  const lines = (texto || "").trim().split("\n").filter(l => l.trim());
+  if (lines.length < 2) return [];
+
+  const splitRow = (row) => row.trim().split(/\t|\s{2,}/).filter(Boolean);
+  const header = splitRow(lines[0]).map(h => h.toLowerCase());
+
+  const idxFactura = header.findIndex(h => h.includes("factura"));
+  const idxBilling = header.findIndex(h => h.includes("billing"));
+  let idxMonto = header.findIndex(h => h.includes("monto") && h.includes("pagar"));
+  if (idxMonto === -1) idxMonto = header.findIndex(h => h.includes("monto") && h.includes("factura"));
+
+  if (idxFactura === -1 || idxBilling === -1 || idxMonto === -1) return [];
+
+  const out = [];
+  for (let i = 1; i < lines.length; i++) {
+    const cols = splitRow(lines[i]);
+    if (cols.length <= Math.max(idxFactura, idxBilling, idxMonto)) continue;
+
+    const factura = cols[idxFactura].trim();
+    const billingid = cols[idxBilling].trim();
+    const monto = normalizarMonto(cols[idxMonto]);
+
+    if (!factura || !billingid || !monto) continue;
+    out.push({ factura, billingid, monto });
+  }
+  return out;
+}
+
+  // ===== Normalizar monto =====
+  function normalizarMonto(str){
+    let s = String(str || "").replace(/[₡\s]/g,"").trim();
+    if(!s) return "";
+
+    const lastComma = s.lastIndexOf(",");
+    const lastDot = s.lastIndexOf(".");
+
+    if(lastComma !== -1 && lastDot !== -1){
+      if(lastComma > lastDot){
+        s = s.replace(/\./g,"").replace(",",".");
+      } else {
+        s = s.replace(/,/g,"");
+      }
+    } else if(lastComma !== -1 && lastDot === -1){
+      const dec = s.split(",").pop();
+      if(dec.length <= 2) s = s.replace(",",".");
+      else s = s.replace(/,/g,"");
+    } else {
+      s = s.replace(/,/g,"");
+    }
+
+    return s.replace(/[^0-9.]/g,"");
+  }
+
+  // ===== Generador Acometida =====//
+ function generarAcometidaUltra(){
+  const texto = document.getElementById("data_acometida").value || "";
+  const lineas = texto.split("\n").map(l => l.trim()).filter(Boolean);
+
+  const cedulasVistas = new Set();
+  const salida = [];
+
+  for (const linea of lineas){
+    // normaliza espacios
+    const limpio = linea.replace(/\s+/g, " ");
+
+    // primer token = cédula, resto = nombre
+    const partes = limpio.split(" ");
+    if (partes.length < 2) continue;
+
+    const cedula = partes.shift();
+    const nombre = partes.join(" ").trim();
+
+    // evita duplicados por cédula
+    if (cedulasVistas.has(cedula)) continue;
+    cedulasVistas.add(cedula);
+
+    salida.push(`${cedula}: ${nombre}:`);
+  }
+
+  const resultado = salida.join("\n");
+  document.getElementById("resultado_acometida").value = resultado;
+
+  // copiar automático (sin alert)
+  navigator.clipboard.writeText(resultado).catch(()=>{});
+}
+//===== Generador para Nd =====//
+function parseTablaND(texto){
+  const lines = (texto || "").trim().split("\n").filter(l => l.trim());
+  if (lines.length === 0) return [];
+
+  const splitRow = (row) => row.trim().split(/\t|\s{2,}|\s+/).filter(Boolean);
+
+  // Formato ND esperado por fila:
+  // raiz  billing  monto  factura
+  const IDX_RAIZ    = 0;
+  const IDX_BILLING = 1;
+  const IDX_MONTO   = 2;
+  const IDX_FACTURA = 3;
+
+  // si trae encabezado, sáltalo
+  let start = 0;
+  const first = splitRow(lines[0])[0]?.toLowerCase() || "";
+  if (first.includes("raiz") || first.includes("factura")) start = 1;
+
+  const out = [];
+  for(let i = start; i < lines.length; i++){
+    const cols = splitRow(lines[i]);
+    if(cols.length <= Math.max(IDX_RAIZ, IDX_BILLING, IDX_MONTO, IDX_FACTURA)) continue;
+
+    const raiz = cols[IDX_RAIZ].trim();
+    const billingid = cols[IDX_BILLING].trim();
+    const monto = normalizarMonto(cols[IDX_MONTO]);
+    const factura = cols[IDX_FACTURA].trim();
+
+    if(!raiz || !billingid || !monto || !factura) continue;
+
+    out.push({ raiz, billingid, monto, factura });
+  }
+  return out;
+}
+  // ===== Parse con header (Factura / Billing Account / Monto a Pagar) =====
+  function parseConHeader(texto){
+    const lines = (texto || "").trim().split("\n").filter(l => l.trim());
+    if(lines.length < 2) return null;
+
+    const splitRow = (row) => row.trim().split(/\t|\s{2,}/).filter(Boolean);
+    const header = splitRow(lines[0]).map(h => h.toLowerCase());
+
+    const idxFactura = header.findIndex(h => h.includes("factura"));
+    const idxBilling = header.findIndex(h => h.includes("billing"));
+    let idxMonto = header.findIndex(h => h.includes("monto") && h.includes("pagar"));
+    if (idxMonto === -1) idxMonto = header.findIndex(h => h.includes("monto") && h.includes("factura"));
+
+    if(idxFactura === -1 || idxBilling === -1 || idxMonto === -1) return null;
+
+    const out = [];
+    for(let i=1;i<lines.length;i++){
+      const cols = splitRow(lines[i]);
+      if(cols.length <= Math.max(idxFactura, idxBilling, idxMonto)) continue;
+
+      const factura = cols[idxFactura].trim();
+      const billingid = cols[idxBilling].trim();
+      const monto = normalizarMonto(cols[idxMonto]);
+
+      if(!factura || !billingid || !monto) continue;
+      out.push({factura, billingid, monto});
+    }
+    return out;
+  }
+
+  // ===== Parse inteligente (fallback) =====
+  function parseTablaATuplas(texto){
+    const byHeader = parseConHeader(texto);
+    if(byHeader) return byHeader;
+
+    const rows = (texto || "").trim().split("\n");
+    const out = [];
+
+    for(const linea of rows){
+      if(!linea.trim()) continue;
+      const cols = linea.trim().split(/\t|\s{2,}|\s+/).filter(Boolean);
+
+      const factura = cols.find(c => /^\d{15,}$/.test(c));
+      const billingid = cols.find(c => /^\d{6,10}$/.test(c));
+
+      let montoRaw = cols.find(c => /[0-9]/.test(c) && /[.,]/.test(c));
+      if(!montoRaw){
+        const numericLike = cols.filter(c => /^[₡\s]*[\d.,]+$/.test(c));
+        montoRaw = numericLike.length ? numericLike[numericLike.length - 1] : "";
+      }
+      const monto = normalizarMonto(montoRaw);
+
+      if(!factura || !billingid || !monto) continue;
+      out.push({factura, billingid, monto});
+    }
+    return out;
+  }
+
+  // ===== Reglas extras =====
+  function agregarRegla(mode){
+  const rules = document.getElementById(`rules_${mode}`);
+  const item = document.createElement("div");
+  item.className = "ruleItem";
+
+  item.innerHTML = `
+    <div class="ruleTop">
+      <div style="flex:1;">
+        <label style="margin:0 0 6px;">Raíz extra</label>
+        <input class="ruleRaiz" type="text" placeholder="Ej: 1.2270038">
+      </div>
+      <button class="btn btnGhost" type="button" onclick="eliminarRegla(this)">🗑️ Quitar</button>
+    </div>
+
+    <div class="ruleGrid">
+      <div>
+        <label style="margin:0 0 6px;">Tabla de esta raíz</label>
+        <textarea class="ruleTabla" rows="6" placeholder="Pega aquí la tabla completa..."></textarea>
+        <div class="hintText">Debe traer factura, billing account y monto.</div>
+      </div>
+    </div>
+  `;
+  rules.appendChild(item);
+}
+
+function eliminarRegla(btn){
+  const item = btn.closest(".ruleItem");
+  if(item) item.remove();
+}
+
+function generarPlantilla(mode){
+  // NC sí usa raíz fija, ND NO (la raíz viene en cada fila)
+  const raizDefault = (mode === "nc")
+    ? document.getElementById(`raiz_${mode}`).value.trim()
+    : "";
+
+  const textoPrincipal = document.getElementById(`data_${mode}`).value;
+
+  if(mode === "nc" && !raizDefault){
+    showToast("warn","Falta raíz","Escribe la raíz principal.");
+    return;
+  }
+
+  // Fecha (ESTO FALTABA)
+  const ahora = new Date();
+  const dia = String(ahora.getDate()).padStart(2,'0');
+  const mes = String(ahora.getMonth()+1).padStart(2,'0');
+  const anio = ahora.getFullYear();
+  const fecha = `${dia}/${mes}/${anio}`;
+
+  const tipo = (mode === "nc") ? "NC" : "ND";
+  const descripcion = (mode === "nc")
+    ? "CM,908,200_Recuperacion de Clientes Proyecto de Ventas Móvil"
+    : "IN,911,200_Se aplico reversión por proyecto de Venta Servicio Móvil Limpieza de Saldos";
+
+  let resultado = "";
+  let count = 0;
+
+  // ===== Principal =====
+  const tuplasPrincipal = (mode === "nc")
+    ? parseTablaNC(textoPrincipal)
+    : parseTablaND(textoPrincipal);
+
+  for(const r of tuplasPrincipal){
+    const raizUsar = (mode === "nc") ? raizDefault : r.raiz;
+    resultado += `${raizUsar},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,cm088320,,02\n`;
+    count++;
+  }
+
+  // ===== Extras =====
+  const rules = document.querySelectorAll(`#rules_${mode} .ruleItem`);
+  rules.forEach(rule => {
+    const raizExtra = rule.querySelector(".ruleRaiz")?.value.trim(); // solo NC
+    const tablaExtra = rule.querySelector(".ruleTabla")?.value || "";
+    if(mode === "nc" && !raizExtra) return;
+
+    const tuplasExtra = (mode === "nc")
+      ? parseTablaNC(tablaExtra)
+      : parseTablaND(tablaExtra);
+
+    for(const r of tuplasExtra){
+      const raizUsar = (mode === "nc") ? raizExtra : r.raiz; // NC usa raíz extra, ND usa raíz en fila
+      resultado += `${raizUsar},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,cm088320,,02\n`;
+      count++;
+    }
+  });
+
+  document.getElementById(`resultado_${mode}`).value = resultado;
+  document.getElementById(`count_${mode}`).textContent = String(count);
+
+  if(count === 0){
+    showToast("error","Sin datos","Pega tablas válidas.");
+    return;
+  }
+
+  navigator.clipboard.writeText(resultado).then(() => {
+    showToast("success","Generado y copiado",`Tipo ${tipo} | Total: ${count}`);
+  }).catch(() => {
+    showToast("error","No se pudo copiar","Usa https o localhost.");
+  });
+}
+
+function limpiarTodo(mode){
+  const raizEl = document.getElementById(`raiz_${mode}`);
+if(raizEl) raizEl.value = "";
+  document.getElementById(`data_${mode}`).value = "";
+  document.getElementById(`resultado_${mode}`).value = "";
+  document.getElementById(`count_${mode}`).textContent = "0";
+  const rules = document.getElementById(`rules_${mode}`);
+  if(rules) rules.innerHTML = "";
+  showToast("success","Limpio",`Se borró el generador ${mode.toUpperCase()}.`);
+}
+
+  function seedDemo(){
+    go("generator");
+    document.getElementById("raiz").value = "1.1180330";
+    document.getElementById("tipo").value = "NC";
+
+    document.getElementById("data").value =
+`Factura\tNúmero de documento\tBilling Account\tFecha de factura\tFecha de Vencimiento\tFactura Vencida\tDías de Vencimiento\tMonto de Factura\tMonto a Pagar\tTipo
+00100001010030880311\t218515770\t2213714\t22/06/2023\t07/07/2023\tVencido\t959\t₡ 5555.69\t₡ 5555.00\tIN - 5
+00100001010030267640\t215110324\t2213714\t22/05/2023\t07/06/2023\tVencido\t989\t₡ 10764.16\t₡ 10764.00\tIN - 5`;
+
+    agregarRegla("1.1180332",
+`Factura\tNúmero de documento\tBilling Account\tFecha de factura\tFecha de Vencimiento\tFactura Vencida\tDías de Vencimiento\tMonto de Factura\tMonto a Pagar\tTipo
+00100001010099999999\t218515770\t9999999\t22/06/2023\t07/07/2023\tVencido\t959\t₡ 3000.00\t₡ 3000.00\tIN - 5`);
+    showToast("success","Demo cargada","Ahora presiona “Generar y Copiar”.");
+  }
+
+  // init KPIs
+  document.addEventListener("DOMContentLoaded", () => {
+  const nd = document.getElementById("data_nd");
+  if(nd){
+    nd.addEventListener("input", () => {
+      // generar sin copiar para evitar permisos de portapapeles en cada tecleo
+      generarNDPreview();
+    });
+  }
+
+  // También para tablas extra ND (event delegation)
+  const rulesND = document.getElementById("rules_nd");
+  if(rulesND){
+    rulesND.addEventListener("input", (e) => {
+      if(e.target && e.target.classList.contains("ruleTabla")){
+        generarNDPreview();
+      }
+    });
+  }
+});
+
+function generarNDPreview(){
+  // genera como ND, pero NO copia, NO toast
+  const textoPrincipal = document.getElementById("data_nd")?.value || "";
+  const ahora = new Date();
+  const dia = String(ahora.getDate()).padStart(2,'0');
+  const mes = String(ahora.getMonth()+1).padStart(2,'0');
+  const anio = ahora.getFullYear();
+  const fecha = `${dia}/${mes}/${anio}`;
+
+  const descripcion = "IN,911,200_Se aplico reversión por proyecto de Venta Servicio Móvil Limpieza de Saldos";
+
+  let resultado = "";
+  let count = 0;
+
+  const tuplasPrincipal = parseTablaND(textoPrincipal);
+  for(const r of tuplasPrincipal){
+    resultado += `${r.raiz},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,cm088320,,02\n`;
+    count++;
+  }
+
+  const rules = document.querySelectorAll(`#rules_nd .ruleItem`);
+  rules.forEach(rule => {
+    const tablaExtra = rule.querySelector(".ruleTabla")?.value || "";
+    const tuplasExtra = parseTablaND(tablaExtra);
+    for(const r of tuplasExtra){
+      resultado += `${r.raiz},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,cm088320,,02\n`;
+      count++;
+    }
+  });
+
+  const out = document.getElementById("resultado_nd");
+  const c = document.getElementById("count_nd");
+  if(out) out.value = resultado;
+  if(c) c.textContent = String(count);
+}
+</script>
+<script type="module">
+  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+  const SUPABASE_URL = "https://matvtyrmzytbdznlmfns.supabase.co";
+  const SUPABASE_ANON = "sb_publishable_5QA7FGPRirqXNJ_v0xbJyw_h5D8XLs5";
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+  const gate = document.getElementById("authGate");
+  const msg = document.getElementById("authMsg");
+  const setMsg = (t) => { if(msg) msg.textContent = t || ""; };
+
+  async function refreshGate(){
+    const { data: { session } } = await supabase.auth.getSession();
+    gate.style.display = session?.user ? "none" : "grid";
+  }
+
+  window.authRegister = async () => {
+    const email = document.getElementById("authEmail").value.trim();
+    const pass  = document.getElementById("authPass").value.trim();
+    setMsg("");
+    if(!email || !pass) return setMsg("Falta email o contraseña.");
+
+    const { error } = await supabase.auth.signUp({ email, password: pass });
+    if(error) return setMsg(error.message);
+
+    setMsg("Cuenta creada. Ahora inicia sesión.");
+  };
+
+  window.authLogin = async () => {
+    const email = document.getElementById("authEmail").value.trim();
+    const pass  = document.getElementById("authPass").value.trim();
+    setMsg("");
+    if(!email || !pass) return setMsg("Falta email o contraseña.");
+
+    const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
+    if(error) return setMsg(error.message);
+
+    if (window.showToast) window.showToast("success","Bienvenido","Sesión iniciada.");
+    await refreshGate();
+  };
+
+  window.authLogout = async () => {
+    await supabase.auth.signOut();
+    if (window.showToast) window.showToast("warn","Sesión cerrada","Vuelve a entrar.");
+    await refreshGate();
+  };
+
+  // Guardar historial (lo usaremos desde tus generadores)
+  async function guardarGeneracion(tipo, entradas, salida){
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user;
+    if(!user) return;
+
+    const { error } = await supabase
+      .from("generaciones")
+      .insert([{ user_id: user.id, tipo, entradas, salida }]);
+
+    if(error){
+      console.error(error);
+      if (window.showToast) window.showToast("error","No se guardó", error.message);
+    }
+  }
+
+  // Enganchar tus funciones actuales sin reescribirlas
+  const originalGenerarPlantilla = window.generarPlantilla;
+  window.generarPlantilla = async (mode) => {
+    originalGenerarPlantilla(mode);
+
+    const tipo = (mode === "nc") ? "NC" : "ND";
+    const salida = document.getElementById(`resultado_${mode}`)?.value || "";
+    const entradas = document.getElementById(`data_${mode}`)?.value || "";
+
+    if(salida.trim()) await guardarGeneracion(tipo, entradas, salida);
+  };
+
+  const originalAcometida = window.generarAcometidaUltra;
+  window.generarAcometidaUltra = async () => {
+    originalAcometida();
+
+    const salida = document.getElementById("resultado_acometida")?.value || "";
+    const entradas = document.getElementById("data_acometida")?.value || "";
+
+    if(salida.trim()) await guardarGeneracion("ACOMETIDA", entradas, salida);
+  };
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    await refreshGate();
+    supabase.auth.onAuthStateChange(async () => {
+      await refreshGate();
+    });
+  });
+</script>
+</body>
+</html>
