@@ -36,14 +36,12 @@
     min-height:100vh;
   }
 
-  /* ===== Layout ===== */
   .app{
     display:grid;
     grid-template-columns: 260px 1fr;
     min-height:100vh;
   }
 
-  /* ===== Sidebar ===== */
   .sidebar{
     padding: 18px 14px;
     border-right: 1px solid var(--stroke);
@@ -120,10 +118,7 @@
     font-size: 12px;
   }
 
-  /* ===== Main ===== */
-  .main{
-    padding: 18px;
-  }
+  .main{ padding: 18px; }
 
   .topbar{
     display:flex;
@@ -137,15 +132,8 @@
     backdrop-filter: blur(10px);
     box-shadow: 0 16px 45px rgba(0,0,0,.28);
   }
-  .topbar h2{
-    margin:0;
-    font-size: 18px;
-  }
-  .topbar .sub{
-    margin-top: 5px;
-    color: var(--muted);
-    font-size: 12px;
-  }
+  .topbar h2{ margin:0; font-size: 18px; }
+  .topbar .sub{ margin-top: 5px; color: var(--muted); font-size: 12px; }
 
   .meta{
     text-align:right;
@@ -155,14 +143,10 @@
     white-space: nowrap;
   }
 
-  .content{
-    margin-top: 16px;
-  }
-
+  .content{ margin-top: 16px; }
   .page{ display:none; }
   .page.active{ display:block; }
 
-  /* ===== Cards / Grid ===== */
   .grid{
     display:grid;
     grid-template-columns: repeat(12, 1fr);
@@ -186,15 +170,8 @@
     align-items:center;
     gap: 10px;
   }
-  .cardHeader h3{
-    margin:0;
-    font-size: 14px;
-    letter-spacing:.2px;
-  }
-  .cardHeader span{
-    color: var(--muted);
-    font-size: 12px;
-  }
+  .cardHeader h3{ margin:0; font-size: 14px; letter-spacing:.2px; }
+  .cardHeader span{ color: var(--muted); font-size: 12px; }
   .cardBody{ padding: 14px 16px 16px; }
 
   .kpi{
@@ -206,20 +183,9 @@
     backdrop-filter: blur(10px);
     box-shadow: var(--shadow);
   }
-  .kpi .label{
-    color: var(--muted);
-    font-size: 12px;
-  }
-  .kpi .value{
-    margin-top: 6px;
-    font-size: 22px;
-    font-weight: 900;
-  }
-  .kpi .hint{
-    margin-top: 8px;
-    color: var(--muted);
-    font-size: 12px;
-  }
+  .kpi .label{ color: var(--muted); font-size: 12px; }
+  .kpi .value{ margin-top: 6px; font-size: 22px; font-weight: 900; }
+  .kpi .hint{ margin-top: 8px; color: var(--muted); font-size: 12px; }
 
   @media (max-width: 980px){
     .app{ grid-template-columns: 1fr; }
@@ -227,15 +193,12 @@
     .kpi{ grid-column: span 12; }
   }
 
-  /* ===== Form ===== */
   .formGrid{
     display:grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px 14px;
   }
-  @media (max-width: 900px){
-    .formGrid{ grid-template-columns: 1fr; }
-  }
+  @media (max-width: 900px){ .formGrid{ grid-template-columns: 1fr; } }
 
   label{
     display:block;
@@ -264,16 +227,8 @@
     min-height: 140px;
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
   }
-  #resultado{
-    min-height: 180px;
-    background: rgba(255,255,255,.06);
-  }
 
-  .hintText{
-    margin-top: 8px;
-    font-size: 12px;
-    color: var(--muted);
-  }
+  .hintText{ margin-top: 8px; font-size: 12px; color: var(--muted); }
 
   .actions{
     margin-top: 12px;
@@ -312,11 +267,7 @@
   }
   .btnGhost:hover{ background: rgba(255,255,255,.10); }
 
-  .statLine{
-    color: var(--muted);
-    font-size: 12px;
-    white-space: nowrap;
-  }
+  .statLine{ color: var(--muted); font-size: 12px; white-space: nowrap; }
   .pill{
     display:inline-flex;
     align-items:center;
@@ -333,7 +284,6 @@
     display:inline-block;
   }
 
-  /* ===== Rules ===== */
   .rulesWrap{ display:grid; gap: 10px; margin-top: 10px; }
   .ruleItem{
     border:1px solid rgba(255,255,255,.14);
@@ -348,13 +298,8 @@
     gap: 10px;
     margin-bottom: 10px;
   }
-  .ruleGrid{
-    display:grid;
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
+  .ruleGrid{ display:grid; grid-template-columns: 1fr; gap: 10px; }
 
-  /* ===== Toast ===== */
   .toast{
     position: fixed;
     right: 18px;
@@ -392,12 +337,13 @@
   }
   .toastText strong{ display:block; font-size: 13px; }
   .toastText span{ display:block; font-size: 12px; margin-top: 2px; }
-
 </style>
 </head>
 
 <body>
-  <div id="authGate" style="position:fixed; inset:0; display:none; place-items:center; padding:18px; background:rgba(0,0,0,.55); backdrop-filter: blur(10px); z-index:99999;">
+
+<!-- AUTH GATE -->
+<div id="authGate" style="position:fixed; inset:0; display:none; place-items:center; padding:18px; background:rgba(0,0,0,.55); backdrop-filter: blur(10px); z-index:99999;">
   <div style="width:min(520px, 100%); border:1px solid rgba(255,255,255,.14); border-radius:18px; padding:16px; background:rgba(255,255,255,.08); box-shadow: 0 18px 55px rgba(0,0,0,.55);">
     <h3 style="margin:0 0 6px;">Iniciar sesión</h3>
     <p style="margin:0 0 14px; color:rgba(232,241,255,.72); font-size:12px;">Acceso al Sistema de Limpiezas</p>
@@ -417,8 +363,8 @@
     <div style="margin-top:10px; color:rgba(232,241,255,.72); font-size:12px;" id="authMsg"></div>
   </div>
 </div>
+
 <div class="app">
-  <!-- Sidebar -->
   <aside class="sidebar">
     <div class="brand">
       <div class="logo">📊</div>
@@ -429,26 +375,26 @@
     </div>
 
     <div class="nav">
-  <button type="button" class="navBtn active" data-page="home" onclick="go('home')">
-    <span class="icon">🏠</span> Inicio
-  </button>
+      <button type="button" class="navBtn active" data-page="home" onclick="go('home')">
+        <span class="icon">🏠</span> Inicio
+      </button>
 
-  <button type="button" class="navBtn" data-page="gen-nc" onclick="go('gen-nc')">
-    <span class="icon">🧾</span> Generador NC
-  </button>
+      <button type="button" class="navBtn" data-page="gen-nc" onclick="go('gen-nc')">
+        <span class="icon">🧾</span> Generador NC
+      </button>
 
-  <button type="button" class="navBtn" data-page="gen-nd" onclick="go('gen-nd')">
-    <span class="icon">📄</span> Generador ND
-  </button>
+      <button type="button" class="navBtn" data-page="gen-nd" onclick="go('gen-nd')">
+        <span class="icon">📄</span> Generador ND
+      </button>
 
-    <button type="button" class="navBtn" data-page="gen-acometida" onclick="go('gen-acometida')">
-    <span class="icon">📄</span> Acometidas
-  </button>
+      <button type="button" class="navBtn" data-page="gen-acometida" onclick="go('gen-acometida')">
+        <span class="icon">📄</span> Acometidas
+      </button>
 
-  <button type="button" class="navBtn" data-page="help" onclick="go('help')">
-    <span class="icon">❓</span> Ayuda
-  </button>
-</div>
+      <button type="button" class="navBtn" data-page="help" onclick="go('help')">
+        <span class="icon">❓</span> Ayuda
+      </button>
+    </div>
 
     <div class="sideFooter">
       <div class="pill"><span class="dot"></span>Estado: Listo</div>
@@ -456,7 +402,6 @@
     </div>
   </aside>
 
-  <!-- Main -->
   <main class="main">
     <div class="topbar">
       <div>
@@ -470,7 +415,6 @@
     </div>
 
     <div class="content">
-      <!-- HOME -->
       <section class="page active" id="page-home">
         <div class="grid">
           <div class="kpi">
@@ -501,186 +445,156 @@
                 <button class="btn btnPrimary" onclick="go('gen-nc')">⚡ Ir al Generador NC</button>
                 <button class="btn btnPrimary" onclick="go('gen-nd')">⚡ Ir al Generador ND</button>
                 <button class="btn btnPrimary" onclick="go('gen-acometida')">⚡ Ir al Generador Acometida</button>
-
-                <button class="btn btnGhost" onclick="seedDemo()">🧪 Cargar demo</button>
               </div>
               <div class="hintText" style="margin-top:10px;">
-                * “Cargar demo” llena un ejemplo para que pruebes la generación.
+                * El usuario actual se verá arriba a la derecha.
               </div>
             </div>
           </div>
         </div>
       </section>
 
-  <!-- GENERATOR ACOMETIDA-->
-
-        <section class="page" id="page-gen-acometida">
-  <div class="card">
-    <div class="cardHeader">
-      <h3>Generador Acometida</h3>
-      <span>Formato Acometida</span>
-    </div>
-
-    <div class="cardBody">
-      <div class="formGrid">
-        <div style="grid-column: 1 / -1;">
-          <label>Acometida Completa</label>
-          <textarea id="data_acometida"></textarea>
-        </div>
-
-        <div style="grid-column: 1 / -1;">
-          <div class="ruleTop"> 
-          </div>
-          <div class="rulesWrap" id="rules_acometida"></div>
-        </div>
-
-        <div style="grid-column: 1 / -1;">
-          <label>Resultado (Acometida)</label>
-          <textarea id="resultado_acometida" readonly></textarea>
-        </div>
-      </div>
-
-      <div class="actions">
-        <div class="btnRow">
-          <button class="btn btnPrimary" onclick="generarAcometidaUltra()">⚡ Generar y Copiar</button>
-          <button class="btn btnGhost" onclick="copiarResultado('acometida')">📋 Copiar</button>
-          <button class="btn btnGhost" onclick="limpiarTodo('acometida')">🧹 Limpiar</button>
-        </div>
-        <div class="statLine">
-          <span class="pill"><span class="dot"></span>Registros: <b id="count_acometida">0</b></span>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-      <!-- GENERATOR NC-->
-
-      <section class="page" id="page-gen-nc">
-  <div class="card">
-    <div class="cardHeader">
-      <h3>Generador NC</h3>
-      <span>CM,908,... (Recuperación)</span>
-    </div>
-
-    <div class="cardBody">
-      <div class="formGrid">
-        <div>
-          <label>Raíz principal (NC)</label>
-          <input id="raiz_nc" type="text" placeholder="Ej: 1.1180330">
-        </div>
-
-        <div>
-          <label>Tipo</label>
-          <input value="NC" disabled>
-          <div class="hintText">Este generador siempre crea NC.</div>
-        </div>
-
-        <div style="grid-column: 1 / -1;">
-          <label>Tabla principal (NC)</label>
-          <textarea id="data_nc"></textarea>
-        </div>
-
-        <div style="grid-column: 1 / -1;">
-          <div class="ruleTop">
-            <div>
-              <label style="margin:0;">Raíces extras (NC)</label>
-              <div class="hintText">Cada raíz extra trae su propia tabla completa.</div>
-            </div>
-            <button class="btn btnGhost" onclick="agregarRegla('nc')">➕ Agregar raíz extra</button>
-          </div>
-          <div class="rulesWrap" id="rules_nc"></div>
-        </div>
-
-        <div style="grid-column: 1 / -1;">
-          <label>Resultado (NC)</label>
-          <textarea id="resultado_nc" readonly></textarea>
-        </div>
-      </div>
-
-      <div class="actions">
-        <div class="btnRow">
-          <button class="btn btnPrimary" onclick="generarPlantilla('nc')">⚡ Generar y Copiar</button>
-          <button class="btn btnGhost" onclick="copiarResultado('nc')">📋 Copiar</button>
-          <button class="btn btnGhost" onclick="limpiarTodo('nc')">🧹 Limpiar</button>
-        </div>
-        <div class="statLine">
-          <span class="pill"><span class="dot"></span>Registros: <b id="count_nc">0</b></span>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-<!-- GENERATOR ND -->
- <section class="page" id="page-gen-nd">
-  <div class="card">
-    <div class="cardHeader">
-      <h3>Generador ND</h3>
-      <span>IN,911,... (Reversión)</span>
-    </div>
-
-    <div class="cardBody">
-      <div class="formGrid">
-        <div>
-          <label>Tipo</label>
-          <input value="ND" disabled>
-          <div class="hintText">Este generador siempre crea ND.</div>
-        </div>
-
-        <div style="grid-column: 1 / -1;">
-          <label>Tabla principal (ND)</label>
-          <textarea id="data_nd"></textarea>
-        </div>
-
-        <div style="grid-column: 1 / -1;">
-          <div class="ruleTop">
-            <div>
-              <label style="margin:0;">Raíces extras (ND)</label>
-              <div class="hintText">Cada raíz extra trae su propia tabla completa.</div>
-            </div>
-            <button class="btn btnGhost" onclick="agregarRegla('nd')">➕ Agregar raíz extra</button>
-          </div>
-          <div class="rulesWrap" id="rules_nd"></div>
-        </div>
-
-        <div style="grid-column: 1 / -1;">
-          <label>Resultado (ND)</label>
-          <textarea id="resultado_nd" readonly></textarea>
-        </div>
-      </div>
-
-      <div class="actions">
-        <div class="btnRow">
-          <button class="btn btnPrimary" onclick="generarPlantilla('nd')">⚡ Generar y Copiar</button>
-          <button class="btn btnGhost" onclick="copiarResultado('nd')">📋 Copiar</button>
-          <button class="btn btnGhost" onclick="limpiarTodo('nd')">🧹 Limpiar</button>
-        </div>
-        <div class="statLine">
-          <span class="pill"><span class="dot"></span>Registros: <b id="count_nd">0</b></span>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-      <!-- REPORTS -->
-      <section class="page" id="page-reports">
+      <section class="page" id="page-gen-acometida">
         <div class="card">
           <div class="cardHeader">
-            <h3>Reversión.</h3>
-            <span>Resumen rápido</span>
+            <h3>Generador Acometida</h3>
+            <span>Formato Acometida</span>
           </div>
+
           <div class="cardBody">
-            <p style="color:var(--muted); margin-top:0;">
-              Aquí puedes poner exportación, historial o conteos. Si quieres, te agrego:
-              <b>historial en pantalla</b> y <b>export CSV</b>.
-            </p>
-            <div class="pill"><span class="dot"></span>Último total: <b id="repTotal">0</b></div>
+            <div class="formGrid">
+              <div style="grid-column: 1 / -1;">
+                <label>Acometida Completa</label>
+                <textarea id="data_acometida"></textarea>
+              </div>
+
+              <div style="grid-column: 1 / -1;">
+                <label>Resultado (Acometida)</label>
+                <textarea id="resultado_acometida" readonly></textarea>
+              </div>
+            </div>
+
+            <div class="actions">
+              <div class="btnRow">
+                <button class="btn btnPrimary" onclick="generarAcometidaUltra()">⚡ Generar y Copiar</button>
+                <button class="btn btnGhost" onclick="copiarResultado('acometida')">📋 Copiar</button>
+                <button class="btn btnGhost" onclick="limpiarTodo('acometida')">🧹 Limpiar</button>
+              </div>
+              <div class="statLine">
+                <span class="pill"><span class="dot"></span>Registros: <b id="count_acometida">0</b></span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <!-- HELP -->
+      <section class="page" id="page-gen-nc">
+        <div class="card">
+          <div class="cardHeader">
+            <h3>Generador NC</h3>
+            <span>CM,908,... (Recuperación)</span>
+          </div>
+
+          <div class="cardBody">
+            <div class="formGrid">
+              <div>
+                <label>Raíz principal (NC)</label>
+                <input id="raiz_nc" type="text" placeholder="Ej: 1.1180330">
+              </div>
+
+              <div>
+                <label>Tipo</label>
+                <input value="NC" disabled>
+                <div class="hintText">Este generador siempre crea NC.</div>
+              </div>
+
+              <div style="grid-column: 1 / -1;">
+                <label>Tabla principal (NC)</label>
+                <textarea id="data_nc"></textarea>
+              </div>
+
+              <div style="grid-column: 1 / -1;">
+                <div class="ruleTop">
+                  <div>
+                    <label style="margin:0;">Raíces extras (NC)</label>
+                    <div class="hintText">Cada raíz extra trae su propia tabla completa.</div>
+                  </div>
+                  <button class="btn btnGhost" onclick="agregarRegla('nc')">➕ Agregar raíz extra</button>
+                </div>
+                <div class="rulesWrap" id="rules_nc"></div>
+              </div>
+
+              <div style="grid-column: 1 / -1;">
+                <label>Resultado (NC)</label>
+                <textarea id="resultado_nc" readonly></textarea>
+              </div>
+            </div>
+
+            <div class="actions">
+              <div class="btnRow">
+                <button class="btn btnPrimary" onclick="generarPlantilla('nc')">⚡ Generar y Copiar</button>
+                <button class="btn btnGhost" onclick="copiarResultado('nc')">📋 Copiar</button>
+                <button class="btn btnGhost" onclick="limpiarTodo('nc')">🧹 Limpiar</button>
+              </div>
+              <div class="statLine">
+                <span class="pill"><span class="dot"></span>Registros: <b id="count_nc">0</b></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-gen-nd">
+        <div class="card">
+          <div class="cardHeader">
+            <h3>Generador ND</h3>
+            <span>IN,911,... (Reversión)</span>
+          </div>
+
+          <div class="cardBody">
+            <div class="formGrid">
+              <div>
+                <label>Tipo</label>
+                <input value="ND" disabled>
+                <div class="hintText">Este generador siempre crea ND.</div>
+              </div>
+
+              <div style="grid-column: 1 / -1;">
+                <label>Tabla principal (ND)</label>
+                <textarea id="data_nd"></textarea>
+              </div>
+
+              <div style="grid-column: 1 / -1;">
+                <div class="ruleTop">
+                  <div>
+                    <label style="margin:0;">Raíces extras (ND)</label>
+                    <div class="hintText">Cada raíz extra trae su propia tabla completa.</div>
+                  </div>
+                  <button class="btn btnGhost" onclick="agregarRegla('nd')">➕ Agregar raíz extra</button>
+                </div>
+                <div class="rulesWrap" id="rules_nd"></div>
+              </div>
+
+              <div style="grid-column: 1 / -1;">
+                <label>Resultado (ND)</label>
+                <textarea id="resultado_nd" readonly></textarea>
+              </div>
+            </div>
+
+            <div class="actions">
+              <div class="btnRow">
+                <button class="btn btnPrimary" onclick="generarPlantilla('nd')">⚡ Generar y Copiar</button>
+                <button class="btn btnGhost" onclick="copiarResultado('nd')">📋 Copiar</button>
+                <button class="btn btnGhost" onclick="limpiarTodo('nd')">🧹 Limpiar</button>
+              </div>
+              <div class="statLine">
+                <span class="pill"><span class="dot"></span>Registros: <b id="count_nd">0</b></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section class="page" id="page-help">
         <div class="card">
           <div class="cardHeader">
@@ -691,12 +605,13 @@
             <ul>
               <li>Pega la tabla con encabezados: <b>Factura</b>, <b>Billing Account</b>, <b>Monto a Pagar</b>.</li>
               <li>Si usas raíces extras: agrega una regla y pega una tabla completa ahí.</li>
-              <li>El resultado sale sin “principal/extra”, todo seguido.</li>
+              <li>El resultado sale todo seguido.</li>
               <li>Si no copia, abre en <b>https</b> o <b>localhost</b>.</li>
             </ul>
           </div>
         </div>
       </section>
+
     </div>
   </main>
 </div>
@@ -711,52 +626,52 @@
 </div>
 
 <script>
+  // =========================
+  // GLOBAL: usuario actual para "tag" (antes cm088320)
+  // =========================
+  function getUsuarioActual(){
+    if (window.currentUserTag && String(window.currentUserTag).trim()) {
+      return String(window.currentUserTag).trim();
+    }
+    const ls = localStorage.getItem("userTag");
+    if (ls && ls.trim()) return ls.trim();
+    return "cm088320"; // fallback
+  }
+
   // ===== NAV =====
-  const navBtns = document.querySelectorAll(".navBtn");
   function go(page){
-  // activar botón
-  document.querySelectorAll(".navBtn").forEach(b => {
-    b.classList.toggle("active", b.dataset.page === page);
+    document.querySelectorAll(".navBtn").forEach(b => {
+      b.classList.toggle("active", b.dataset.page === page);
+    });
+
+    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+    const target = document.getElementById("page-" + page);
+    if(!target){ console.warn("No existe la página:", "page-" + page); return; }
+    target.classList.add("active");
+
+    const title = document.getElementById("pageTitle");
+    const sub = document.getElementById("pageSub");
+    const map = {
+      home: ["Inicio", "Panel de control y accesos rápidos."],
+      "gen-nc": ["Generador NC", "Genera el formato NC (IN,911,...)."],
+      "gen-nd": ["Generador ND", "Genera el formato ND (CM,908,...)."],
+      "gen-acometida": ["Generador Acometida", "Genera formatos para acometidas."],
+      help: ["Ayuda", "Guía rápida de uso."]
+    };
+    if(map[page]){
+      title.textContent = map[page][0];
+      sub.textContent = map[page][1];
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".navBtn").forEach(b => {
+      b.addEventListener("click", () => go(b.dataset.page));
+    });
+    go("home");
   });
 
-  // mostrar sección
-  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-  const target = document.getElementById("page-" + page);
-  if(!target){
-    console.warn("No existe la página:", "page-" + page);
-    return;
-  }
-  target.classList.add("active");
-
-  // títulos
-  const title = document.getElementById("pageTitle");
-  const sub = document.getElementById("pageSub");
-
-  const map = {
-    home: ["Inicio", "Panel de control y accesos rápidos."],
-    "gen-nc": ["Generador NC", "Genera el formato NC (IN,911,...)."],
-    "gen-nd": ["Generador ND", "Genera el formato ND (CM,908,...)."],
-    "gen-acometida": ["Generador Acometida", "Genera formatos para acometidas."],
-    reports: ["Reportes", "Resumen y métricas (expandible)."],
-    help: ["Ayuda", "Guía rápida de uso."]
-  };
-
-  if(map[page]){
-    title.textContent = map[page][0];
-    sub.textContent = map[page][1];
-  }
-}
-
-// listeners (IMPORTANTE: que se ejecute al cargar)
-document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll(".navBtn").forEach(b => {
-    b.addEventListener("click", () => go(b.dataset.page));
-  });
-
-  // página inicial
-  go("home");
-});
-  // ===== Meta fecha/hora =====
+  // ===== Meta fecha/hora + usuario =====
   function actualizarMeta(){
     const f = document.getElementById("metaFecha");
     const h = document.getElementById("metaHora");
@@ -773,11 +688,11 @@ document.addEventListener("DOMContentLoaded", () => {
     hora = hora % 12; hora = hora ? hora : 12;
 
     f.textContent = `Fecha: ${dia}/${mes}/${anio}`;
-    h.textContent = `Hora: ${hora}:${min} ${ampm}`;
+    h.textContent = `Hora: ${hora}:${min} ${ampm} | Usuario: ${getUsuarioActual()}`;
   }
   document.addEventListener("DOMContentLoaded", () => {
     actualizarMeta();
-    setInterval(actualizarMeta, 10000);
+    setInterval(actualizarMeta, 8000);
   });
 
   // ===== Toast =====
@@ -803,35 +718,25 @@ document.addEventListener("DOMContentLoaded", () => {
     clearTimeout(toastTimer);
     toastTimer = setTimeout(()=> toast.classList.remove("show"), 2800);
   }
-  //===== Generador para Nc =====//
-function parseTablaNC(texto){
-  const lines = (texto || "").trim().split("\n").filter(l => l.trim());
-  if (lines.length < 2) return [];
+  window.showToast = showToast;
 
-  const splitRow = (row) => row.trim().split(/\t|\s{2,}/).filter(Boolean);
-  const header = splitRow(lines[0]).map(h => h.toLowerCase());
-
-  const idxFactura = header.findIndex(h => h.includes("factura"));
-  const idxBilling = header.findIndex(h => h.includes("billing"));
-  let idxMonto = header.findIndex(h => h.includes("monto") && h.includes("pagar"));
-  if (idxMonto === -1) idxMonto = header.findIndex(h => h.includes("monto") && h.includes("factura"));
-
-  if (idxFactura === -1 || idxBilling === -1 || idxMonto === -1) return [];
-
-  const out = [];
-  for (let i = 1; i < lines.length; i++) {
-    const cols = splitRow(lines[i]);
-    if (cols.length <= Math.max(idxFactura, idxBilling, idxMonto)) continue;
-
-    const factura = cols[idxFactura].trim();
-    const billingid = cols[idxBilling].trim();
-    const monto = normalizarMonto(cols[idxMonto]);
-
-    if (!factura || !billingid || !monto) continue;
-    out.push({ factura, billingid, monto });
+  // ===== Copiar / Limpiar helpers =====
+  function copiarTexto(txt){
+    return navigator.clipboard.writeText(txt);
   }
-  return out;
-}
+
+  window.copiarResultado = async (mode) => {
+    const id = (mode === "acometida") ? "resultado_acometida" : `resultado_${mode}`;
+    const el = document.getElementById(id);
+    const txt = el?.value || "";
+    if(!txt.trim()) return showToast("warn","Nada que copiar","Genera primero.");
+    try{
+      await copiarTexto(txt);
+      showToast("success","Copiado","Listo en portapapeles.");
+    }catch{
+      showToast("error","No se pudo copiar","Usa https o localhost.");
+    }
+  };
 
   // ===== Normalizar monto =====
   function normalizarMonto(str){
@@ -854,81 +759,13 @@ function parseTablaNC(texto){
     } else {
       s = s.replace(/,/g,"");
     }
-
     return s.replace(/[^0-9.]/g,"");
   }
 
-  // ===== Generador Acometida =====//
- function generarAcometidaUltra(){
-  const texto = document.getElementById("data_acometida").value || "";
-  const lineas = texto.split("\n").map(l => l.trim()).filter(Boolean);
-
-  const cedulasVistas = new Set();
-  const salida = [];
-
-  for (const linea of lineas){
-    // normaliza espacios
-    const limpio = linea.replace(/\s+/g, " ");
-
-    // primer token = cédula, resto = nombre
-    const partes = limpio.split(" ");
-    if (partes.length < 2) continue;
-
-    const cedula = partes.shift();
-    const nombre = partes.join(" ").trim();
-
-    // evita duplicados por cédula
-    if (cedulasVistas.has(cedula)) continue;
-    cedulasVistas.add(cedula);
-
-    salida.push(`${cedula}: ${nombre}:`);
-  }
-
-  const resultado = salida.join("\n");
-  document.getElementById("resultado_acometida").value = resultado;
-
-  // copiar automático (sin alert)
-  navigator.clipboard.writeText(resultado).catch(()=>{});
-}
-//===== Generador para Nd =====//
-function parseTablaND(texto){
-  const lines = (texto || "").trim().split("\n").filter(l => l.trim());
-  if (lines.length === 0) return [];
-
-  const splitRow = (row) => row.trim().split(/\t|\s{2,}|\s+/).filter(Boolean);
-
-  // Formato ND esperado por fila:
-  // raiz  billing  monto  factura
-  const IDX_RAIZ    = 0;
-  const IDX_BILLING = 1;
-  const IDX_MONTO   = 2;
-  const IDX_FACTURA = 3;
-
-  // si trae encabezado, sáltalo
-  let start = 0;
-  const first = splitRow(lines[0])[0]?.toLowerCase() || "";
-  if (first.includes("raiz") || first.includes("factura")) start = 1;
-
-  const out = [];
-  for(let i = start; i < lines.length; i++){
-    const cols = splitRow(lines[i]);
-    if(cols.length <= Math.max(IDX_RAIZ, IDX_BILLING, IDX_MONTO, IDX_FACTURA)) continue;
-
-    const raiz = cols[IDX_RAIZ].trim();
-    const billingid = cols[IDX_BILLING].trim();
-    const monto = normalizarMonto(cols[IDX_MONTO]);
-    const factura = cols[IDX_FACTURA].trim();
-
-    if(!raiz || !billingid || !monto || !factura) continue;
-
-    out.push({ raiz, billingid, monto, factura });
-  }
-  return out;
-}
-  // ===== Parse con header (Factura / Billing Account / Monto a Pagar) =====
-  function parseConHeader(texto){
+  // ===== Parse NC con header =====
+  function parseTablaNC(texto){
     const lines = (texto || "").trim().split("\n").filter(l => l.trim());
-    if(lines.length < 2) return null;
+    if (lines.length < 2) return [];
 
     const splitRow = (row) => row.trim().split(/\t|\s{2,}/).filter(Boolean);
     const header = splitRow(lines[0]).map(h => h.toLowerCase());
@@ -938,290 +775,243 @@ function parseTablaND(texto){
     let idxMonto = header.findIndex(h => h.includes("monto") && h.includes("pagar"));
     if (idxMonto === -1) idxMonto = header.findIndex(h => h.includes("monto") && h.includes("factura"));
 
-    if(idxFactura === -1 || idxBilling === -1 || idxMonto === -1) return null;
+    if (idxFactura === -1 || idxBilling === -1 || idxMonto === -1) return [];
 
     const out = [];
-    for(let i=1;i<lines.length;i++){
+    for (let i = 1; i < lines.length; i++) {
       const cols = splitRow(lines[i]);
-      if(cols.length <= Math.max(idxFactura, idxBilling, idxMonto)) continue;
+      if (cols.length <= Math.max(idxFactura, idxBilling, idxMonto)) continue;
 
       const factura = cols[idxFactura].trim();
       const billingid = cols[idxBilling].trim();
       const monto = normalizarMonto(cols[idxMonto]);
-
-      if(!factura || !billingid || !monto) continue;
-      out.push({factura, billingid, monto});
+      if (!factura || !billingid || !monto) continue;
+      out.push({ factura, billingid, monto });
     }
     return out;
   }
 
-  // ===== Parse inteligente (fallback) =====
-  function parseTablaATuplas(texto){
-    const byHeader = parseConHeader(texto);
-    if(byHeader) return byHeader;
+  // ===== Parse ND por fila =====
+  function parseTablaND(texto){
+    const lines = (texto || "").trim().split("\n").filter(l => l.trim());
+    if (lines.length === 0) return [];
 
-    const rows = (texto || "").trim().split("\n");
+    const splitRow = (row) => row.trim().split(/\t|\s{2,}|\s+/).filter(Boolean);
+
+    const IDX_RAIZ    = 0;
+    const IDX_BILLING = 1;
+    const IDX_MONTO   = 2;
+    const IDX_FACTURA = 3;
+
+    let start = 0;
+    const first = splitRow(lines[0])[0]?.toLowerCase() || "";
+    if (first.includes("raiz") || first.includes("factura")) start = 1;
+
     const out = [];
+    for(let i = start; i < lines.length; i++){
+      const cols = splitRow(lines[i]);
+      if(cols.length <= Math.max(IDX_RAIZ, IDX_BILLING, IDX_MONTO, IDX_FACTURA)) continue;
 
-    for(const linea of rows){
-      if(!linea.trim()) continue;
-      const cols = linea.trim().split(/\t|\s{2,}|\s+/).filter(Boolean);
-
-      const factura = cols.find(c => /^\d{15,}$/.test(c));
-      const billingid = cols.find(c => /^\d{6,10}$/.test(c));
-
-      let montoRaw = cols.find(c => /[0-9]/.test(c) && /[.,]/.test(c));
-      if(!montoRaw){
-        const numericLike = cols.filter(c => /^[₡\s]*[\d.,]+$/.test(c));
-        montoRaw = numericLike.length ? numericLike[numericLike.length - 1] : "";
-      }
-      const monto = normalizarMonto(montoRaw);
-
-      if(!factura || !billingid || !monto) continue;
-      out.push({factura, billingid, monto});
+      const raiz = cols[IDX_RAIZ].trim();
+      const billingid = cols[IDX_BILLING].trim();
+      const monto = normalizarMonto(cols[IDX_MONTO]);
+      const factura = cols[IDX_FACTURA].trim();
+      if(!raiz || !billingid || !monto || !factura) continue;
+      out.push({ raiz, billingid, monto, factura });
     }
     return out;
   }
 
   // ===== Reglas extras =====
   function agregarRegla(mode){
-  const rules = document.getElementById(`rules_${mode}`);
-  const item = document.createElement("div");
-  item.className = "ruleItem";
+    const rules = document.getElementById(`rules_${mode}`);
+    const item = document.createElement("div");
+    item.className = "ruleItem";
 
-  item.innerHTML = `
-    <div class="ruleTop">
-      <div style="flex:1;">
-        <label style="margin:0 0 6px;">Raíz extra</label>
-        <input class="ruleRaiz" type="text" placeholder="Ej: 1.2270038">
+    item.innerHTML = `
+      <div class="ruleTop">
+        <div style="flex:1;">
+          <label style="margin:0 0 6px;">Raíz extra</label>
+          <input class="ruleRaiz" type="text" placeholder="Ej: 1.2270038">
+        </div>
+        <button class="btn btnGhost" type="button" onclick="eliminarRegla(this)">🗑️ Quitar</button>
       </div>
-      <button class="btn btnGhost" type="button" onclick="eliminarRegla(this)">🗑️ Quitar</button>
-    </div>
 
-    <div class="ruleGrid">
-      <div>
-        <label style="margin:0 0 6px;">Tabla de esta raíz</label>
-        <textarea class="ruleTabla" rows="6" placeholder="Pega aquí la tabla completa..."></textarea>
-        <div class="hintText">Debe traer factura, billing account y monto.</div>
+      <div class="ruleGrid">
+        <div>
+          <label style="margin:0 0 6px;">Tabla de esta raíz</label>
+          <textarea class="ruleTabla" rows="6" placeholder="Pega aquí la tabla completa..."></textarea>
+          <div class="hintText">Debe traer factura, billing account y monto.</div>
+        </div>
       </div>
-    </div>
-  `;
-  rules.appendChild(item);
-}
-
-function eliminarRegla(btn){
-  const item = btn.closest(".ruleItem");
-  if(item) item.remove();
-}
-
-function generarPlantilla(mode){
-  // NC sí usa raíz fija, ND NO (la raíz viene en cada fila)
-  const raizDefault = (mode === "nc")
-    ? document.getElementById(`raiz_${mode}`).value.trim()
-    : "";
-
-  const textoPrincipal = document.getElementById(`data_${mode}`).value;
-
-  if(mode === "nc" && !raizDefault){
-    showToast("warn","Falta raíz","Escribe la raíz principal.");
-    return;
+    `;
+    rules.appendChild(item);
   }
+  window.agregarRegla = agregarRegla;
 
-  // Fecha (ESTO FALTABA)
-  const ahora = new Date();
-  const dia = String(ahora.getDate()).padStart(2,'0');
-  const mes = String(ahora.getMonth()+1).padStart(2,'0');
-  const anio = ahora.getFullYear();
-  const fecha = `${dia}/${mes}/${anio}`;
-
-  const tipo = (mode === "nc") ? "NC" : "ND";
-  const descripcion = (mode === "nc")
-    ? "CM,908,200_Recuperacion de Clientes Proyecto de Ventas Móvil"
-    : "IN,911,200_Se aplico reversión por proyecto de Venta Servicio Móvil Limpieza de Saldos";
-
-  let resultado = "";
-  let count = 0;
-
-  // ===== Principal =====
-  const tuplasPrincipal = (mode === "nc")
-    ? parseTablaNC(textoPrincipal)
-    : parseTablaND(textoPrincipal);
-
-  for(const r of tuplasPrincipal){
-    const raizUsar = (mode === "nc") ? raizDefault : r.raiz;
-    resultado += `${raizUsar},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${getUsuarioActual(),,02\n`;
-    count++;
+  function eliminarRegla(btn){
+    const item = btn.closest(".ruleItem");
+    if(item) item.remove();
   }
+  window.eliminarRegla = eliminarRegla;
 
-  // ===== Extras =====
-  const rules = document.querySelectorAll(`#rules_${mode} .ruleItem`);
-  rules.forEach(rule => {
-    const raizExtra = rule.querySelector(".ruleRaiz")?.value.trim(); // solo NC
-    const tablaExtra = rule.querySelector(".ruleTabla")?.value || "";
-    if(mode === "nc" && !raizExtra) return;
+  // ===== Generar plantilla NC/ND =====
+  function generarPlantilla(mode){
+    const raizDefault = (mode === "nc")
+      ? document.getElementById(`raiz_${mode}`).value.trim()
+      : "";
 
-    const tuplasExtra = (mode === "nc")
-      ? parseTablaNC(tablaExtra)
-      : parseTablaND(tablaExtra);
+    const textoPrincipal = document.getElementById(`data_${mode}`).value;
 
-    for(const r of tuplasExtra){
-      const raizUsar = (mode === "nc") ? raizExtra : r.raiz; // NC usa raíz extra, ND usa raíz en fila
-      resultado += `${raizUsar},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${getUsuarioActual(),,02\n`;
+    if(mode === "nc" && !raizDefault){
+      showToast("warn","Falta raíz","Escribe la raíz principal.");
+      return;
+    }
+
+    const ahora = new Date();
+    const dia = String(ahora.getDate()).padStart(2,'0');
+    const mes = String(ahora.getMonth()+1).padStart(2,'0');
+    const anio = ahora.getFullYear();
+    const fecha = `${dia}/${mes}/${anio}`;
+
+    const descripcion = (mode === "nc")
+      ? "CM,908,200_Recuperacion de Clientes Proyecto de Ventas Móvil"
+      : "IN,911,200_Se aplico reversión por proyecto de Venta Servicio Móvil Limpieza de Saldos";
+
+    const userTag = getUsuarioActual();
+
+    let resultado = "";
+    let count = 0;
+
+    const tuplasPrincipal = (mode === "nc")
+      ? parseTablaNC(textoPrincipal)
+      : parseTablaND(textoPrincipal);
+
+    for(const r of tuplasPrincipal){
+      const raizUsar = (mode === "nc") ? raizDefault : r.raiz;
+      resultado += `${raizUsar},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${userTag},,02\n`;
       count++;
     }
-  });
 
-  document.getElementById(`resultado_${mode}`).value = resultado;
-  document.getElementById(`count_${mode}`).textContent = String(count);
+    const rules = document.querySelectorAll(`#rules_${mode} .ruleItem`);
+    rules.forEach(rule => {
+      const raizExtra = rule.querySelector(".ruleRaiz")?.value.trim();
+      const tablaExtra = rule.querySelector(".ruleTabla")?.value || "";
+      if(mode === "nc" && !raizExtra) return;
 
-  if(count === 0){
-    showToast("error","Sin datos","Pega tablas válidas.");
-    return;
-  }
+      const tuplasExtra = (mode === "nc")
+        ? parseTablaNC(tablaExtra)
+        : parseTablaND(tablaExtra);
 
-  navigator.clipboard.writeText(resultado).then(() => {
-    showToast("success","Generado y copiado",`Tipo ${tipo} | Total: ${count}`);
-  }).catch(() => {
-    showToast("error","No se pudo copiar","Usa https o localhost.");
-  });
-}
-
-function limpiarTodo(mode){
-  const raizEl = document.getElementById(`raiz_${mode}`);
-if(raizEl) raizEl.value = "";
-  document.getElementById(`data_${mode}`).value = "";
-  document.getElementById(`resultado_${mode}`).value = "";
-  document.getElementById(`count_${mode}`).textContent = "0";
-  const rules = document.getElementById(`rules_${mode}`);
-  if(rules) rules.innerHTML = "";
-  showToast("success","Limpio",`Se borró el generador ${mode.toUpperCase()}.`);
-}
-
-  function seedDemo(){
-    go("generator");
-    document.getElementById("raiz").value = "1.1180330";
-    document.getElementById("tipo").value = "NC";
-
-    document.getElementById("data").value =
-`Factura\tNúmero de documento\tBilling Account\tFecha de factura\tFecha de Vencimiento\tFactura Vencida\tDías de Vencimiento\tMonto de Factura\tMonto a Pagar\tTipo
-00100001010030880311\t218515770\t2213714\t22/06/2023\t07/07/2023\tVencido\t959\t₡ 5555.69\t₡ 5555.00\tIN - 5
-00100001010030267640\t215110324\t2213714\t22/05/2023\t07/06/2023\tVencido\t989\t₡ 10764.16\t₡ 10764.00\tIN - 5`;
-
-    agregarRegla("1.1180332",
-`Factura\tNúmero de documento\tBilling Account\tFecha de factura\tFecha de Vencimiento\tFactura Vencida\tDías de Vencimiento\tMonto de Factura\tMonto a Pagar\tTipo
-00100001010099999999\t218515770\t9999999\t22/06/2023\t07/07/2023\tVencido\t959\t₡ 3000.00\t₡ 3000.00\tIN - 5`);
-    showToast("success","Demo cargada","Ahora presiona “Generar y Copiar”.");
-  }
-
-  // init KPIs
-  document.addEventListener("DOMContentLoaded", () => {
-  const nd = document.getElementById("data_nd");
-  if(nd){
-    nd.addEventListener("input", () => {
-      // generar sin copiar para evitar permisos de portapapeles en cada tecleo
-      generarNDPreview();
-    });
-  }
-
-  // También para tablas extra ND (event delegation)
-  const rulesND = document.getElementById("rules_nd");
-  if(rulesND){
-    rulesND.addEventListener("input", (e) => {
-      if(e.target && e.target.classList.contains("ruleTabla")){
-        generarNDPreview();
+      for(const r of tuplasExtra){
+        const raizUsar = (mode === "nc") ? raizExtra : r.raiz;
+        resultado += `${raizUsar},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${userTag},,02\n`;
+        count++;
       }
     });
-  }
-});
-function getUsuarioActual(){
-  // 1) Preferimos el valor puesto por Supabase (más confiable)
-  if (window.currentUserTag && String(window.currentUserTag).trim()) {
-    return String(window.currentUserTag).trim();
-  }
 
-  // 2) Fallback: lo que guardamos en localStorage
-  const ls = localStorage.getItem("userTag");
-  if (ls && ls.trim()) return ls.trim();
+    document.getElementById(`resultado_${mode}`).value = resultado;
+    document.getElementById(`count_${mode}`).textContent = String(count);
 
-  // 3) Fallback final (por si acaso)
-  return "cm088320";
-}
-function generarNDPreview(){
-  // genera como ND, pero NO copia, NO toast
-  const textoPrincipal = document.getElementById("data_nd")?.value || "";
-  const ahora = new Date();
-  const dia = String(ahora.getDate()).padStart(2,'0');
-  const mes = String(ahora.getMonth()+1).padStart(2,'0');
-  const anio = ahora.getFullYear();
-  const fecha = `${dia}/${mes}/${anio}`;
-
-  const descripcion = "IN,911,200_Se aplico reversión por proyecto de Venta Servicio Móvil Limpieza de Saldos";
-
-  let resultado = "";
-  let count = 0;
-
-  const tuplasPrincipal = parseTablaND(textoPrincipal);
-  for(const r of tuplasPrincipal){
-    resultado += `${r.raiz},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${getUsuarioActual(),,02\n`;
-    count++;
-  }
-
-  const rules = document.querySelectorAll(`#rules_nd .ruleItem`);
-  rules.forEach(rule => {
-    const tablaExtra = rule.querySelector(".ruleTabla")?.value || "";
-    const tuplasExtra = parseTablaND(tablaExtra);
-    for(const r of tuplasExtra){
-      resultado += `${r.raiz},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${getUsuarioActual(),,02\n`;
-      count++;
+    if(count === 0){
+      showToast("error","Sin datos","Pega tablas válidas.");
+      return;
     }
-  });
 
-  const out = document.getElementById("resultado_nd");
-  const c = document.getElementById("count_nd");
-  if(out) out.value = resultado;
-  if(c) c.textContent = String(count);
-}
+    navigator.clipboard.writeText(resultado).then(() => {
+      showToast("success","Generado y copiado",`Usuario: ${userTag} | Total: ${count}`);
+    }).catch(() => {
+      showToast("error","No se pudo copiar","Usa https o localhost.");
+    });
+  }
+  window.generarPlantilla = generarPlantilla;
+
+  // ===== Generador Acometida =====
+  function generarAcometidaUltra(){
+    const texto = document.getElementById("data_acometida").value || "";
+    const lineas = texto.split("\n").map(l => l.trim()).filter(Boolean);
+
+    const cedulasVistas = new Set();
+    const salida = [];
+
+    for (const linea of lineas){
+      const limpio = linea.replace(/\s+/g, " ");
+      const partes = limpio.split(" ");
+      if (partes.length < 2) continue;
+
+      const cedula = partes.shift();
+      const nombre = partes.join(" ").trim();
+
+      if (cedulasVistas.has(cedula)) continue;
+      cedulasVistas.add(cedula);
+
+      salida.push(`${cedula}: ${nombre}:`);
+    }
+
+    const resultado = salida.join("\n");
+    document.getElementById("resultado_acometida").value = resultado;
+    document.getElementById("count_acometida").textContent = String(salida.length);
+
+    navigator.clipboard.writeText(resultado).catch(()=>{});
+  }
+  window.generarAcometidaUltra = generarAcometidaUltra;
+
+  // ===== Limpieza =====
+  function limpiarTodo(mode){
+    const raizEl = document.getElementById(`raiz_${mode}`);
+    if(raizEl) raizEl.value = "";
+    const dataEl = document.getElementById(`data_${mode}`);
+    if(dataEl) dataEl.value = "";
+
+    const outId = (mode === "acometida") ? "resultado_acometida" : `resultado_${mode}`;
+    const outEl = document.getElementById(outId);
+    if(outEl) outEl.value = "";
+
+    const countId = (mode === "acometida") ? "count_acometida" : `count_${mode}`;
+    const c = document.getElementById(countId);
+    if(c) c.textContent = "0";
+
+    const rules = document.getElementById(`rules_${mode}`);
+    if(rules) rules.innerHTML = "";
+
+    showToast("success","Limpio",`Se borró el generador ${mode.toUpperCase()}.`);
+  }
+  window.limpiarTodo = limpiarTodo;
 </script>
+
+<!-- SUPABASE MODULE -->
 <script type="module">
   import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-  // =========================
-  // 1) CONFIG (pon tus datos)
-  // =========================
+  // ========= CONFIG =========
   const SUPABASE_URL = "https://matvtyrmzytbdznlmfns.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_5QA7FGPRirqXNJ_v0xbJyw_h5D8XLs5"; // sb_publishable_...
+  const SUPABASE_KEY = "sb_publishable_5QA7FGPRirqXNJ_v0xbJyw_h5D8XLs5";
   const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  // Dominio “falso” para convertir usuario -> email interno
   const USER_DOMAIN = "sistema.local";
 
-  // =========================
-  // 2) UI HELPERS
-  // =========================
   const gate = document.getElementById("authGate");
   const msg = document.getElementById("authMsg");
 
-  function setMsg(t = "") {
-    if (msg) msg.textContent = t;
+  function setMsg(t=""){ if(msg) msg.textContent = t; }
+
+  function setUserTag(tag){
+    const t = String(tag || "").trim();
+    if(!t) return;
+    window.currentUserTag = t;
+    localStorage.setItem("userTag", t);
   }
 
-  function getUserAndPass() {
-    const user = (document.getElementById("authUser")?.value || "").trim().toLowerCase();
+  function getUserAndPass(){
+    const user = (document.getElementById("authUser")?.value || "").trim().toLowerCase().replace(/\s+/g,"");
     const pass = (document.getElementById("authPass")?.value || "").trim();
-    const cleanUser = user.replace(/\s+/g, "");
-    return { user: cleanUser, pass };
+    return { user, pass };
   }
+  function userToEmail(user){ return `${user}@${USER_DOMAIN}`; }
 
-  function userToEmail(user) {
-    return `${user}@${USER_DOMAIN}`;
-  }
-
-  // =========================
-  // 3) AUTORIZACIÓN (allowlist)
-  // =========================
-  async function isAuthorized() {
+  async function isAuthorized(){
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.user) return false;
+    if(!session?.user) return false;
 
     const { data, error } = await supabase
       .from("autorizados")
@@ -1229,48 +1019,35 @@ function generarNDPreview(){
       .eq("user_id", session.user.id)
       .maybeSingle();
 
-    if (error) {
-      console.error("Error autorizados:", error);
+    if(error){
+      console.error(error);
       return false;
     }
     return !!data;
   }
 
-  // Guarda el “tag” del usuario (lo que irá donde antes decía cm088320)
-  function setUserTag(tag) {
-    const t = String(tag || "").trim();
-    if (!t) return;
-    window.currentUserTag = t;
-    localStorage.setItem("userTag", t);
-  }
-
-  // =========================
-  // 4) PROTEGER APP (Gate)
-  // =========================
-  async function refreshGate() {
+  async function refreshGate(){
     const { data: { session } } = await supabase.auth.getSession();
     const logged = !!session?.user;
 
-    if (!gate) return;
+    if(!gate) return;
 
-    if (!logged) {
+    if(!logged){
       gate.style.display = "grid";
       return;
     }
 
-    // Recuperar username desde email interno al recargar:
-    // ejemplo: vo2000194@sistema.local -> vo2000194
+    // Si recargan: username desde email interno
     const email = session.user.email || "";
     const username = email.includes("@") ? email.split("@")[0] : "";
-    if (username) setUserTag(username);
+    if(username) setUserTag(username);
 
-    // Revisa autorización
     const ok = await isAuthorized();
-    if (!ok) {
+    if(!ok){
       await supabase.auth.signOut();
       gate.style.display = "grid";
       setMsg("❌ Usuario NO autorizado. Pide acceso al administrador.");
-      if (window.showToast) window.showToast("error", "Acceso denegado", "No estás autorizado.");
+      if(window.showToast) window.showToast("error","Acceso denegado","No estás autorizado.");
       return;
     }
 
@@ -1278,25 +1055,16 @@ function generarNDPreview(){
     setMsg("");
   }
 
-  // =========================
-  // 5) AUTH (Usuario + Pass)
-  // =========================
   window.authRegister = async () => {
     setMsg("");
     const { user, pass } = getUserAndPass();
-
-    if (!user || !pass) return setMsg("Falta usuario o contraseña.");
-    if (user.length < 3) return setMsg("El usuario debe tener al menos 3 caracteres.");
-    if (pass.length < 6) return setMsg("La contraseña debe tener al menos 6 caracteres.");
+    if(!user || !pass) return setMsg("Falta usuario o contraseña.");
+    if(user.length < 3) return setMsg("El usuario debe tener al menos 3 caracteres.");
+    if(pass.length < 6) return setMsg("La contraseña debe tener al menos 6 caracteres.");
 
     const email = userToEmail(user);
-
-    const { error } = await supabase.auth.signUp({
-      email,
-      password: pass
-    });
-
-    if (error) return setMsg(error.message);
+    const { error } = await supabase.auth.signUp({ email, password: pass });
+    if(error) return setMsg(error.message);
 
     setMsg("✅ Usuario creado. Ahora intenta entrar. (Si confirmación está activa, revisa el correo).");
   };
@@ -1304,106 +1072,70 @@ function generarNDPreview(){
   window.authLogin = async () => {
     setMsg("");
     const { user, pass } = getUserAndPass();
-
-    if (!user || !pass) return setMsg("Falta usuario o contraseña.");
+    if(!user || !pass) return setMsg("Falta usuario o contraseña.");
 
     const email = userToEmail(user);
+    const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
+    if(error) return setMsg(error.message);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password: pass
-    });
-
-    if (error) return setMsg(error.message);
-
-    // ✅ Guardar tag del usuario que escribió (para usarlo en tus líneas)
+    // Tag para generadores
     setUserTag(user);
 
-    if (window.showToast) window.showToast("success", "Bienvenido", "Sesión iniciada.");
+    if(window.showToast) window.showToast("success","Bienvenido",`Sesión iniciada: ${user}`);
     await refreshGate();
-  };
-
-  window.authReset = async () => {
-    setMsg("");
-    const { user } = getUserAndPass();
-    if (!user) return setMsg("Escribe tu usuario para recuperar contraseña.");
-
-    const email = userToEmail(user);
-
-    const { error } = await supabase.auth.resetPasswordForEmail(email);
-    if (error) return setMsg(error.message);
-
-    setMsg("📩 Si ese usuario existe, se envió un correo de recuperación.");
   };
 
   window.authLogout = async () => {
     await supabase.auth.signOut();
-    if (window.showToast) window.showToast("warn", "Sesión cerrada", "Vuelve a entrar.");
+    if(window.showToast) window.showToast("warn","Sesión cerrada","Vuelve a entrar.");
     await refreshGate();
   };
 
-  // =========================
-  // 6) GUARDAR HISTORIAL
-  // =========================
-  async function guardarGeneracion(tipo, entradas, salida) {
+  // ===== Guardar historial =====
+  async function guardarGeneracion(tipo, entradas, salida){
     const { data: { session } } = await supabase.auth.getSession();
     const user = session?.user;
-    if (!user) return;
+    if(!user) return;
 
     const { error } = await supabase
       .from("generaciones")
       .insert([{ user_id: user.id, tipo, entradas, salida }]);
 
-    if (error) {
+    if(error){
       console.error(error);
-      if (window.showToast) window.showToast("error", "No se guardó", error.message);
+      if(window.showToast) window.showToast("error","No se guardó", error.message);
     }
   }
 
-  // =========================
-  // 7) ENGANCHAR TUS GENERADORES
-  // =========================
+  // Hook a tus funciones
   const originalGenerarPlantilla = window.generarPlantilla;
-  if (typeof originalGenerarPlantilla === "function") {
+  if(typeof originalGenerarPlantilla === "function"){
     window.generarPlantilla = async (mode) => {
       originalGenerarPlantilla(mode);
-
       const tipo = (mode === "nc") ? "NC" : "ND";
       const salida = document.getElementById(`resultado_${mode}`)?.value || "";
       const entradas = document.getElementById(`data_${mode}`)?.value || "";
-
-      if (salida.trim()) await guardarGeneracion(tipo, entradas, salida);
+      if(salida.trim()) await guardarGeneracion(tipo, entradas, salida);
     };
   }
 
   const originalAcometida = window.generarAcometidaUltra;
-  if (typeof originalAcometida === "function") {
+  if(typeof originalAcometida === "function"){
     window.generarAcometidaUltra = async () => {
       originalAcometida();
-
       const salida = document.getElementById("resultado_acometida")?.value || "";
       const entradas = document.getElementById("data_acometida")?.value || "";
-
-      if (salida.trim()) await guardarGeneracion("ACOMETIDA", entradas, salida);
+      if(salida.trim()) await guardarGeneracion("ACOMETIDA", entradas, salida);
     };
   }
 
-  // =========================
-  // 8) INIT
-  // =========================
   document.addEventListener("DOMContentLoaded", async () => {
-    // Si el usuario refresca, intentamos cargar tag desde localStorage también
     const saved = localStorage.getItem("userTag");
-    if (saved) window.currentUserTag = saved;
-
+    if(saved) window.currentUserTag = saved;
     await refreshGate();
-    supabase.auth.onAuthStateChange(async () => {
-      await refreshGate();
-    });
+    supabase.auth.onAuthStateChange(async () => await refreshGate());
   });
 </script>
+
 </body>
 </html>
-
-
-
