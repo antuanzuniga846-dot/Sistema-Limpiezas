@@ -402,8 +402,8 @@
     <h3 style="margin:0 0 6px;">Iniciar sesión</h3>
     <p style="margin:0 0 14px; color:rgba(232,241,255,.72); font-size:12px;">Acceso al Sistema de Limpiezas</p>
 
-    <label>Email</label>
-    <input id="authEmail" type="email" placeholder="tu@email.com" />
+    <label>Usuario</label>
+    <input id="authUser" type="text" placeholder="Usuario">
 
     <label style="margin-top:10px;">Contraseña</label>
     <input id="authPass" type="password" placeholder="••••••••" />
@@ -1173,88 +1173,197 @@ function generarNDPreview(){
 <script type="module">
   import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
+  // =========================
+  // 1) CONFIG (pon tus datos)
+  // =========================
   const SUPABASE_URL = "https://matvtyrmzytbdznlmfns.supabase.co";
-  const SUPABASE_ANON = "sb_publishable_5QA7FGPRirqXNJ_v0xbJyw_h5D8XLs5";
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
+  const SUPABASE_KEY = "sb_publishable_5QA7FGPRirqXNJ_v0xbJyw_h5D8XLs5"; // la sb_publishable_...
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+  // Dominio “falso” para convertir usuario -> email interno
+  // (puedes dejarlo así; solo es para construir el email)
+  const USER_DOMAIN = "sistema.local";
+
+  // =========================
+  // 2) UI HELPERS
+  // =========================
   const gate = document.getElementById("authGate");
   const msg = document.getElementById("authMsg");
-  const setMsg = (t) => { if(msg) msg.textContent = t || ""; };
 
-  async function refreshGate(){
-    const { data: { session } } = await supabase.auth.getSession();
-    gate.style.display = session?.user ? "none" : "grid";
+  function setMsg(t = "") {
+    if (msg) msg.textContent = t;
   }
 
-  window.authRegister = async () => {
-    const email = document.getElementById("authEmail").value.trim();
-    const pass  = document.getElementById("authPass").value.trim();
+  function getUserAndPass() {
+    const user = (document.getElementById("authUser")?.value || "").trim().toLowerCase();
+    const pass = (document.getElementById("authPass")?.value || "").trim();
+
+    // Muy básico: evita espacios raros
+    const cleanUser = user.replace(/\s+/g, "");
+
+    return { user: cleanUser, pass };
+  }
+
+  function userToEmail(user) {
+    // convierte usuario a un "email" interno
+    return `${user}@${USER_DOMAIN}`;
+  }
+
+  async function isAuthorized() {
+    // Requiere que hayas creado la tabla public.autorizados y su policy SELECT
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) return false;
+
+    const { data, error } = await supabase
+      .from("autorizados")
+      .select("user_id")
+      .eq("user_id", session.user.id)
+      .maybeSingle();
+
+    if (error) {
+      console.error("Error autorizados:", error);
+      return false;
+    }
+    return !!data;
+  }
+
+  async function refreshGate() {
+    const { data: { session } } = await supabase.auth.getSession();
+    const logged = !!session?.user;
+
+    if (!gate) return;
+
+    if (!logged) {
+      gate.style.display = "grid";
+      return;
+    }
+
+    // Si está logueado, revisa autorización (lista blanca)
+    const ok = await isAuthorized();
+    if (!ok) {
+      await supabase.auth.signOut();
+      gate.style.display = "grid";
+      setMsg("❌ Usuario NO autorizado. Pide acceso al administrador.");
+      if (window.showToast) window.showToast("error", "Acceso denegado", "No estás autorizado.");
+      return;
+    }
+
+    gate.style.display = "none";
     setMsg("");
-    if(!email || !pass) return setMsg("Falta email o contraseña.");
+  }
 
-    const { error } = await supabase.auth.signUp({ email, password: pass });
-    if(error) return setMsg(error.message);
+  // =========================
+  // 3) AUTH (Usuario + Pass)
+  // =========================
+  window.authRegister = async () => {
+    setMsg("");
+    const { user, pass } = getUserAndPass();
 
-    setMsg("Cuenta creada. Ahora inicia sesión.");
+    if (!user || !pass) return setMsg("Falta usuario o contraseña.");
+    if (user.length < 3) return setMsg("El usuario debe tener al menos 3 caracteres.");
+    if (pass.length < 6) return setMsg("La contraseña debe tener al menos 6 caracteres.");
+
+    const email = userToEmail(user);
+
+    const { error } = await supabase.auth.signUp({
+      email,
+      password: pass
+    });
+
+    if (error) return setMsg(error.message);
+
+    // Nota: si tienes confirmación de email activa, el usuario quedará “pendiente”.
+    // Recomendación: desactivar confirmación mientras desarrollas.
+    setMsg("✅ Usuario creado. Ahora intenta entrar. (Si confirmación está activa, revisa el correo).");
   };
 
   window.authLogin = async () => {
-    const email = document.getElementById("authEmail").value.trim();
-    const pass  = document.getElementById("authPass").value.trim();
     setMsg("");
-    if(!email || !pass) return setMsg("Falta email o contraseña.");
+    const { user, pass } = getUserAndPass();
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
-    if(error) return setMsg(error.message);
+    if (!user || !pass) return setMsg("Falta usuario o contraseña.");
 
-    if (window.showToast) window.showToast("success","Bienvenido","Sesión iniciada.");
+    const email = userToEmail(user);
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password: pass
+    });
+
+    if (error) return setMsg(error.message);
+
+    if (window.showToast) window.showToast("success", "Bienvenido", "Sesión iniciada.");
     await refreshGate();
+  };
+
+  window.authReset = async () => {
+    setMsg("");
+    const { user } = getUserAndPass();
+    if (!user) return setMsg("Escribe tu usuario para recuperar contraseña.");
+
+    const email = userToEmail(user);
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    if (error) return setMsg(error.message);
+
+    setMsg("📩 Si ese usuario existe, se envió un correo de recuperación.");
   };
 
   window.authLogout = async () => {
     await supabase.auth.signOut();
-    if (window.showToast) window.showToast("warn","Sesión cerrada","Vuelve a entrar.");
+    if (window.showToast) window.showToast("warn", "Sesión cerrada", "Vuelve a entrar.");
     await refreshGate();
   };
 
-  // Guardar historial (lo usaremos desde tus generadores)
-  async function guardarGeneracion(tipo, entradas, salida){
+  // =========================
+  // 4) GUARDAR HISTORIAL
+  // =========================
+  async function guardarGeneracion(tipo, entradas, salida) {
     const { data: { session } } = await supabase.auth.getSession();
     const user = session?.user;
-    if(!user) return;
+    if (!user) return;
 
     const { error } = await supabase
       .from("generaciones")
       .insert([{ user_id: user.id, tipo, entradas, salida }]);
 
-    if(error){
+    if (error) {
       console.error(error);
-      if (window.showToast) window.showToast("error","No se guardó", error.message);
+      if (window.showToast) window.showToast("error", "No se guardó", error.message);
     }
   }
 
-  // Enganchar tus funciones actuales sin reescribirlas
+  // =========================
+  // 5) ENGANCHAR TUS GENERADORES
+  // =========================
   const originalGenerarPlantilla = window.generarPlantilla;
-  window.generarPlantilla = async (mode) => {
-    originalGenerarPlantilla(mode);
+  if (typeof originalGenerarPlantilla === "function") {
+    window.generarPlantilla = async (mode) => {
+      originalGenerarPlantilla(mode);
 
-    const tipo = (mode === "nc") ? "NC" : "ND";
-    const salida = document.getElementById(`resultado_${mode}`)?.value || "";
-    const entradas = document.getElementById(`data_${mode}`)?.value || "";
+      const tipo = (mode === "nc") ? "NC" : "ND";
+      const salida = document.getElementById(`resultado_${mode}`)?.value || "";
+      const entradas = document.getElementById(`data_${mode}`)?.value || "";
 
-    if(salida.trim()) await guardarGeneracion(tipo, entradas, salida);
-  };
+      if (salida.trim()) await guardarGeneracion(tipo, entradas, salida);
+    };
+  }
 
   const originalAcometida = window.generarAcometidaUltra;
-  window.generarAcometidaUltra = async () => {
-    originalAcometida();
+  if (typeof originalAcometida === "function") {
+    window.generarAcometidaUltra = async () => {
+      originalAcometida();
 
-    const salida = document.getElementById("resultado_acometida")?.value || "";
-    const entradas = document.getElementById("data_acometida")?.value || "";
+      const salida = document.getElementById("resultado_acometida")?.value || "";
+      const entradas = document.getElementById("data_acometida")?.value || "";
 
-    if(salida.trim()) await guardarGeneracion("ACOMETIDA", entradas, salida);
-  };
+      if (salida.trim()) await guardarGeneracion("ACOMETIDA", entradas, salida);
+    };
+  }
 
+  // =========================
+  // 6) INIT
+  // =========================
   document.addEventListener("DOMContentLoaded", async () => {
     await refreshGate();
     supabase.auth.onAuthStateChange(async () => {
