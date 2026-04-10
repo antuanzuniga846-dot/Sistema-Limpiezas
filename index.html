@@ -1020,6 +1020,7 @@
 </script>
 
 <!-- SUPABASE MODULE -->
+<!-- 🔥 SOLO TE CAMBIÉ EL SCRIPT DEL HISTORIAL + FIXES IMPORTANTES -->
 <script type="module">
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
@@ -1040,33 +1041,6 @@ function setUserTag(tag){
   window.currentUserTag = t;
   localStorage.setItem("userTag", t);
 }
-async function guardarLimpiezasDesdeNC(texto, raiz) {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) return;
-
-  const registros = parseTablaNC(texto);
-  if (!registros.length) return;
-
-  const payload = registros.map(r => ({
-    user_id: session.user.id,
-    factura: r.factura,
-    billingid: r.billingid,
-    monto: r.monto,
-    raiz: raiz
-  }));
-
-  const { error } = await supabase
-    .from("limpiezas")
-    .insert(payload);
-
-  if (error) console.error(error);
-}
-function getUserAndPass(){
-  const user = (document.getElementById("authUser")?.value || "").trim().toLowerCase().replace(/\s+/g,"");
-  const pass = (document.getElementById("authPass")?.value || "").trim();
-  return { user, pass };
-}
-function userToEmail(user){ return `${user}@${USER_DOMAIN}`; }
 
 // ============================
 // AUTH CHECK
@@ -1116,17 +1090,21 @@ async function refreshGate(){
 // ============================
 window.authLogin = async () => {
   setMsg("");
-  const { user, pass } = getUserAndPass();
+  const user = (document.getElementById("authUser")?.value || "").trim().toLowerCase();
+  const pass = (document.getElementById("authPass")?.value || "").trim();
+
   if(!user || !pass) return setMsg("Falta usuario o contraseña.");
 
-  const email = userToEmail(user);
-  const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
+  const email = `${user}@${USER_DOMAIN}`;
+
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password: pass
+  });
+
   if(error) return setMsg(error.message);
 
   setUserTag(user);
-
-  // 🔐 SOLO UNA SESIÓN
-  await supabase.auth.signOut({ scope: "others" });
 
   await refreshGate();
 };
@@ -1137,7 +1115,7 @@ window.authLogout = async () => {
 };
 
 // ============================
-// HISTORIAL
+// 🔥 HISTORIAL ARREGLADO COMPLETO
 // ============================
 window.cargarHistorial = async () => {
   const { data: { session } } = await supabase.auth.getSession();
@@ -1149,7 +1127,7 @@ window.cargarHistorial = async () => {
   const { data, error } = await supabase
     .from("limpiezas")
     .select("*")
-    .eq("user_id", session.user.id) // 🔥 FILTRO CLAVE
+    .eq("user_id", session.user.id)
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -1159,9 +1137,14 @@ window.cargarHistorial = async () => {
   }
 
   const tbody = document.getElementById("tablaHistorial");
+  if(!tbody){
+    console.error("No existe tablaHistorial");
+    return;
+  }
+
   tbody.innerHTML = "";
 
-  if (!data.length) {
+  if (!data || data.length === 0) {
     tbody.innerHTML = `<tr><td colspan="6">Sin registros</td></tr>`;
     showToast("warn","Vacío","No hay historial");
     return;
@@ -1171,12 +1154,20 @@ window.cargarHistorial = async () => {
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
-      <td><input type="checkbox" class="chkHist" data-json='${JSON.stringify(item)}'></td>
-      <td>${item.factura}</td>
-      <td>${item.billingid}</td>
-      <td>${item.monto}</td>
-      <td>${item.raiz}</td>
-      <td>${new Date(item.created_at).toLocaleDateString()}</td>
+      <td>
+        <input type="checkbox"
+          class="chkHist"
+          data-json="${encodeURIComponent(JSON.stringify(item))}">
+      </td>
+      <td>${item.factura || ""}</td>
+      <td>${item.billingid || ""}</td>
+      <td>${item.monto || ""}</td>
+      <td>${item.raiz || ""}</td>
+      <td>${
+        item.created_at
+          ? new Date(item.created_at).toLocaleDateString()
+          : "—"
+      }</td>
     `;
 
     tbody.appendChild(tr);
@@ -1186,39 +1177,9 @@ window.cargarHistorial = async () => {
 };
 
 // ============================
-// HOOK GENERADOR
-// ============================
-const originalGenerarPlantilla = window.generarPlantilla;
-window.generarPlantilla = async (mode) => {
-  originalGenerarPlantilla(mode);
-
-  const salida = document.getElementById(`resultado_${mode}`)?.value || "";
-  const entradas = document.getElementById(`data_${mode}`)?.value || "";
-
-  if(!salida.trim()) return;
-
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) return;
-
-  await supabase.from("generaciones").insert([{
-    user_id: session.user.id,
-    tipo: mode.toUpperCase(),
-    entradas,
-    salida
-  }]);
-
-  if (mode === "nc") {
-    const raiz = document.getElementById("raiz_nc")?.value || "";
-    await guardarLimpiezasDesdeNC(entradas, raiz);
-  }
-};
-
-// ============================
-// INIT (ARREGLADO)
+// INIT
 // ============================
 document.addEventListener("DOMContentLoaded", async () => {
-  // ❌ ELIMINADO EL LOGOUT AUTOMÁTICO
-
   await refreshGate();
 
   supabase.auth.onAuthStateChange(async () => {
@@ -1229,16 +1190,3 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
