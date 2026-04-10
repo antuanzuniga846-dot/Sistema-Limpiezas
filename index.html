@@ -1104,33 +1104,38 @@ async function isAuthorized(){
 
   return !!data;
 }
-
 async function refreshGate(){
-  const { data: { session } } = await supabase.auth.getSession();
-  const logged = !!session?.user;
-
-  if(!gate) return;
-
-  if(!logged){
-    gate.style.display = "grid";
-    return;
+  // 🔥 DESACTIVADO TEMPORAL
+  if(gate){
+    gate.style.display = "none";
   }
-
-  const email = session.user.email || "";
-  const username = email.includes("@") ? email.split("@")[0] : "";
-  if(username) setUserTag(username);
-
-  const ok = await isAuthorized();
-  if(!ok){
-    await supabase.auth.signOut();
-    gate.style.display = "grid";
-    setMsg("❌ Usuario NO autorizado.");
-    return;
-  }
-
-  gate.style.display = "none";
-  setMsg("");
 }
+//async function refreshGate(){
+ // const { data: { session } } = await supabase.auth.getSession();
+ // const logged = !!session?.user;
+
+ // if(!gate) return;
+
+ // if(!logged){
+ //   gate.style.display = "grid";
+  //  return;
+//  }
+
+//  const email = session.user.email || "";
+ // const username = email.includes("@") ? email.split("@")[0] : "";
+ // if(username) setUserTag(username);
+
+ // const ok = await isAuthorized();
+//  if(!ok){
+ //   await supabase.auth.signOut();
+  //  gate.style.display = "grid";
+  //  setMsg("❌ Usuario NO autorizado.");
+ //   return;
+//  }
+
+//  gate.style.display = "none";
+//  setMsg("");
+//}
 
 // ============================
 // LOGIN
