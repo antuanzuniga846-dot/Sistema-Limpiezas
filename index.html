@@ -1090,6 +1090,7 @@ async function refreshGate(){
 // ============================
 window.authLogin = async () => {
   setMsg("");
+
   const user = (document.getElementById("authUser")?.value || "").trim().toLowerCase();
   const pass = (document.getElementById("authPass")?.value || "").trim();
 
@@ -1105,7 +1106,6 @@ window.authLogin = async () => {
   if(error) return setMsg(error.message);
 
   setUserTag(user);
-
   await refreshGate();
 };
 
@@ -1115,10 +1115,11 @@ window.authLogout = async () => {
 };
 
 // ============================
-// 🔥 HISTORIAL ARREGLADO COMPLETO
+// 🔥 HISTORIAL 100% FIXED
 // ============================
 window.cargarHistorial = async () => {
   const { data: { session } } = await supabase.auth.getSession();
+
   if (!session?.user) {
     showToast("error","Sin sesión","Inicia sesión primero");
     return;
@@ -1131,21 +1132,22 @@ window.cargarHistorial = async () => {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error(error);
+    console.error("ERROR SUPABASE:", error);
     showToast("error","Error","No se pudo cargar historial");
     return;
   }
 
   const tbody = document.getElementById("tablaHistorial");
-  if(!tbody){
-    console.error("No existe tablaHistorial");
+
+  if (!tbody) {
+    console.error("No existe tablaHistorial en el HTML");
     return;
   }
 
   tbody.innerHTML = "";
 
   if (!data || data.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6">Sin registros</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6">❌ No hay registros guardados</td></tr>`;
     showToast("warn","Vacío","No hay historial");
     return;
   }
@@ -1159,13 +1161,13 @@ window.cargarHistorial = async () => {
           class="chkHist"
           data-json="${encodeURIComponent(JSON.stringify(item))}">
       </td>
-      <td>${item.factura || ""}</td>
-      <td>${item.billingid || ""}</td>
-      <td>${item.monto || ""}</td>
-      <td>${item.raiz || ""}</td>
+      <td>${item.factura ?? ""}</td>
+      <td>${item.billingid ?? ""}</td>
+      <td>${item.monto ?? ""}</td>
+      <td>${item.raiz ?? ""}</td>
       <td>${
         item.created_at
-          ? new Date(item.created_at).toLocaleDateString()
+          ? new Date(item.created_at).toLocaleString()
           : "—"
       }</td>
     `;
