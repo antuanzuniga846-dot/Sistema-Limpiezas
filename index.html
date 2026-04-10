@@ -1040,17 +1040,6 @@ function setUserTag(tag){
   window.currentUserTag = t;
   localStorage.setItem("userTag", t);
 }
-
-function getUserAndPass(){
-  const user = (document.getElementById("authUser")?.value || "").trim().toLowerCase().replace(/\s+/g,"");
-  const pass = (document.getElementById("authPass")?.value || "").trim();
-  return { user, pass };
-}
-function userToEmail(user){ return `${user}@${USER_DOMAIN}`; }
-
-// ============================
-// ✅ Historial
-// ============================
 async function guardarLimpiezasDesdeNC(texto, raiz) {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session?.user) return;
@@ -1072,6 +1061,12 @@ async function guardarLimpiezasDesdeNC(texto, raiz) {
 
   if (error) console.error(error);
 }
+function getUserAndPass(){
+  const user = (document.getElementById("authUser")?.value || "").trim().toLowerCase().replace(/\s+/g,"");
+  const pass = (document.getElementById("authPass")?.value || "").trim();
+  return { user, pass };
+}
+function userToEmail(user){ return `${user}@${USER_DOMAIN}`; }
 
 // ============================
 // AUTH CHECK
@@ -1146,22 +1141,35 @@ window.authLogout = async () => {
 // ============================
 window.cargarHistorial = async () => {
   const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) return;
-
-  showToast("warn","Cargando...","Espera");
+  if (!session?.user) {
+    showToast("error","Sin sesión","Inicia sesión primero");
+    return;
+  }
 
   const { data, error } = await supabase
     .from("limpiezas")
     .select("*")
+    .eq("user_id", session.user.id) // 🔥 FILTRO CLAVE
     .order("created_at", { ascending: false });
 
-  if (error) return showToast("error","Error","No se pudo cargar");
+  if (error) {
+    console.error(error);
+    showToast("error","Error","No se pudo cargar historial");
+    return;
+  }
 
   const tbody = document.getElementById("tablaHistorial");
   tbody.innerHTML = "";
 
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="6">Sin registros</td></tr>`;
+    showToast("warn","Vacío","No hay historial");
+    return;
+  }
+
   data.forEach(item => {
     const tr = document.createElement("tr");
+
     tr.innerHTML = `
       <td><input type="checkbox" class="chkHist" data-json='${JSON.stringify(item)}'></td>
       <td>${item.factura}</td>
@@ -1170,10 +1178,11 @@ window.cargarHistorial = async () => {
       <td>${item.raiz}</td>
       <td>${new Date(item.created_at).toLocaleDateString()}</td>
     `;
+
     tbody.appendChild(tr);
   });
 
-  showToast("success","Historial listo",`${data.length} registros`);
+  showToast("success","Historial cargado",`${data.length} registros`);
 };
 
 // ============================
