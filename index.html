@@ -397,9 +397,7 @@
       <button type="button" class="navBtn" data-page="gen-acometida" onclick="go('gen-acometida')">
         <span class="icon">📄</span> Acometidas
       </button>
-<button type="button" class="navBtn" data-page="historial" onclick="go('historial')">
-  <span class="icon">📂</span> Historial
-</button>
+
       <button type="button" class="navBtn" data-page="help" onclick="go('help')">
         <span class="icon">❓</span> Ayuda
       </button>
@@ -603,37 +601,7 @@
           </div>
         </div>
       </section>
-<section class="page" id="page-historial">
-  <div class="card">
-    <div class="cardHeader">
-      <h3>Historial de Limpiezas</h3>
-      <span>Selecciona y reutiliza para ND</span>
-    </div>
 
-    <div class="cardBody">
-      <div style="margin-bottom:10px;">
-        <button class="btn btnPrimary" onclick="cargarHistorial()">🔄 Cargar historial</button>
-        <button class="btn btnGhost" onclick="usarSeleccionParaND()">➡️ Usar en ND</button>
-      </div>
-
-      <div style="max-height:400px; overflow:auto;">
-        <table style="width:100%; font-size:12px; border-collapse:collapse;">
-          <thead>
-            <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.2);">
-              <th></th>
-              <th>Factura</th>
-              <th>Billing</th>
-              <th>Monto</th>
-              <th>Raíz</th>
-              <th>Fecha</th>
-            </tr>
-          </thead>
-          <tbody id="tablaHistorial"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</section>
       <section class="page" id="page-help">
         <div class="card">
           <div class="cardHeader">
@@ -691,7 +659,6 @@
     const title = document.getElementById("pageTitle");
     const sub = document.getElementById("pageSub");
     const map = {
-        historial: ["Historial", "Consulta y reutiliza limpiezas guardadas."],
       home: ["Inicio", "Panel de control y accesos rápidos."],
       "gen-nc": ["Generador NC", "Genera el formato NC (CM,908,...)."],
       "gen-nd": ["Generador ND", "Genera el formato ND (IN,911,...)."],
@@ -763,7 +730,6 @@
   // ===== Copiar / Limpiar helpers =====
   function copiarTexto(txt){
     return navigator.clipboard.writeText(txt);
-      guardarLimpiezaBatch(registrosGuardar);
   }
 
   window.copiarResultado = async (mode) => {
@@ -921,28 +887,18 @@
 
     const userTag = getUsuarioActual();
 
-let resultado = "";
-let count = 0;
-let registrosGuardar = [];
-    
+    let resultado = "";
+    let count = 0;
+
     const tuplasPrincipal = (mode === "nc")
       ? parseTablaNC(textoPrincipal)
       : parseTablaND(textoPrincipal);
 
-for(const r of tuplasPrincipal){
-  const raizUsar = (mode === "nc") ? raizDefault : r.raiz;
-
-  resultado += `${raizUsar},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${userTag},,02\n`;
-  
-  registrosGuardar.push({
-    factura: r.factura,
-    billingid: r.billingid,
-    monto: r.monto,
-    raiz: raizUsar
-  });
-
-  count++;
-}
+    for(const r of tuplasPrincipal){
+      const raizUsar = (mode === "nc") ? raizDefault : r.raiz;
+      resultado += `${raizUsar},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${userTag},,02\n`;
+      count++;
+    }
 
     const rules = document.querySelectorAll(`#rules_${mode} .ruleItem`);
     rules.forEach(rule => {
@@ -954,20 +910,12 @@ for(const r of tuplasPrincipal){
         ? parseTablaNC(tablaExtra)
         : parseTablaND(tablaExtra);
 
-for(const r of tuplasExtra){
-  const raizUsar = (mode === "nc") ? raizExtra : r.raiz;
-
-  resultado += `${raizUsar},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${userTag},,02\n`;
-
-  registrosGuardar.push({
-    factura: r.factura,
-    billingid: r.billingid,
-    monto: r.monto,
-    raiz: raizUsar
-  });
-
-  count++;
-}
+      for(const r of tuplasExtra){
+        const raizUsar = (mode === "nc") ? raizExtra : r.raiz;
+        resultado += `${raizUsar},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${userTag},,02\n`;
+        count++;
+      }
+    });
 
     document.getElementById(`resultado_${mode}`).value = resultado;
     document.getElementById(`count_${mode}`).textContent = String(count);
@@ -1040,196 +988,167 @@ for(const r of tuplasExtra){
 
 <!-- SUPABASE MODULE -->
 <script type="module">
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-const SUPABASE_URL = "https://matvtyrmzytbdznlmfns.supabase.co";
-const SUPABASE_KEY = "sb_publishable_5QA7FGPRirqXNJ_v0xbJyw_h5D8XLs5";
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+  // ========= CONFIG =========
+  const SUPABASE_URL = "https://matvtyrmzytbdznlmfns.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_5QA7FGPRirqXNJ_v0xbJyw_h5D8XLs5";
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const USER_DOMAIN = "sistema.local";
+  const USER_DOMAIN = "sistema.local";
 
-const gate = document.getElementById("authGate");
-const msg = document.getElementById("authMsg");
+  const gate = document.getElementById("authGate");
+  const msg = document.getElementById("authMsg");
 
-function setMsg(t=""){ if(msg) msg.textContent = t; }
+  function setMsg(t=""){ if(msg) msg.textContent = t; }
 
-function setUserTag(tag){
-  const t = String(tag || "").trim();
-  if(!t) return;
-  window.currentUserTag = t;
-  localStorage.setItem("userTag", t);
-}
-
-    async function guardarLimpiezaBatch(registros){
-  const { data: { session } } = await supabase.auth.getSession();
-
-  if(!session?.user) {
-    console.warn("No hay sesión");
-    return;
+  function setUserTag(tag){
+    const t = String(tag || "").trim();
+    if(!t) return;
+    window.currentUserTag = t;
+    localStorage.setItem("userTag", t);
   }
 
-  if(!registros || registros.length === 0) return;
-
-  const payload = registros.map(r => ({
-    user_id: session.user.id,
-    factura: r.factura,
-    billingid: r.billingid,
-    monto: r.monto,
-    raiz: r.raiz
-  }));
-
-  const { error } = await supabase
-    .from("limpiezas")
-    .insert(payload);
-
-  if(error){
-    console.error("Error guardando:", error);
-    showToast("error","Error","No se guardó en historial");
-  } else {
-    showToast("success","Guardado","Se guardó en historial");
+  function getUserAndPass(){
+    const user = (document.getElementById("authUser")?.value || "").trim().toLowerCase().replace(/\s+/g,"");
+    const pass = (document.getElementById("authPass")?.value || "").trim();
+    return { user, pass };
   }
-}
+  function userToEmail(user){ return `${user}@${USER_DOMAIN}`; }
 
-// ============================
-// AUTH CHECK
-// ============================
-async function isAuthorized(){
-  const { data: { session } } = await supabase.auth.getSession();
-  if(!session?.user) return false;
+  async function isAuthorized(){
+    const { data: { session } } = await supabase.auth.getSession();
+    if(!session?.user) return false;
 
-  const { data } = await supabase
-    .from("autorizados")
-    .select("user_id")
-    .eq("user_id", session.user.id)
-    .maybeSingle();
+    const { data, error } = await supabase
+      .from("autorizados")
+      .select("user_id")
+      .eq("user_id", session.user.id)
+      .maybeSingle();
 
-  return !!data;
-}
-
-async function refreshGate(){
-  const { data: { session } } = await supabase.auth.getSession();
-  const logged = !!session?.user;
-
-  if(!gate) return;
-
-  if(!logged){
-    gate.style.display = "grid";
-    return;
+    if(error){
+      console.error(error);
+      return false;
+    }
+    return !!data;
   }
 
-  const email = session.user.email || "";
-  const username = email.includes("@") ? email.split("@")[0] : "";
-  if(username) setUserTag(username);
+  async function refreshGate(){
+    const { data: { session } } = await supabase.auth.getSession();
+    const logged = !!session?.user;
 
-  const ok = await isAuthorized();
-  if(!ok){
+    if(!gate) return;
+
+    if(!logged){
+      gate.style.display = "grid";
+      return;
+    }
+
+    // Si recargan: username desde email interno
+    const email = session.user.email || "";
+    const username = email.includes("@") ? email.split("@")[0] : "";
+    if(username) setUserTag(username);
+
+    const ok = await isAuthorized();
+    if(!ok){
+      await supabase.auth.signOut();
+      gate.style.display = "grid";
+      setMsg("❌ Usuario NO autorizado. Pide acceso al administrador.");
+      if(window.showToast) window.showToast("error","Acceso denegado","No estás autorizado.");
+      return;
+    }
+
+    gate.style.display = "none";
+    setMsg("");
+  }
+
+  window.authRegister = async () => {
+    setMsg("");
+    const { user, pass } = getUserAndPass();
+    if(!user || !pass) return setMsg("Falta usuario o contraseña.");
+    if(user.length < 3) return setMsg("El usuario debe tener al menos 3 caracteres.");
+    if(pass.length < 6) return setMsg("La contraseña debe tener al menos 6 caracteres.");
+
+    const email = userToEmail(user);
+    const { error } = await supabase.auth.signUp({ email, password: pass });
+    if(error) return setMsg(error.message);
+
+    setMsg("✅ Usuario creado. Ahora intenta entrar. (Si confirmación está activa, revisa el correo).");
+  };
+
+  window.authLogin = async () => {
+    setMsg("");
+    const { user, pass } = getUserAndPass();
+    if(!user || !pass) return setMsg("Falta usuario o contraseña.");
+
+    const email = userToEmail(user);
+    const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
+    if(error) return setMsg(error.message);
+
+    // Tag para generadores
+    setUserTag(user);
+
+     // ✅ SOLO 1 SESIÓN POR USUARIO:
+  // tumba cualquier otra sesión activa del mismo usuario
+  await supabase.auth.signOut({ scope: "others" });
+
+    if(window.showToast) window.showToast("success","Bienvenido",`Sesión iniciada: ${user}`);
+    await refreshGate();
+  };
+
+  window.authLogout = async () => {
     await supabase.auth.signOut();
-    gate.style.display = "grid";
-    setMsg("❌ Usuario NO autorizado.");
-    return;
+    if(window.showToast) window.showToast("warn","Sesión cerrada","Vuelve a entrar.");
+    await refreshGate();
+  };
+
+  // ===== Guardar historial =====
+  async function guardarGeneracion(tipo, entradas, salida){
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user;
+    if(!user) return;
+
+    const { error } = await supabase
+      .from("generaciones")
+      .insert([{ user_id: user.id, tipo, entradas, salida }]);
+
+    if(error){
+      console.error(error);
+      if(window.showToast) window.showToast("error","No se guardó", error.message);
+    }
   }
 
-  gate.style.display = "none";
-  setMsg("");
-}
+  // Hook a tus funciones
+  const originalGenerarPlantilla = window.generarPlantilla;
+  if(typeof originalGenerarPlantilla === "function"){
+    window.generarPlantilla = async (mode) => {
+      originalGenerarPlantilla(mode);
+      const tipo = (mode === "nc") ? "NC" : "ND";
+      const salida = document.getElementById(`resultado_${mode}`)?.value || "";
+      const entradas = document.getElementById(`data_${mode}`)?.value || "";
+      if(salida.trim()) await guardarGeneracion(tipo, entradas, salida);
+    };
+  }
 
-// ============================
-// LOGIN
-// ============================
-window.authLogin = async () => {
-  setMsg("");
+  const originalAcometida = window.generarAcometidaUltra;
+  if(typeof originalAcometida === "function"){
+    window.generarAcometidaUltra = async () => {
+      originalAcometida();
+      const salida = document.getElementById("resultado_acometida")?.value || "";
+      const entradas = document.getElementById("data_acometida")?.value || "";
+      if(salida.trim()) await guardarGeneracion("ACOMETIDA", entradas, salida);
+    };
+  }
 
-  const user = (document.getElementById("authUser")?.value || "").trim().toLowerCase();
-  const pass = (document.getElementById("authPass")?.value || "").trim();
+  document.addEventListener("DOMContentLoaded", async () => {
 
-  if(!user || !pass) return setMsg("Falta usuario o contraseña.");
-
-  const email = `${user}@${USER_DOMAIN}`;
-
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password: pass
-  });
-
-  if(error) return setMsg(error.message);
-
-  setUserTag(user);
-  await refreshGate();
-};
-
-window.authLogout = async () => {
-  await supabase.auth.signOut();
-  await refreshGate();
-};
-
-// ============================
-// 🔥 HISTORIAL 100% FIXED
-// ============================
-window.cargarHistorial = async () => {
   const { data: { session } } = await supabase.auth.getSession();
 
-  if (!session?.user) {
-    showToast("error","Sin sesión","Inicia sesión primero");
-    return;
+  // 👇 Si hay sesión activa y se recargó la página → cerrar sesión
+  if (session) {
+    await supabase.auth.signOut();
   }
 
-  const { data, error } = await supabase
-    .from("limpiezas")
-    .select("*")
-    .eq("user_id", session.user.id)
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    console.error("ERROR SUPABASE:", error);
-    showToast("error","Error","No se pudo cargar historial");
-    return;
-  }
-
-  const tbody = document.getElementById("tablaHistorial");
-
-  if (!tbody) {
-    console.error("No existe tablaHistorial en el HTML");
-    return;
-  }
-
-  tbody.innerHTML = "";
-
-  if (!data || data.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6">❌ No hay registros guardados</td></tr>`;
-    showToast("warn","Vacío","No hay historial");
-    return;
-  }
-
-  data.forEach(item => {
-    const tr = document.createElement("tr");
-
-    tr.innerHTML = `
-      <td>
-        <input type="checkbox"
-          class="chkHist"
-          data-json="${encodeURIComponent(JSON.stringify(item))}">
-      </td>
-      <td>${item.factura ?? ""}</td>
-      <td>${item.billingid ?? ""}</td>
-      <td>${item.monto ?? ""}</td>
-      <td>${item.raiz ?? ""}</td>
-      <td>${
-        item.created_at
-          ? new Date(item.created_at).toLocaleString()
-          : "—"
-      }</td>
-    `;
-
-    tbody.appendChild(tr);
-  });
-
-  showToast("success","Historial cargado",`${data.length} registros`);
-};
-
-// ============================
-// INIT
-// ============================
-document.addEventListener("DOMContentLoaded", async () => {
   await refreshGate();
 
   supabase.auth.onAuthStateChange(async () => {
@@ -1240,3 +1159,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
