@@ -763,6 +763,7 @@
   // ===== Copiar / Limpiar helpers =====
   function copiarTexto(txt){
     return navigator.clipboard.writeText(txt);
+      guardarLimpiezaBatch(registrosGuardar);
   }
 
   window.copiarResultado = async (mode) => {
@@ -920,18 +921,28 @@
 
     const userTag = getUsuarioActual();
 
-    let resultado = "";
-    let count = 0;
-
+let resultado = "";
+let count = 0;
+let registrosGuardar = [];
+    
     const tuplasPrincipal = (mode === "nc")
       ? parseTablaNC(textoPrincipal)
       : parseTablaND(textoPrincipal);
 
-    for(const r of tuplasPrincipal){
-      const raizUsar = (mode === "nc") ? raizDefault : r.raiz;
-      resultado += `${raizUsar},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${userTag},,02\n`;
-      count++;
-    }
+for(const r of tuplasPrincipal){
+  const raizUsar = (mode === "nc") ? raizDefault : r.raiz;
+
+  resultado += `${raizUsar},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${userTag},,02\n`;
+  
+  registrosGuardar.push({
+    factura: r.factura,
+    billingid: r.billingid,
+    monto: r.monto,
+    raiz: raizUsar
+  });
+
+  count++;
+}
 
     const rules = document.querySelectorAll(`#rules_${mode} .ruleItem`);
     rules.forEach(rule => {
@@ -943,12 +954,20 @@
         ? parseTablaNC(tablaExtra)
         : parseTablaND(tablaExtra);
 
-      for(const r of tuplasExtra){
-        const raizUsar = (mode === "nc") ? raizExtra : r.raiz;
-        resultado += `${raizUsar},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${userTag},,02\n`;
-        count++;
-      }
-    });
+for(const r of tuplasExtra){
+  const raizUsar = (mode === "nc") ? raizExtra : r.raiz;
+
+  resultado += `${raizUsar},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${userTag},,02\n`;
+
+  registrosGuardar.push({
+    factura: r.factura,
+    billingid: r.billingid,
+    monto: r.monto,
+    raiz: raizUsar
+  });
+
+  count++;
+}
 
     document.getElementById(`resultado_${mode}`).value = resultado;
     document.getElementById(`count_${mode}`).textContent = String(count);
@@ -1020,7 +1039,6 @@
 </script>
 
 <!-- SUPABASE MODULE -->
-<!-- 🔥 SOLO TE CAMBIÉ EL SCRIPT DEL HISTORIAL + FIXES IMPORTANTES -->
 <script type="module">
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
@@ -1040,6 +1058,36 @@ function setUserTag(tag){
   if(!t) return;
   window.currentUserTag = t;
   localStorage.setItem("userTag", t);
+}
+
+    async function guardarLimpiezaBatch(registros){
+  const { data: { session } } = await supabase.auth.getSession();
+
+  if(!session?.user) {
+    console.warn("No hay sesión");
+    return;
+  }
+
+  if(!registros || registros.length === 0) return;
+
+  const payload = registros.map(r => ({
+    user_id: session.user.id,
+    factura: r.factura,
+    billingid: r.billingid,
+    monto: r.monto,
+    raiz: r.raiz
+  }));
+
+  const { error } = await supabase
+    .from("limpiezas")
+    .insert(payload);
+
+  if(error){
+    console.error("Error guardando:", error);
+    showToast("error","Error","No se guardó en historial");
+  } else {
+    showToast("success","Guardado","Se guardó en historial");
+  }
 }
 
 // ============================
