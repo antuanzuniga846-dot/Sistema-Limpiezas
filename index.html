@@ -1236,16 +1236,11 @@ window.cargarHistorial = async () => {
   showToast("success","Historial cargado",`${data.length} registros`);
 };
 
-// ============================
-// INIT
-// ============================
-document.addEventListener("DOMContentLoaded", async () => {
-  await refreshGate();
 
-  supabase.auth.onAuthStateChange(async () => {
-    await refreshGate();
-  });
-    window.usarSeleccionParaND = function () {
+// ============================
+// 🔥 ESTA FUNCIÓN VA FUERA
+// ============================
+window.usarSeleccionParaND = function () {
   const checks = document.querySelectorAll(".chkHist:checked");
 
   if (checks.length === 0) {
@@ -1257,11 +1252,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   checks.forEach(chk => {
     const item = JSON.parse(decodeURIComponent(chk.dataset.json));
-
     texto += `${item.raiz} ${item.billingid} ${item.monto} ${item.factura}\n`;
   });
 
-  // 🔥 meter en ND
   const textareaND = document.getElementById("data_nd");
 
   if (!textareaND) {
@@ -1270,12 +1263,22 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   textareaND.value = texto.trim();
-
-  // 👉 cambiar de pantalla automáticamente
   go("gen-nd");
 
   showToast("success","Listo","Datos enviados a ND");
 };
+
+
+// ============================
+// INIT
+// ============================
+document.addEventListener("DOMContentLoaded", async () => {
+  await refreshGate();
+
+  supabase.auth.onAuthStateChange(async () => {
+    await refreshGate();
+  });
+});
 </script>
 
 </body>
