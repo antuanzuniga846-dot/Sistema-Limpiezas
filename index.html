@@ -1245,7 +1245,37 @@ document.addEventListener("DOMContentLoaded", async () => {
   supabase.auth.onAuthStateChange(async () => {
     await refreshGate();
   });
-});
+    window.usarSeleccionParaND = function () {
+  const checks = document.querySelectorAll(".chkHist:checked");
+
+  if (checks.length === 0) {
+    showToast("warn","Nada seleccionado","Marca al menos un registro");
+    return;
+  }
+
+  let texto = "";
+
+  checks.forEach(chk => {
+    const item = JSON.parse(decodeURIComponent(chk.dataset.json));
+
+    texto += `${item.raiz} ${item.billingid} ${item.monto} ${item.factura}\n`;
+  });
+
+  // 🔥 meter en ND
+  const textareaND = document.getElementById("data_nd");
+
+  if (!textareaND) {
+    showToast("error","Error","No se encontró el campo ND");
+    return;
+  }
+
+  textareaND.value = texto.trim();
+
+  // 👉 cambiar de pantalla automáticamente
+  go("gen-nd");
+
+  showToast("success","Listo","Datos enviados a ND");
+};
 </script>
 
 </body>
