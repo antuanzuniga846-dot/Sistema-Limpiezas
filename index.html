@@ -763,7 +763,6 @@
   // ===== Copiar / Limpiar helpers =====
   function copiarTexto(txt){
     return navigator.clipboard.writeText(txt);
-      guardarLimpiezaBatch(registrosGuardar);
   }
 
   window.copiarResultado = async (mode) => {
@@ -1069,15 +1068,14 @@ function setUserTag(tag){
   localStorage.setItem("userTag", t);
 }
 
-    async function guardarLimpiezaBatch(registros){
+
+  window.guardarLimpiezaBatch = async function(registros){
   const { data: { session } } = await supabase.auth.getSession();
 
   if(!session?.user) {
-    console.warn("No hay sesión");
+    console.warn("❌ No hay sesión");
     return;
   }
-
-  if(!registros || registros.length === 0) return;
 
   const payload = registros.map(r => ({
     user_id: session.user.id,
@@ -1087,17 +1085,20 @@ function setUserTag(tag){
     raiz: r.raiz
   }));
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("limpiezas")
-    .insert(payload);
+    .insert(payload)
+    .select();
 
   if(error){
-    console.error("Error guardando:", error);
-    showToast("error","Error","No se guardó en historial");
+    console.error("🔥 ERROR REAL:", error);
+    showToast("error","Error real", error.message);
   } else {
+    console.log("✅ Guardado:", data);
     showToast("success","Guardado","Se guardó en historial");
   }
 }
+    
 
 // ============================
 // AUTH CHECK
