@@ -1234,6 +1234,10 @@ window.cargarHistorial = async () => {
   });
 
   showToast("success","Historial cargado",`${data.length} registros`);
+    // 🔥 recarga segura después de mostrar datos
+setTimeout(() => {
+  location.reload();
+}, 800);
 };
 
 // ============================
