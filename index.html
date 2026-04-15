@@ -990,11 +990,11 @@
   setTimeout(async () => {
     await window.guardarLimpiezaBatch(registrosGuardar);
 
+    // 🔥 REFRESH AUTOMÁTICO DEL HISTORIAL
     if (typeof cargarHistorial === "function") {
       cargarHistorial();
     }
 
-    go("historial"); // opcional
   }, 50);
 }
 }
