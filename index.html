@@ -1107,11 +1107,10 @@ async function isAuthorized(){
   const { data: { session } } = await supabase.auth.getSession();
   if(!session?.user) return false;
 
-  const { data } = await supabase
-    .from("autorizados")
-    .select("user_id")
-    .eq("user_id", session.user.id)
-    .maybeSingle();
+ const { data, error } = await supabase
+  .from("limpiezas")
+  .select("*")
+  .order("created_at", { ascending: false });
 
   return !!data;
 }
