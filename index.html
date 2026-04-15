@@ -987,10 +987,12 @@
   }
 
   // 🔥 GUARDAR EN HISTORIAL (ARREGLADO)
-  if (typeof guardarLimpiezaBatch === "function") {
-    guardarLimpiezaBatch(registrosGuardar);
-  }
+  if (window.guardarLimpiezaBatch) {
+  setTimeout(() => {
+    window.guardarLimpiezaBatch(registrosGuardar);
+  }, 50);
 }
+
   window.generarPlantilla = generarPlantilla;
 
   // ===== Generador Acometida =====
@@ -1068,49 +1070,54 @@ function setUserTag(tag){
   localStorage.setItem("userTag", t);
 }
 
+// ============================
+// 🔥 GUARDAR (FIX GLOBAL + SIN FALLOS)
+// ============================
+window.guardarLimpiezaBatch = async function(registros){
+  try{
+    const { data: { session } } = await supabase.auth.getSession();
 
-  window.guardarLimpiezaBatch = async function(registros){
-  const { data: { session } } = await supabase.auth.getSession();
+    if(!session?.user){
+      console.warn("❌ No hay sesión");
+      return;
+    }
 
-  if(!session?.user) {
-    console.warn("❌ No hay sesión");
-    return;
+    const payload = registros.map(r => ({
+      user_id: session.user.id,
+      factura: r.factura,
+      billingid: r.billingid,
+      monto: r.monto,
+      raiz: r.raiz
+    }));
+
+    const { error } = await supabase
+      .from("limpiezas")
+      .insert(payload);
+
+    if(error){
+      console.error("🔥 ERROR REAL:", error);
+      showToast("error","Error", error.message);
+    } else {
+      console.log("✅ Guardado OK");
+    }
+
+  } catch(err){
+    console.error("ERROR GUARDANDO:", err);
   }
-
-  const payload = registros.map(r => ({
-    user_id: session.user.id,    
-    factura: r.factura,
-    billingid: r.billingid,
-    monto: r.monto,
-    raiz: r.raiz
-  }));
-
-  const { data, error } = await supabase
-    .from("limpiezas")
-    .insert(payload)
-    .select();
-
-  if(error){
-    console.error("🔥 ERROR REAL:", error);
-    showToast("error","Error real", error.message);
-  } else {
-    console.log("✅ Guardado:", data);
-    showToast("success","Guardado","Se guardó en historial");
-  }
-}
-    
+};
 
 // ============================
-// AUTH CHECK
+// AUTH CHECK (ARREGLADO)
 // ============================
 async function isAuthorized(){
   const { data: { session } } = await supabase.auth.getSession();
   if(!session?.user) return false;
 
- const { data, error } = await supabase
-  .from("limpiezas")
-  .select("*")
-  .order("created_at", { ascending: false });
+  const { data } = await supabase
+    .from("autorizados")
+    .select("user_id")
+    .eq("user_id", session.user.id)
+    .maybeSingle();
 
   return !!data;
 }
@@ -1127,10 +1134,11 @@ async function refreshGate(){
   }
 
   const email = session.user.email || "";
-  const username = email.includes("@") ? email.split("@")[0] : "";
+  const username = email.split("@")[0];
   if(username) setUserTag(username);
 
   const ok = await isAuthorized();
+
   if(!ok){
     await supabase.auth.signOut();
     gate.style.display = "grid";
@@ -1172,7 +1180,7 @@ window.authLogout = async () => {
 };
 
 // ============================
-// 🔥 HISTORIAL 100% FIXED
+// 🔥 HISTORIAL GLOBAL (SIN USER)
 // ============================
 window.cargarHistorial = async () => {
   const { data: { session } } = await supabase.auth.getSession();
@@ -1185,8 +1193,7 @@ window.cargarHistorial = async () => {
   const { data, error } = await supabase
     .from("limpiezas")
     .select("*")
-    .eq("user_id", session.user.id)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false }); // 🔥 SIN FILTRO
 
   if (error) {
     console.error("ERROR SUPABASE:", error);
@@ -1195,17 +1202,10 @@ window.cargarHistorial = async () => {
   }
 
   const tbody = document.getElementById("tablaHistorial");
-
-  if (!tbody) {
-    console.error("No existe tablaHistorial en el HTML");
-    return;
-  }
-
   tbody.innerHTML = "";
 
   if (!data || data.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6">❌ No hay registros guardados</td></tr>`;
-    showToast("warn","Vacío","No hay historial");
+    tbody.innerHTML = `<tr><td colspan="6">❌ No hay registros</td></tr>`;
     return;
   }
 
@@ -1222,11 +1222,7 @@ window.cargarHistorial = async () => {
       <td>${item.billingid ?? ""}</td>
       <td>${item.monto ?? ""}</td>
       <td>${item.raiz ?? ""}</td>
-      <td>${
-        item.created_at
-          ? new Date(item.created_at).toLocaleString()
-          : "—"
-      }</td>
+      <td>${item.created_at ? new Date(item.created_at).toLocaleString() : "-"}</td>
     `;
 
     tbody.appendChild(tr);
@@ -1235,15 +1231,14 @@ window.cargarHistorial = async () => {
   showToast("success","Historial cargado",`${data.length} registros`);
 };
 
-
 // ============================
-// 🔥 ESTA FUNCIÓN VA FUERA
+// USAR EN ND
 // ============================
 window.usarSeleccionParaND = function () {
   const checks = document.querySelectorAll(".chkHist:checked");
 
   if (checks.length === 0) {
-    showToast("warn","Nada seleccionado","Marca al menos un registro");
+    showToast("warn","Nada seleccionado","Marca al menos uno");
     return;
   }
 
@@ -1257,7 +1252,7 @@ window.usarSeleccionParaND = function () {
   const textareaND = document.getElementById("data_nd");
 
   if (!textareaND) {
-    showToast("error","Error","No se encontró el campo ND");
+    showToast("error","Error","No existe ND");
     return;
   }
 
@@ -1266,7 +1261,6 @@ window.usarSeleccionParaND = function () {
 
   showToast("success","Listo","Datos enviados a ND");
 };
-
 
 // ============================
 // INIT
