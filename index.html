@@ -986,10 +986,15 @@
     showToast("error","No se pudo copiar","Usa https o localhost.");
   }
 
-  // 🔥 GUARDAR EN HISTORIAL (ARREGLADO)
-  if (window.guardarLimpiezaBatch) {
-  setTimeout(() => {
-    window.guardarLimpiezaBatch(registrosGuardar);
+ if (window.guardarLimpiezaBatch) {
+  setTimeout(async () => {
+    await window.guardarLimpiezaBatch(registrosGuardar);
+
+    if (typeof cargarHistorial === "function") {
+      cargarHistorial();
+    }
+
+    go("historial"); // opcional
   }, 50);
 }
 }
