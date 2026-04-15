@@ -1076,7 +1076,7 @@ function setUserTag(tag){
 }
 
 // ============================
-// 🔥 GUARDAR (FIX GLOBAL + SIN FALLOS)
+// GUARDAR
 // ============================
 window.guardarLimpiezaBatch = async function(registros){
   try{
@@ -1112,7 +1112,7 @@ window.guardarLimpiezaBatch = async function(registros){
 };
 
 // ============================
-// AUTH CHECK (ARREGLADO)
+// AUTH
 // ============================
 async function isAuthorized(){
   const { data: { session } } = await supabase.auth.getSession();
@@ -1185,24 +1185,20 @@ window.authLogout = async () => {
 };
 
 // ============================
-// 🔥 HISTORIAL GLOBAL (SIN USER)
+// HISTORIAL GLOBAL
 // ============================
 window.cargarHistorial = async () => {
   const { data: { session } } = await supabase.auth.getSession();
 
-  if (!session?.user) {
-    showToast("error","Sin sesión","Inicia sesión primero");
-    return;
-  }
+  if (!session?.user) return;
 
   const { data, error } = await supabase
     .from("limpiezas")
     .select("*")
-    .order("created_at", { ascending: false }); // 🔥 SIN FILTRO
+    .order("created_at", { ascending: false });
 
   if (error) {
     console.error("ERROR SUPABASE:", error);
-    showToast("error","Error","No se pudo cargar historial");
     return;
   }
 
@@ -1232,8 +1228,6 @@ window.cargarHistorial = async () => {
 
     tbody.appendChild(tr);
   });
-
-  showToast("success","Historial cargado",`${data.length} registros`);
 };
 
 // ============================
@@ -1256,16 +1250,34 @@ window.usarSeleccionParaND = function () {
 
   const textareaND = document.getElementById("data_nd");
 
-  if (!textareaND) {
-    showToast("error","Error","No existe ND");
-    return;
-  }
+  if (!textareaND) return;
 
   textareaND.value = texto.trim();
   go("gen-nd");
 
   showToast("success","Listo","Datos enviados a ND");
 };
+
+// ============================
+// REALTIME
+// ============================
+supabase
+  .channel('realtime-limpiezas')
+  .on(
+    'postgres_changes',
+    {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'limpiezas'
+    },
+    (payload) => {
+      console.log("🟢 Nuevo registro:", payload.new);
+
+      // actualizar tabla automáticamente
+      cargarHistorial();
+    }
+  )
+  .subscribe();
 
 // ============================
 // INIT
@@ -1276,8 +1288,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   supabase.auth.onAuthStateChange(async () => {
     await refreshGate();
   });
+
+  //  carga inicial automática
+  cargarHistorial();
 });
 </script>
-
 </body>
 </html>
