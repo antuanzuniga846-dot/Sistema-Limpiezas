@@ -990,11 +990,11 @@
   setTimeout(async () => {
     await window.guardarLimpiezaBatch(registrosGuardar);
 
+    // 🔥 REFRESH AUTOMÁTICO DEL HISTORIAL
     if (typeof cargarHistorial === "function") {
       cargarHistorial();
     }
 
-    go("historial"); // opcional
   }, 50);
 }
 }
@@ -1059,7 +1059,14 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 const SUPABASE_URL = "https://matvtyrmzytbdznlmfns.supabase.co";
 const SUPABASE_KEY = "sb_publishable_5QA7FGPRirqXNJ_v0xbJyw_h5D8XLs5";
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+//  CLIENTE MEJORADO (AUTO REFRESH)
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true
+  }
+});
 
 const USER_DOMAIN = "sistema.local";
 
@@ -1076,16 +1083,27 @@ function setUserTag(tag){
 }
 
 // ============================
-// 🔥 GUARDAR (FIX GLOBAL + SIN FALLOS)
+// 🔥 VALIDAR SESIÓN GLOBAL
+// ============================
+async function getSessionOrFail(){
+  const { data: { session } } = await supabase.auth.getSession();
+
+  if(!session?.user){
+    showToast("error","Sesión expirada","Vuelve a iniciar sesión");
+    await supabase.auth.signOut();
+    await refreshGate();
+    throw new Error("No session");
+  }
+
+  return session;
+}
+
+// ============================
+// GUARDAR (FIXED)
 // ============================
 window.guardarLimpiezaBatch = async function(registros){
   try{
-    const { data: { session } } = await supabase.auth.getSession();
-
-    if(!session?.user){
-      console.warn("❌ No hay sesión");
-      return;
-    }
+    const session = await getSessionOrFail();
 
     const payload = registros.map(r => ({
       user_id: session.user.id,
@@ -1107,12 +1125,12 @@ window.guardarLimpiezaBatch = async function(registros){
     }
 
   } catch(err){
-    console.error("ERROR GUARDANDO:", err);
+    console.warn("Guardado cancelado por sesión");
   }
 };
 
 // ============================
-// AUTH CHECK (ARREGLADO)
+// AUTH
 // ============================
 async function isAuthorized(){
   const { data: { session } } = await supabase.auth.getSession();
@@ -1185,55 +1203,52 @@ window.authLogout = async () => {
 };
 
 // ============================
-// 🔥 HISTORIAL GLOBAL (SIN USER)
+// HISTORIAL GLOBAL (FIX)
 // ============================
 window.cargarHistorial = async () => {
-  const { data: { session } } = await supabase.auth.getSession();
+  try{
+    await getSessionOrFail();
 
-  if (!session?.user) {
-    showToast("error","Sin sesión","Inicia sesión primero");
-    return;
+    const { data, error } = await supabase
+      .from("limpiezas")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("ERROR SUPABASE:", error);
+      return;
+    }
+
+    const tbody = document.getElementById("tablaHistorial");
+    tbody.innerHTML = "";
+
+    if (!data || data.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6">❌ No hay registros</td></tr>`;
+      return;
+    }
+
+    data.forEach(item => {
+      const tr = document.createElement("tr");
+
+      tr.innerHTML = `
+        <td>
+          <input type="checkbox"
+            class="chkHist"
+            data-json="${encodeURIComponent(JSON.stringify(item))}">
+        </td>
+        <td>${item.factura ?? ""}</td>
+        <td>${item.billingid ?? ""}</td>
+        <td>${item.monto ?? ""}</td>
+        <td>${item.raiz ?? ""}</td>
+        <td>${item.created_at ? new Date(item.created_at).toLocaleString() : "-"}</td>
+      `;
+
+      tbody.appendChild(tr);
+    });
+
+  } catch(e){
+    console.warn("Historial cancelado por sesión");
   }
-
-  const { data, error } = await supabase
-    .from("limpiezas")
-    .select("*")
-    .order("created_at", { ascending: false }); // 🔥 SIN FILTRO
-
-  if (error) {
-    console.error("ERROR SUPABASE:", error);
-    showToast("error","Error","No se pudo cargar historial");
-    return;
-  }
-
-  const tbody = document.getElementById("tablaHistorial");
-  tbody.innerHTML = "";
-
-  if (!data || data.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6">❌ No hay registros</td></tr>`;
-    return;
-  }
-
-  data.forEach(item => {
-    const tr = document.createElement("tr");
-
-    tr.innerHTML = `
-      <td>
-        <input type="checkbox"
-          class="chkHist"
-          data-json="${encodeURIComponent(JSON.stringify(item))}">
-      </td>
-      <td>${item.factura ?? ""}</td>
-      <td>${item.billingid ?? ""}</td>
-      <td>${item.monto ?? ""}</td>
-      <td>${item.raiz ?? ""}</td>
-      <td>${item.created_at ? new Date(item.created_at).toLocaleString() : "-"}</td>
-    `;
-
-    tbody.appendChild(tr);
-  });
-
-  showToast("success","Historial cargado",`${data.length} registros`);
 };
 
 // ============================
@@ -1256,10 +1271,7 @@ window.usarSeleccionParaND = function () {
 
   const textareaND = document.getElementById("data_nd");
 
-  if (!textareaND) {
-    showToast("error","Error","No existe ND");
-    return;
-  }
+  if (!textareaND) return;
 
   textareaND.value = texto.trim();
   go("gen-nd");
@@ -1268,16 +1280,39 @@ window.usarSeleccionParaND = function () {
 };
 
 // ============================
+// REALTIME MEJORADO
+// ============================
+supabase
+  .channel('realtime-limpiezas')
+  .on(
+    'postgres_changes',
+    {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'limpiezas'
+    },
+    () => {
+      cargarHistorial(); // auto refresh
+    }
+  )
+  .subscribe();
+
+// ============================
+// DETECTAR CIERRE DE SESIÓN
+// ============================
+supabase.auth.onAuthStateChange((event) => {
+  if(event === "SIGNED_OUT"){
+    showToast("error","Sesión cerrada","Inicia sesión otra vez");
+  }
+});
+
+// ============================
 // INIT
 // ============================
 document.addEventListener("DOMContentLoaded", async () => {
   await refreshGate();
-
-  supabase.auth.onAuthStateChange(async () => {
-    await refreshGate();
-  });
+  cargarHistorial();
 });
 </script>
-
 </body>
 </html>
