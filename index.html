@@ -1203,27 +1203,50 @@ window.authLogout = async () => {
 };
 
 // ============================
-// HISTORIAL GLOBAL (FIX)
+// 🔥 CONFIG SCROLL INFINITO
 // ============================
-window.cargarHistorial = async () => {
+let page = 0;
+const limit = 200; // puedes subirlo a 300 si quieres
+let loading = false;
+let noMoreData = false;
+
+// ============================
+// HISTORIAL CON PAGINACIÓN
+// ============================
+window.cargarHistorial = async (reset = true) => {
   try{
+    if(loading || noMoreData) return;
+
     await getSessionOrFail();
+
+    const tbody = document.getElementById("tablaHistorial");
+
+    if(reset){
+      tbody.innerHTML = "";
+      page = 0;
+      noMoreData = false;
+    }
+
+    loading = true;
+
+    const from = page * limit;
+    const to = from + limit - 1;
 
     const { data, error } = await supabase
       .from("limpiezas")
       .select("*")
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .range(from, to);
 
     if (error) {
       console.error("ERROR SUPABASE:", error);
+      loading = false;
       return;
     }
 
-    const tbody = document.getElementById("tablaHistorial");
-    tbody.innerHTML = "";
-
     if (!data || data.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="6">❌ No hay registros</td></tr>`;
+      noMoreData = true;
+      loading = false;
       return;
     }
 
@@ -1245,6 +1268,9 @@ window.cargarHistorial = async () => {
 
       tbody.appendChild(tr);
     });
+
+    page++;
+    loading = false;
 
   } catch(e){
     console.warn("Historial cancelado por sesión");
@@ -1312,6 +1338,22 @@ supabase.auth.onAuthStateChange((event) => {
 document.addEventListener("DOMContentLoaded", async () => {
   await refreshGate();
   cargarHistorial();
+});
+    // ============================
+// SCROLL INFINITO
+// ============================
+document.addEventListener("DOMContentLoaded", () => {
+  const container = document.querySelector("#page-historial div[style*='overflow:auto']");
+
+  if(!container) return;
+
+  container.addEventListener("scroll", () => {
+    const nearBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 50;
+
+    if(nearBottom){
+      cargarHistorial(false); // carga siguiente página
+    }
+  });
 });
 </script>
 </body>
