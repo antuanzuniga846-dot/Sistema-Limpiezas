@@ -615,7 +615,18 @@
         <button class="btn btnPrimary" onclick="cargarHistorial()">🔄 Cargar historial</button>
         <button class="btn btnGhost" onclick="usarSeleccionParaND()">➡️ Usar en ND</button>
       </div>
+<div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
 
+  <input id="filtroFactura" type="text" placeholder="🔎 Buscar factura"
+    style="max-width:180px;">
+
+  <input id="fechaInicio" type="date">
+  <input id="fechaFin" type="date">
+
+  <button class="btn btnGhost" onclick="aplicarFiltros()">Aplicar</button>
+  <button class="btn btnGhost" onclick="limpiarFiltros()">Limpiar</button>
+
+</div>
       <div style="max-height:400px; overflow:auto;">
         <table style="width:100%; font-size:12px; border-collapse:collapse;">
           <thead>
@@ -1060,7 +1071,6 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const SUPABASE_URL = "https://upxhiylyiebljnpfgmut.supabase.co";
 const SUPABASE_KEY = "sb_publishable_ctDXquEkqLpXpuzOoRvtXQ_Vazap6tB";
 
-//  CLIENTE MEJORADO (AUTO REFRESH)
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth: {
     persistSession: true,
@@ -1083,7 +1093,14 @@ function setUserTag(tag){
 }
 
 // ============================
-// 🔥 VALIDAR SESIÓN GLOBAL
+// FILTROS
+// ============================
+let filtroFactura = "";
+let fechaInicio = "";
+let fechaFin = "";
+
+// ============================
+// VALIDAR SESIÓN
 // ============================
 async function getSessionOrFail(){
   const { data: { session } } = await supabase.auth.getSession();
@@ -1099,7 +1116,7 @@ async function getSessionOrFail(){
 }
 
 // ============================
-// GUARDAR (FIXED)
+// GUARDAR
 // ============================
 window.guardarLimpiezaBatch = async function(registros){
   try{
@@ -1120,8 +1137,6 @@ window.guardarLimpiezaBatch = async function(registros){
     if(error){
       console.error("🔥 ERROR REAL:", error);
       showToast("error","Error", error.message);
-    } else {
-      console.log("✅ Guardado OK");
     }
 
   } catch(err){
@@ -1148,8 +1163,6 @@ async function isAuthorized(){
 async function refreshGate(){
   const { data: { session } } = await supabase.auth.getSession();
   const logged = !!session?.user;
-
-  if(!gate) return;
 
   if(!logged){
     gate.style.display = "grid";
@@ -1179,17 +1192,14 @@ async function refreshGate(){
 window.authLogin = async () => {
   setMsg("");
 
-  const user = (document.getElementById("authUser")?.value || "").trim().toLowerCase();
-  const pass = (document.getElementById("authPass")?.value || "").trim();
+  const user = document.getElementById("authUser").value.trim().toLowerCase();
+  const pass = document.getElementById("authPass").value.trim();
 
   if(!user || !pass) return setMsg("Falta usuario o contraseña.");
 
   const email = `${user}@${USER_DOMAIN}`;
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password: pass
-  });
+  const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
 
   if(error) return setMsg(error.message);
 
@@ -1203,15 +1213,15 @@ window.authLogout = async () => {
 };
 
 // ============================
-// 🔥 CONFIG SCROLL INFINITO
+// SCROLL CONFIG
 // ============================
 let page = 0;
-const limit = 200; // puedes subirlo a 300 si quieres
+const limit = 200;
 let loading = false;
 let noMoreData = false;
 
 // ============================
-// HISTORIAL CON PAGINACIÓN
+// HISTORIAL CON FILTROS
 // ============================
 window.cargarHistorial = async (reset = true) => {
   try{
@@ -1232,11 +1242,29 @@ window.cargarHistorial = async (reset = true) => {
     const from = page * limit;
     const to = from + limit - 1;
 
-    const { data, error } = await supabase
+    let query = supabase
       .from("limpiezas")
-      .select("*")
+      .select("*");
+
+    // FACTURA
+    if (filtroFactura) {
+      query = query.ilike("factura", `%${filtroFactura}%`);
+    }
+
+    // FECHAS
+    if (fechaInicio) {
+      query = query.gte("created_at", fechaInicio + "T00:00:00");
+    }
+
+    if (fechaFin) {
+      query = query.lte("created_at", fechaFin + "T23:59:59");
+    }
+
+    query = query
       .order("created_at", { ascending: false })
       .range(from, to);
+
+    const { data, error } = await query;
 
     if (error) {
       console.error("ERROR SUPABASE:", error);
@@ -1254,11 +1282,8 @@ window.cargarHistorial = async (reset = true) => {
       const tr = document.createElement("tr");
 
       tr.innerHTML = `
-        <td>
-          <input type="checkbox"
-            class="chkHist"
-            data-json="${encodeURIComponent(JSON.stringify(item))}">
-        </td>
+        <td><input type="checkbox" class="chkHist"
+        data-json="${encodeURIComponent(JSON.stringify(item))}"></td>
         <td>${item.factura ?? ""}</td>
         <td>${item.billingid ?? ""}</td>
         <td>${item.monto ?? ""}</td>
@@ -1273,73 +1298,34 @@ window.cargarHistorial = async (reset = true) => {
     loading = false;
 
   } catch(e){
-    console.warn("Historial cancelado por sesión");
+    console.warn("Historial cancelado");
   }
 };
 
 // ============================
-// USAR EN ND
+// FILTROS FUNCIONES
 // ============================
-window.usarSeleccionParaND = function () {
-  const checks = document.querySelectorAll(".chkHist:checked");
+window.aplicarFiltros = () => {
+  filtroFactura = document.getElementById("filtroFactura").value.trim();
+  fechaInicio = document.getElementById("fechaInicio").value;
+  fechaFin = document.getElementById("fechaFin").value;
 
-  if (checks.length === 0) {
-    showToast("warn","Nada seleccionado","Marca al menos uno");
-    return;
-  }
+  cargarHistorial(true);
+};
 
-  let texto = "";
+window.limpiarFiltros = () => {
+  document.getElementById("filtroFactura").value = "";
+  document.getElementById("fechaInicio").value = "";
+  document.getElementById("fechaFin").value = "";
 
-  checks.forEach(chk => {
-    const item = JSON.parse(decodeURIComponent(chk.dataset.json));
-    texto += `${item.raiz} ${item.billingid} ${item.monto} ${item.factura}\n`;
-  });
+  filtroFactura = "";
+  fechaInicio = "";
+  fechaFin = "";
 
-  const textareaND = document.getElementById("data_nd");
-
-  if (!textareaND) return;
-
-  textareaND.value = texto.trim();
-  go("gen-nd");
-
-  showToast("success","Listo","Datos enviados a ND");
+  cargarHistorial(true);
 };
 
 // ============================
-// REALTIME MEJORADO
-// ============================
-supabase
-  .channel('realtime-limpiezas')
-  .on(
-    'postgres_changes',
-    {
-      event: 'INSERT',
-      schema: 'public',
-      table: 'limpiezas'
-    },
-    () => {
-      cargarHistorial(); // auto refresh
-    }
-  )
-  .subscribe();
-
-// ============================
-// DETECTAR CIERRE DE SESIÓN
-// ============================
-supabase.auth.onAuthStateChange((event) => {
-  if(event === "SIGNED_OUT"){
-    showToast("error","Sesión cerrada","Inicia sesión otra vez");
-  }
-});
-
-// ============================
-// INIT
-// ============================
-document.addEventListener("DOMContentLoaded", async () => {
-  await refreshGate();
-  cargarHistorial();
-});
-    // ============================
 // SCROLL INFINITO
 // ============================
 document.addEventListener("DOMContentLoaded", () => {
@@ -1351,9 +1337,31 @@ document.addEventListener("DOMContentLoaded", () => {
     const nearBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 50;
 
     if(nearBottom){
-      cargarHistorial(false); // carga siguiente página
+      cargarHistorial(false);
     }
   });
+});
+
+// ============================
+// REALTIME
+// ============================
+supabase
+  .channel('realtime-limpiezas')
+  .on('postgres_changes', {
+    event: 'INSERT',
+    schema: 'public',
+    table: 'limpiezas'
+  }, () => {
+    cargarHistorial(true);
+  })
+  .subscribe();
+
+// ============================
+// INIT
+// ============================
+document.addEventListener("DOMContentLoaded", async () => {
+  await refreshGate();
+  cargarHistorial(true);
 });
 </script>
 </body>
