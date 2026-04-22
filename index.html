@@ -1337,6 +1337,32 @@ document.addEventListener("DOMContentLoaded", async () => {
   await refreshGate();
   cargarHistorial(true);
 });
+    window.usarSeleccionParaND = () => {
+  const checks = document.querySelectorAll(".chkHist:checked");
+
+  if (!checks.length) {
+    showToast("warn", "Nada seleccionado", "Marca al menos un registro del historial.");
+    return;
+  }
+
+  let resultado = "";
+
+  checks.forEach(chk => {
+    const data = JSON.parse(decodeURIComponent(chk.dataset.json));
+
+    // ND: raiz billing monto factura
+    resultado += `${data.raiz} ${data.billingid} ${data.monto} ${data.factura}\n`;
+  });
+
+  // meter en textarea ND
+  const nd = document.getElementById("data_nd");
+  if (nd) nd.value = resultado;
+
+  // ir a página ND
+  go("gen-nd");
+
+  showToast("success", "Listo", "Datos enviados al generador ND.");
+};
 </script>
     <!-- Flatpickr CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
