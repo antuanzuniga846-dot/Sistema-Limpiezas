@@ -611,20 +611,15 @@
     </div>
 
     <div class="cardBody">
-      <div style="margin-bottom:10px;">
-        <button class="btn btnPrimary" onclick="cargarHistorial()">🔄 Cargar historial</button>
-        <button class="btn btnGhost" onclick="usarSeleccionParaND()">➡️ Usar en ND</button>
-      </div>
-<div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
 
-  <input id="filtroFactura" type="text" placeholder="🔎 Buscar factura"
-    style="max-width:180px;">
-
-  <input id="fechaInicio" type="date">
-  <input id="fechaFin" type="date">
+  <input id="fechaFiltro" type="date">
 
   <button class="btn btnGhost" onclick="aplicarFiltros()">Aplicar</button>
   <button class="btn btnGhost" onclick="limpiarFiltros()">Limpiar</button>
+
+  <button class="btn btnPrimary" onclick="cargarHistorial(true)">🔄 Cargar historial</button>
+  <button class="btn btnGhost" onclick="usarSeleccionParaND()">➡️ Usar en ND</button>
 
 </div>
       <div style="max-height:400px; overflow:auto;">
@@ -1095,9 +1090,7 @@ function setUserTag(tag){
 // ============================
 // FILTROS
 // ============================
-let filtroFactura = "";
-let fechaInicio = "";
-let fechaFin = "";
+let fechaSeleccionada = "";
 
 // ============================
 // VALIDAR SESIÓN
@@ -1220,107 +1213,26 @@ const limit = 200;
 let loading = false;
 let noMoreData = false;
 
-// ============================
-// HISTORIAL CON FILTROS
-// ============================
-window.cargarHistorial = async (reset = true) => {
-  try{
-    if(loading || noMoreData) return;
 
-    await getSessionOrFail();
-
-    const tbody = document.getElementById("tablaHistorial");
-
-    if(reset){
-      tbody.innerHTML = "";
-      page = 0;
-      noMoreData = false;
-    }
-
-    loading = true;
-
-    const from = page * limit;
-    const to = from + limit - 1;
-
-    let query = supabase
-      .from("limpiezas")
-      .select("*");
-
-    // FACTURA
-    if (filtroFactura) {
-      query = query.ilike("factura", `%${filtroFactura}%`);
-    }
-
-    // FECHAS
-    if (fechaInicio) {
-      query = query.gte("created_at", fechaInicio + "T00:00:00");
-    }
-
-    if (fechaFin) {
-      query = query.lte("created_at", fechaFin + "T23:59:59");
-    }
-
-    query = query
-      .order("created_at", { ascending: false })
-      .range(from, to);
-
-    const { data, error } = await query;
-
-    if (error) {
-      console.error("ERROR SUPABASE:", error);
-      loading = false;
-      return;
-    }
-
-    if (!data || data.length === 0) {
-      noMoreData = true;
-      loading = false;
-      return;
-    }
-
-    data.forEach(item => {
-      const tr = document.createElement("tr");
-
-      tr.innerHTML = `
-        <td><input type="checkbox" class="chkHist"
-        data-json="${encodeURIComponent(JSON.stringify(item))}"></td>
-        <td>${item.factura ?? ""}</td>
-        <td>${item.billingid ?? ""}</td>
-        <td>${item.monto ?? ""}</td>
-        <td>${item.raiz ?? ""}</td>
-        <td>${item.created_at ? new Date(item.created_at).toLocaleString() : "-"}</td>
-      `;
-
-      tbody.appendChild(tr);
-    });
-
-    page++;
-    loading = false;
-
-  } catch(e){
-    console.warn("Historial cancelado");
-  }
-};
+// 📅 FILTRO POR UN SOLO DÍA
+if (fechaSeleccionada) {
+  query = query
+    .gte("created_at", fechaSeleccionada + "T00:00:00")
+    .lte("created_at", fechaSeleccionada + "T23:59:59");
+}
 
 // ============================
 // FILTROS FUNCIONES
 // ============================
 window.aplicarFiltros = () => {
-  filtroFactura = document.getElementById("filtroFactura").value.trim();
-  fechaInicio = document.getElementById("fechaInicio").value;
-  fechaFin = document.getElementById("fechaFin").value;
+  fechaSeleccionada = document.getElementById("fechaFiltro").value;
 
   cargarHistorial(true);
 };
 
 window.limpiarFiltros = () => {
-  document.getElementById("filtroFactura").value = "";
-  document.getElementById("fechaInicio").value = "";
-  document.getElementById("fechaFin").value = "";
-
-  filtroFactura = "";
-  fechaInicio = "";
-  fechaFin = "";
+  document.getElementById("fechaFiltro").value = "";
+  fechaSeleccionada = "";
 
   cargarHistorial(true);
 };
