@@ -613,10 +613,9 @@
     <div class="cardBody">
       <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
 
-  <input id="fechaFiltro" type="date">
-
-  <button class="btn btnGhost" onclick="aplicarFiltros()">Aplicar</button>
-  <button class="btn btnGhost" onclick="limpiarFiltros()">Limpiar</button>
+  <input id="fechaFiltro" placeholder="Seleccionar fecha" />
+<button onclick="aplicarFiltros()">Filtrar</button>
+<button onclick="limpiarFiltros()">Limpiar</button>
 
   <button class="btn btnPrimary" onclick="cargarHistorial(true)">🔄 Cargar historial</button>
   <button class="btn btnGhost" onclick="usarSeleccionParaND()">➡️ Usar en ND</button>
@@ -1213,27 +1212,90 @@ const limit = 200;
 let loading = false;
 let noMoreData = false;
 
+// ============================
+// HISTORIAL CON FILTRO
+// ============================
+window.cargarHistorial = async (reset = true) => {
+  try{
+    if(loading || noMoreData) return;
 
-// 📅 FILTRO POR UN SOLO DÍA
-if (fechaSeleccionada) {
-  query = query
-    .gte("created_at", fechaSeleccionada + "T00:00:00")
-    .lte("created_at", fechaSeleccionada + "T23:59:59");
-}
+    await getSessionOrFail();
+
+    const tbody = document.getElementById("tablaHistorial");
+
+    if(reset){
+      tbody.innerHTML = "";
+      page = 0;
+      noMoreData = false;
+    }
+
+    loading = true;
+
+    const from = page * limit;
+    const to = from + limit - 1;
+
+    let query = supabase
+      .from("limpiezas")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .range(from, to);
+
+    // 🔥 APLICAR FILTRO DE FECHA AQUÍ (CORRECTO)
+    if (fechaSeleccionada) {
+      query = query
+        .gte("created_at", fechaSeleccionada + "T00:00:00")
+        .lte("created_at", fechaSeleccionada + "T23:59:59");
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error("ERROR SUPABASE:", error);
+      loading = false;
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      noMoreData = true;
+      loading = false;
+      return;
+    }
+
+    data.forEach(item => {
+      const tr = document.createElement("tr");
+
+      tr.innerHTML = `
+        <td><input type="checkbox" class="chkHist"
+          data-json="${encodeURIComponent(JSON.stringify(item))}"></td>
+        <td>${item.factura ?? ""}</td>
+        <td>${item.billingid ?? ""}</td>
+        <td>${item.monto ?? ""}</td>
+        <td>${item.raiz ?? ""}</td>
+        <td>${item.created_at ? new Date(item.created_at).toLocaleString() : "-"}</td>
+      `;
+
+      tbody.appendChild(tr);
+    });
+
+    page++;
+    loading = false;
+
+  } catch(e){
+    console.warn("Historial cancelado por sesión");
+  }
+};
 
 // ============================
-// FILTROS FUNCIONES
+// FILTROS
 // ============================
 window.aplicarFiltros = () => {
   fechaSeleccionada = document.getElementById("fechaFiltro").value;
-
   cargarHistorial(true);
 };
 
 window.limpiarFiltros = () => {
   document.getElementById("fechaFiltro").value = "";
   fechaSeleccionada = "";
-
   cargarHistorial(true);
 };
 
@@ -1276,5 +1338,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   cargarHistorial(true);
 });
 </script>
+    <!-- Flatpickr CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+<!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </body>
 </html>
