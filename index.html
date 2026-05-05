@@ -344,6 +344,21 @@
   }
   .toastText strong{ display:block; font-size: 13px; }
   .toastText span{ display:block; font-size: 12px; margin-top: 2px; }
+    /* Fila seleccionada */
+tr.fila-activa {
+  background: rgba(0,216,245,.25) !important;
+}
+
+/* Filas con misma raíz */
+tr.misma-raiz {
+  background: rgba(0,114,255,.18);
+}
+
+/* Hover bonito */
+#tablaHistorial tr:hover {
+  background: rgba(255,255,255,.08);
+  cursor: pointer;
+}
 </style>
 </head>
 
@@ -1283,7 +1298,34 @@ window.cargarHistorial = async (reset = true) => {
     console.warn("Historial cancelado por sesión");
   }
 };
+// ============================
+// RESALTAR FILAS Y RAÍCES
+// ============================
+document.addEventListener("click", (e) => {
+  const fila = e.target.closest("#tablaHistorial tr");
+  if (!fila) return;
 
+  // 🔥 quitar estilos previos
+  document.querySelectorAll("#tablaHistorial tr").forEach(tr => {
+    tr.classList.remove("fila-activa", "misma-raiz");
+  });
+
+  // 🔥 activar fila clickeada
+  fila.classList.add("fila-activa");
+
+  // 🔥 obtener raíz (columna 5)
+  const raiz = fila.children[4]?.textContent.trim();
+
+  if (!raiz) return;
+
+  // 🔥 resaltar todas las que coincidan
+  document.querySelectorAll("#tablaHistorial tr").forEach(tr => {
+    const r = tr.children[4]?.textContent.trim();
+    if (r === raiz) {
+      tr.classList.add("misma-raiz");
+    }
+  });
+});
 // ============================
 // FILTROS
 // ============================
