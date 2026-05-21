@@ -959,7 +959,7 @@ tr.misma-raiz {
       monto: r.monto,
       raiz: raizUsar
     });
-guardarNDData(
+await guardarNDData(
   r.factura,
   `${raizUsar} ${r.billingid} ${r.monto} ${r.factura}`
 );
@@ -1440,18 +1440,21 @@ async function guardarNDData(factura, nd_data){
 
   try{
 
+    const payload = {
+      factura: factura,
+      nd_data: nd_data
+    };
+
     const res = await fetch(url,{
       method:"POST",
+      mode:"no-cors",
       headers:{
-        "Content-Type":"application/json"
+        "Content-Type":"text/plain;charset=utf-8"
       },
-      body: JSON.stringify({
-        factura,
-        nd_data
-      })
+      body: JSON.stringify(payload)
     });
 
-    console.log(await res.text());
+    console.log("ENVIADO A SHEETS");
 
   }catch(err){
     console.error("ERROR SHEETS:", err);
