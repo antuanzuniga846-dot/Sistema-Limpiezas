@@ -502,6 +502,7 @@ tr.misma-raiz {
                 <button class="btn btnPrimary" onclick="generarAcometidaUltra()">⚡ Generar y Copiar</button>
                 <button class="btn btnGhost" onclick="copiarResultado('acometida')">📋 Copiar</button>
                 <button class="btn btnGhost" onclick="limpiarTodo('acometida')">🧹 Limpiar</button>
+                  <button class="btn btnPrimary" onclick="generarAcometidaUltra()">🔎 Buscar Facturas</button>
               </div>
               <div class="statLine">
                 <span class="pill"><span class="dot"></span>Registros: <b id="count_acometida">0</b></span>
@@ -958,7 +959,10 @@ tr.misma-raiz {
       monto: r.monto,
       raiz: raizUsar
     });
-
+guardarNDData(
+  r.factura,
+  `${raizUsar} ${r.billingid} ${r.monto} ${r.factura}`
+);
     count++;
   }
 
@@ -1016,6 +1020,30 @@ tr.misma-raiz {
 
   }, 50);
 }
+}
+    // ==========================
+// ENVIAR A GOOGLE SHEETS
+// ==========================
+if(mode === "nc"){
+
+  const url = "https://script.google.com/macros/s/AKfycbza5QAhqLLHpl-rPGvXMrlDGb9EbzE_g7L2m041mKovULm8ufii61qxq0MmzFv2kgl1mA/exec";
+
+  for(const r of registrosGuardar){
+
+    const ndData =
+`${r.raiz} ${r.billingid} ${r.monto} ${r.factura}`;
+
+    fetch(url,{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body: JSON.stringify({
+        factura: r.factura,
+        nd_data: ndData
+      })
+    }).catch(()=>{});
+  }
 }
   window.generarPlantilla = generarPlantilla;
 
@@ -1428,6 +1456,28 @@ document.addEventListener("DOMContentLoaded", () => {
     allowInput: false
   });
 });
+        async function guardarNDData(factura, nd_data){
+
+  const url =
+    "PEGA_AQUI_TU_URL";
+
+  try{
+
+    await fetch(url,{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body: JSON.stringify({
+        factura,
+        nd_data
+      })
+    });
+
+  }catch(err){
+    console.error(err);
+  }
+}
 </script>
 </body>
 </html>
