@@ -1313,46 +1313,40 @@ data.forEach(item => {
 // RESALTAR FILAS Y RAÍCES
 // ============================
 document.addEventListener("click", (e) => {
-
   const fila = e.target.closest("#tablaHistorial tr");
-
   if (!fila) return;
 
-  // checkbox de la fila
-  const checkbox = fila.querySelector(".chkHist");
-
-  // evitar doble toggle si el usuario hizo click directo al checkbox
-  if (
-    checkbox &&
-    e.target !== checkbox
-  ) {
-    checkbox.checked = !checkbox.checked;
-  }
-
-  // quitar estilos previos
+  // 🔥 quitar estilos previos
   document.querySelectorAll("#tablaHistorial tr").forEach(tr => {
     tr.classList.remove("fila-activa", "misma-raiz");
+    const chk = tr.querySelector(".chkHist");
+    if (chk) chk.checked = false; // desmarcar todos primero
   });
 
-  // activar fila clickeada
+  // 🔥 activar fila clickeada
   fila.classList.add("fila-activa");
 
-  // obtener raíz
-  const raiz = fila.children[4]?.textContent.trim();
+  // 🔥 marcar checkbox de la fila clickeada
+  const chkFila = fila.querySelector(".chkHist");
+  if (chkFila) chkFila.checked = true;
 
+  // 🔥 obtener raíz (columna 5, index 4)
+  const raiz = fila.children[4]?.textContent.trim();
   if (!raiz) return;
 
-  // resaltar mismas raíces
+  const facturasVistas = new Set();
+
+  // 🔥 recorrer todas las filas y marcar las que coincidan con la raíz
   document.querySelectorAll("#tablaHistorial tr").forEach(tr => {
-
     const r = tr.children[4]?.textContent.trim();
-
-    if (r === raiz) {
+    const chk = tr.querySelector(".chkHist");
+    const factura = tr.children[1]?.textContent.trim();
+    if (r === raiz && chk && !facturasVistas.has(factura)) {
+      chk.checked = true;
       tr.classList.add("misma-raiz");
+      facturasVistas.add(factura);
     }
-
   });
-
 });
 // ============================
 // FILTROS
