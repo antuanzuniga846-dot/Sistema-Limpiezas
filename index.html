@@ -582,31 +582,10 @@ tr.misma-raiz {
                 <div class="hintText">Este generador siempre crea ND.</div>
               </div>
 
-              <<div style="grid-column: 1 / -1;">
-
-  <label>Buscar por raíz</label>
-
-  <div style="display:flex; gap:10px; margin-bottom:10px;">
-
-    <input id="buscar_raiz_nd"  type="text" placeholder="Ej: 1.789798" >
-
-    <button class="btn btnPrimary" type="button" onclick="buscarRaizND()">
-      🔎 Buscar
-    </button>
-
-  </div>
-
-</div>
-
-<div style="grid-column: 1 / -1;">
-  <label>Tabla principal (ND)</label>
-
-  <textarea
-    id="data_nd"
-    placeholder="1.1180330 1235446 28809.00 00012020303203"
-  ></textarea>
-
-</div>
+              <div style="grid-column: 1 / -1;">
+                <label>Tabla principal (ND)</label>
+                <textarea id="data_nd" placeholder="1.1180330 1235446 28809.00 00012020303203"></textarea>
+              </div>
 
               <div style="grid-column: 1 / -1;">
                 <div class="ruleTop">
@@ -1466,97 +1445,6 @@ document.addEventListener("DOMContentLoaded", () => {
     allowInput: false
   });
 });
-        window.buscarRaizND = async () => {
-
-  const raiz =
-    document
-      .getElementById("buscar_raiz_nd")
-      .value
-      .trim();
-
-  if(!raiz){
-
-    showToast(
-      "warn",
-      "Falta raíz",
-      "Escribe una raíz."
-    );
-
-    return;
-  }
-
-  try{
-
-    const { data, error } = await supabase
-      .from("limpiezas")
-      .select("*")
-      .eq("raiz", raiz)
-      .order("created_at", {
-        ascending: false
-      });
-
-    if(error){
-
-      console.error(error);
-
-      showToast(
-        "error",
-        "Error",
-        error.message
-      );
-
-      return;
-    }
-
-    if(!data || !data.length){
-
-      showToast(
-        "warn",
-        "Sin resultados",
-        "No existen registros para esa raíz."
-      );
-
-      return;
-    }
-
-let resultado = "";
-
-const facturas = new Set();
-
-data.forEach(r => {
-
-  // evitar duplicados
-  if(facturas.has(r.factura)) return;
-
-  facturas.add(r.factura);
-
-  resultado +=
-`${r.raiz} ${r.billingid} ${r.monto} ${r.factura}\n`;
-
-});
-
-    document.getElementById("data_nd").value =
-      resultado;
-
-    showToast(
-      "success",
-      "Datos encontrados",
-      `${data.length} registros cargados`
-    );
-
-    go("gen-nd");
-
-  }catch(err){
-
-    console.error(err);
-
-    showToast(
-      "error",
-      "Error",
-      "No se pudo consultar."
-    );
-  }
-};
 </script>
 </body>
 </html>
