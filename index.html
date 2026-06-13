@@ -441,9 +441,9 @@ tr.misma-raiz {
       <section class="page active" id="page-home">
         <div class="grid">
           <div class="kpi">
-            <div class="label">NC generadas</div>
+            <div class="label">Registros generados</div>
             <div class="value" id="kpiTotal">0</div>
-            <div class="hint">Total histórico almacenado.</div>
+            <div class="hint">Total de líneas generadas en la última ejecución.</div>
           </div>
 
           <div class="kpi">
@@ -1018,29 +1018,6 @@ tr.misma-raiz {
   }, 50);
 }
 }
-    async function actualizarKPIRegistros(){
-
-  try{
-
-    const { count, error } = await supabase
-      .from("limpiezas")
-      .select("*", { count: "exact", head: true });
-
-    if(error){
-      console.error(error);
-      return;
-    }
-
-    const kpi = document.getElementById("kpiTotal");
-
-    if(kpi){
-      kpi.textContent = count || 0;
-    }
-
-  }catch(err){
-    console.error(err);
-  }
-}
   window.generarPlantilla = generarPlantilla;
 
   // ===== Generador Acometida =====
@@ -1167,7 +1144,6 @@ window.guardarLimpiezaBatch = async function(registros){
     if(error){
       console.error("🔥 ERROR REAL:", error);
       showToast("error","Error", error.message);
-        await actualizarKPIRegistros();
     }
 
   } catch(err){
@@ -1435,7 +1411,6 @@ supabase
 document.addEventListener("DOMContentLoaded", async () => {
   await refreshGate();
   cargarHistorial(true);
-  actualizarKPIRegistros();
 });
     window.usarSeleccionParaND = () => {
   const checks = document.querySelectorAll(".chkHist:checked");
