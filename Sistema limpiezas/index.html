@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sistema de Limpiezas</title>
+    <!-- Favicon normal -->
+    <link rel="icon" type="image/png" sizes="64x64" href="gearsss.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="gearsss.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="gearsss.png">
+    <!-- Styles CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Para iPhone / Apple -->
+    <link rel="apple-touch-icon" href="gears.png">
+  
+</head>
+
+<body>
+<!-- AUTH GATE -->
+<div id="authGate" style="position:fixed; inset:0; display:none; place-items:center; padding:18px; background:rgba(0,0,0,.55); backdrop-filter: blur(10px); z-index:99999;">
+  <div style="width:min(520px, 100%); border:1px solid rgba(255,255,255,.14); border-radius:18px; padding:16px; background:rgba(255,255,255,.08); box-shadow: 0 18px 55px rgba(0,0,0,.55);">
+    <h3 style="margin:0 0 6px;">Iniciar sesión</h3>
+    <p style="margin:0 0 14px; color:rgba(232,241,255,.72); font-size:12px;">Acceso al Sistema de Limpiezas</p>
+
+    <label>Usuario</label>
+    <input id="authUser" type="text" placeholder="Usuario">
+
+    <label style="margin-top:10px;">Contraseña</label>
+    <input id="authPass" type="password" placeholder="••••••••" />
+
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+      <button class="btn btnPrimary" type="button" onclick="authLogin()">Entrar</button>
+      <button class="btn btnGhost" type="button" onclick="authRegister()">Crear cuenta</button>
+      <button class="btn btnGhost" type="button" onclick="authLogout()">Salir</button>
+    </div>
+
+    <div style="margin-top:10px; color:rgba(232,241,255,.72); font-size:12px;" id="authMsg"></div>
+  </div>
+</div>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">📊</div>
+      <div>
+        <h1>Sistema de Limpiezas</h1>
+      </div>
+    </div>
+
+    <div class="nav">
+      <button type="button" class="navBtn active" data-page="home" onclick="go('home')">
+        <span class="icon">🏠</span> Inicio
+      </button>
+
+      <button type="button" class="navBtn" data-page="gen-nc" onclick="go('gen-nc')">
+        <span class="icon">🧾</span> Generador NC
+      </button>
+
+      <button type="button" class="navBtn" data-page="gen-nd" onclick="go('gen-nd')">
+        <span class="icon">📄</span> Generador ND
+      </button>
+
+      <button type="button" class="navBtn" data-page="gen-acometida" onclick="go('gen-acometida')">
+        <span class="icon">📄</span> Acometidas
+      </button>
+<button type="button" class="navBtn" data-page="historial" onclick="go('historial')">
+  <span class="icon">📂</span> Historial
+</button>
+      <button type="button" class="navBtn" data-page="help" onclick="go('help')">
+        <span class="icon">❓</span> Ayuda
+      </button>
+    </div>
+
+    <div class="sideFooter">
+      <div class="pill"><span class="dot"></span>Estado: Listo</div>
+      <div style="margin-top:10px;">Antuan Mora Zuñiga © 2026.</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h2 id="pageTitle">Inicio</h2>
+        <div class="sub" id="pageSub">Panel de control y accesos rápidos.</div>
+      </div>
+      <div class="meta">
+        <div id="metaFecha">Fecha: --/--/----</div>
+        <div id="metaHora">Hora: --:--</div>
+      </div>
+    </div>
+
+    <div class="content">
+      <section class="page active" id="page-home">
+        <div class="grid">
+          <div class="kpi">
+            <div class="label">Registros generados</div>
+            <div class="value" id="kpiTotal">0</div>
+            <div class="hint">Total de líneas generadas en la última ejecución.</div>
+          </div>
+
+          <div class="kpi">
+            <div class="label">Raíces extras</div>
+            <div class="value" id="kpiExtras">0</div>
+            <div class="hint">Cantidad de reglas extras activas.</div>
+          </div>
+
+          <div class="kpi">
+            <div class="label">Estado</div>
+            <div class="value">OK</div>
+            <div class="hint">Todo listo para generar y copiar.</div>
+          </div>
+
+          <div class="card">
+            <div class="cardHeader">
+              <h3>Accesos rápidos</h3>
+              <span>Ir directo a tareas</span>
+            </div>
+            <div class="cardBody">
+              <div class="btnRow">
+                <button class="btn btnPrimary" onclick="go('gen-nc')">⚡ Ir al Generador NC</button>
+                <button class="btn btnPrimary" onclick="go('gen-nd')">⚡ Ir al Generador ND</button>
+                <button class="btn btnPrimary" onclick="go('gen-acometida')">⚡ Ir al Generador Acometida</button>
+                <button class="btn btnPrimary" onclick="go('historial')">⚡ Ir al Historial</button>
+              </div>
+              <div class="hintText" style="margin-top:10px;">
+                * El usuario actual se verá arriba a la derecha.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-gen-acometida">
+        <div class="card">
+          <div class="cardHeader">
+            <h3>Generador Acometida</h3>
+            <span>Formato Acometida</span>
+          </div>
+
+          <div class="cardBody">
+            <div class="formGrid">
+              <div style="grid-column: 1 / -1;">
+                <label>Acometida Completa</label>
+                <textarea id="data_acometida"></textarea>
+              </div>
+
+              <div style="grid-column: 1 / -1;">
+                <label>Resultado (Acometida)</label>
+                <textarea id="resultado_acometida" readonly></textarea>
+              </div>
+            </div>
+
+            <div class="actions">
+              <div class="btnRow">
+                <button class="btn btnPrimary" onclick="generarAcometidaUltra()">⚡ Generar y Copiar</button>
+                <button class="btn btnGhost" onclick="copiarResultado('acometida')">📋 Copiar</button>
+                <button class="btn btnGhost" onclick="limpiarTodo('acometida')">🧹 Limpiar</button>
+              </div>
+              <div class="statLine">
+                <span class="pill"><span class="dot"></span>Registros: <b id="count_acometida">0</b></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-gen-nc">
+        <div class="card">
+          <div class="cardHeader">
+            <h3>Generador NC</h3>
+            <span>CM,908,... (Recuperación)</span>
+          </div>
+
+          <div class="cardBody">
+            <div class="formGrid">
+              <div>
+                <label>Raíz principal (NC)</label>
+                <input id="raiz_nc" type="text" placeholder="Ej: 1.1180330">
+              </div>
+
+              <div>
+                <label>Tipo</label>
+                <input value="NC" disabled>
+                <div class="hintText">Este generador siempre crea NC.</div>
+              </div>
+
+              <div style="grid-column: 1 / -1;">
+                <label>Tabla principal (NC)</label>
+                <textarea id="data_nc"></textarea>
+              </div>
+
+              <div style="grid-column: 1 / -1;">
+                <div class="ruleTop">
+                  <div>
+                    <label style="margin:0;">Raíces extras (NC)</label>
+                    <div class="hintText">Cada raíz extra trae su propia tabla completa.</div>
+                  </div>
+                  <button class="btn btnGhost" onclick="agregarRegla('nc')">➕ Agregar raíz extra</button>
+                </div>
+                <div class="rulesWrap" id="rules_nc"></div>
+              </div>
+
+              <div style="grid-column: 1 / -1;">
+                <label>Resultado (NC)</label>
+                <textarea id="resultado_nc" readonly></textarea>
+              </div>
+            </div>
+
+            <div class="actions">
+              <div class="btnRow">
+                <button class="btn btnPrimary" onclick="generarPlantilla('nc')">⚡ Generar y Copiar</button>
+                <button class="btn btnGhost" onclick="copiarResultado('nc')">📋 Copiar</button>
+                <button class="btn btnGhost" onclick="limpiarTodo('nc')">🧹 Limpiar</button>
+              </div>
+              <div class="statLine">
+                <span class="pill"><span class="dot"></span>Registros: <b id="count_nc">0</b></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-gen-nd">
+        <div class="card">
+          <div class="cardHeader">
+            <h3>Generador ND</h3>
+            <span>IN,911,... (Reversión)</span>
+          </div>
+
+          <div class="cardBody">
+            <div class="formGrid">
+              <div>
+                <label>Tipo</label>
+                <input value="ND" disabled>
+                <div class="hintText">Este generador siempre crea ND.</div>
+              </div>
+
+              <div style="grid-column: 1 / -1;">
+                <label>Tabla principal (ND)</label>
+                <textarea id="data_nd" placeholder="1.1180330 1235446 28809.00 00012020303203"></textarea>
+              </div>
+
+              <div style="grid-column: 1 / -1;">
+                <div class="ruleTop">
+                  <div>
+                    <label style="margin:0;">Raíces extras (ND)</label>
+                    <div class="hintText">Cada raíz extra trae su propia tabla completa.</div>
+                  </div>
+                  <button class="btn btnGhost" onclick="agregarRegla('nd')">➕ Agregar raíz extra</button>
+                </div>
+                <div class="rulesWrap" id="rules_nd"></div>
+              </div>
+
+              <div style="grid-column: 1 / -1;">
+                <label>Resultado (ND)</label>
+                <textarea id="resultado_nd" readonly></textarea>
+              </div>
+            </div>
+
+            <div class="actions">
+              <div class="btnRow">
+                <button class="btn btnPrimary" onclick="generarPlantilla('nd')">⚡ Generar y Copiar</button>
+                <button class="btn btnGhost" onclick="copiarResultado('nd')">📋 Copiar</button>
+                <button class="btn btnGhost" onclick="limpiarTodo('nd')">🧹 Limpiar</button>
+              </div>
+              <div class="statLine">
+                <span class="pill"><span class="dot"></span>Registros: <b id="count_nd">0</b></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+<section class="page" id="page-historial">
+  <div class="card">
+    <div class="cardHeader">
+      <h3>Historial de Limpiezas</h3>
+      <span>Selecciona y reutiliza para ND</span>
+    </div>
+
+    <div class="cardBody">
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+
+  <input id="fechaFiltro" placeholder="Seleccionar fecha" />
+<button class="btn btnPrimary" onclick="aplicarFiltros()">Filtrar</button>
+<button class="btn btnGhost" onclick="limpiarFiltros()">Limpiar</button>
+
+  <button class="btn btnPrimary" onclick="cargarHistorial(true)">🔄 Cargar historial</button>
+  <button class="btn btnGhost" onclick="usarSeleccionParaND()">➡️ Usar en ND</button>
+
+</div>
+      <div style="max-height:400px; overflow:auto;">
+        <table style="width:100%; font-size:12px; border-collapse:collapse;">
+          <thead>
+            <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.2);">
+              <th></th>
+              <th>Factura</th>
+              <th>Billing</th>
+              <th>Monto</th>
+              <th>Raíz</th>
+              <th>Fecha</th>
+            </tr>
+          </thead>
+          <tbody id="tablaHistorial"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+      <section class="page" id="page-help">
+        <div class="card">
+          <div class="cardHeader">
+            <h3>Ayuda</h3>
+            <span>Cómo pegar y generar</span>
+          </div>
+          <div class="cardBody" style="color:var(--muted);">
+            <ul>
+              <li>Pega la tabla con encabezados: <b>Factura</b>, <b>Billing Account</b>, <b>Monto a Pagar</b>.</li>
+              <li>Si usas raíces extras: agrega una regla y pega una tabla completa ahí.</li>
+              <li>El resultado sale todo seguido.</li>
+              <li>Si no copia, abre en <b>https</b> o <b>localhost</b>.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast" aria-live="polite" aria-atomic="true">
+  <div class="toastIcon" id="toastIcon">✓</div>
+  <div class="toastText">
+    <strong id="toastTitle">Listo</strong>
+    <span id="toastMsg">Acción completada.</span>
+  </div>
+</div>
+    <!-- Flatpickr CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+<!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+document.addEventListener("DOMContentLoaded", () => {
+  flatpickr("#fechaFiltro", {
+    dateFormat: "Y-m-d",
+    allowInput: false
+  });
+});
+</script>
+<script src="js/helpers.js"></script>
+<script src="js/navigation.js"></script>
+<script src="js/generators.js"></script>
+<script src="js/historial.js"></script>
+<script src="js/app.js"></script>
+
+<script type="module" src="js/supabase.js"></script>
+
+</body>
+</html>
