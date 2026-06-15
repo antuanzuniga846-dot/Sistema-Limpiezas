@@ -123,6 +123,37 @@
               <div class="hintText" style="margin-top:10px;">
                 * El usuario actual se verá arriba a la derecha.
               </div>
+              <div style="margin-top:20px; border-top:1px solid rgba(255,255,255,.12); padding-top:15px;">
+
+  <h4 style="margin:0 0 12px;">🎨 Personalización</h4>
+
+  <div style="display:flex; gap:20px; flex-wrap:wrap; align-items:center;">
+
+    <div>
+      <label>Color principal</label>
+      <input type="color"
+             id="accent1Picker"
+             value="#00d8f5"
+             style="width:60px;height:40px;padding:2px;">
+    </div>
+
+    <div>
+      <label>Color secundario</label>
+      <input type="color"
+             id="accent2Picker"
+             value="#0072ff"
+             style="width:60px;height:40px;padding:2px;">
+    </div>
+
+    <button
+      id="saveThemeBtn"
+      class="btn btnPrimary">
+      💾 Guardar tema
+    </button>
+
+  </div>
+
+</div>
             </div>
           </div>
         </div>
@@ -350,6 +381,7 @@ document.addEventListener("DOMContentLoaded", () => {
 <script src="js/navigation.js"></script>
 <script src="js/generators.js"></script>
 <script src="js/historial.js"></script>
+<script src="js/theme.js"></script>
 <script src="js/app.js"></script>
 
 <script type="module" src="js/supabase.js"></script>

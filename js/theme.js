@@ -1,4 +1,4 @@
-export function applyTheme(theme) {
+function applyTheme(theme) {
   const root = document.documentElement;
 
   root.style.setProperty('--accent1', theme.accent1);
@@ -7,7 +7,7 @@ export function applyTheme(theme) {
   root.style.setProperty('--bg2', theme.bg2);
 }
 
-export async function saveTheme(userId, theme, supabase) {
+async function saveTheme(userId, theme) {
   await supabase
     .from('user_settings')
     .upsert({
@@ -16,14 +16,5 @@ export async function saveTheme(userId, theme, supabase) {
     });
 }
 
-export async function loadTheme(userId, supabase) {
-  const { data, error } = await supabase
-    .from("user_settings")
-    .select("*")
-    .eq("user_id", userId)
-    .single();
-
-  if (error || !data) return;
-
-  applyTheme(data);
-}
+window.applyTheme = applyTheme;
+window.saveTheme = saveTheme;
