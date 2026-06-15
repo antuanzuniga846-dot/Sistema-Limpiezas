@@ -28,8 +28,8 @@
 
     <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
       <button class="btn btnPrimary" type="button" onclick="authLogin()">Entrar</button>
-      <button class="btn btnGhost" type="button" onclick="authRegister()">Crear cuenta</button>
-      <button class="btn btnGhost" type="button" onclick="authLogout()">Salir</button>
+      <button class="btn btnPrimary" type="button" onclick="authRegister()">Crear cuenta</button>
+      <button class="btn btnPrimary" type="button" onclick="authLogout()">Salir</button>
     </div>
 
     <div style="margin-top:10px; color:rgba(232,241,255,.72); font-size:12px;" id="authMsg"></div>
@@ -133,6 +133,7 @@
     <option value="rojo">🔴 Rojo</option>
     <option value="rosado">🌸 Rosado</option>
     <option value="amarillo">🟡 Amarillo</option>
+    <option value="negro">⚫ Negro</option>
   </select>
 
   <div style="margin-top:10px;">
@@ -169,8 +170,8 @@
             <div class="actions">
               <div class="btnRow">
                 <button class="btn btnPrimary" onclick="generarAcometidaUltra()">⚡ Generar y Copiar</button>
-                <button class="btn btnGhost" onclick="copiarResultado('acometida')">📋 Copiar</button>
-                <button class="btn btnGhost" onclick="limpiarTodo('acometida')">🧹 Limpiar</button>
+                <button class="btn btnPrimary" onclick="copiarResultado('acometida')">📋 Copiar</button>
+                <button class="btn btnPrimary" onclick="limpiarTodo('acometida')">🧹 Limpiar</button>
               </div>
               <div class="statLine">
                 <span class="pill"><span class="dot"></span>Registros: <b id="count_acometida">0</b></span>
@@ -211,7 +212,7 @@
                     <label style="margin:0;">Raíces extras (NC)</label>
                     <div class="hintText">Cada raíz extra trae su propia tabla completa.</div>
                   </div>
-                  <button class="btn btnGhost" onclick="agregarRegla('nc')">➕ Agregar raíz extra</button>
+                  <button class="btn btnPrimary" onclick="agregarRegla('nc')">➕ Agregar raíz extra</button>
                 </div>
                 <div class="rulesWrap" id="rules_nc"></div>
               </div>
@@ -225,8 +226,8 @@
             <div class="actions">
               <div class="btnRow">
                 <button class="btn btnPrimary" onclick="generarPlantilla('nc')">⚡ Generar y Copiar</button>
-                <button class="btn btnGhost" onclick="copiarResultado('nc')">📋 Copiar</button>
-                <button class="btn btnGhost" onclick="limpiarTodo('nc')">🧹 Limpiar</button>
+                <button class="btn btnPrimary" onclick="copiarResultado('nc')">📋 Copiar</button>
+                <button class="btn btnPrimary" onclick="limpiarTodo('nc')">🧹 Limpiar</button>
               </div>
               <div class="statLine">
                 <span class="pill"><span class="dot"></span>Registros: <b id="count_nc">0</b></span>
@@ -262,7 +263,7 @@
                     <label style="margin:0;">Raíces extras (ND)</label>
                     <div class="hintText">Cada raíz extra trae su propia tabla completa.</div>
                   </div>
-                  <button class="btn btnGhost" onclick="agregarRegla('nd')">➕ Agregar raíz extra</button>
+                  <button class="btn btnPrimary" onclick="agregarRegla('nd')">➕ Agregar raíz extra</button>
                 </div>
                 <div class="rulesWrap" id="rules_nd"></div>
               </div>
@@ -276,8 +277,8 @@
             <div class="actions">
               <div class="btnRow">
                 <button class="btn btnPrimary" onclick="generarPlantilla('nd')">⚡ Generar y Copiar</button>
-                <button class="btn btnGhost" onclick="copiarResultado('nd')">📋 Copiar</button>
-                <button class="btn btnGhost" onclick="limpiarTodo('nd')">🧹 Limpiar</button>
+                <button class="btn btnPrimary" onclick="copiarResultado('nd')">📋 Copiar</button>
+                <button class="btn btnPrimary" onclick="limpiarTodo('nd')">🧹 Limpiar</button>
               </div>
               <div class="statLine">
                 <span class="pill"><span class="dot"></span>Registros: <b id="count_nd">0</b></span>
@@ -298,10 +299,10 @@
 
   <input id="fechaFiltro" placeholder="Seleccionar fecha" />
 <button class="btn btnPrimary" onclick="aplicarFiltros()">Filtrar</button>
-<button class="btn btnGhost" onclick="limpiarFiltros()">Limpiar</button>
+<button class="btn btnPrimary" onclick="limpiarFiltros()">Limpiar</button>
 
   <button class="btn btnPrimary" onclick="cargarHistorial(true)">🔄 Cargar historial</button>
-  <button class="btn btnGhost" onclick="usarSeleccionParaND()">➡️ Usar en ND</button>
+  <button class="btn btnPrimary" onclick="usarSeleccionParaND()">➡️ Usar en ND</button>
 
 </div>
       <div style="max-height:400px; overflow:auto;">
