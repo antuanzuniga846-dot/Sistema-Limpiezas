@@ -97,6 +97,55 @@
     ? document.getElementById(`raiz_${mode}`).value.trim()
     : "";
 
+    if(mode === "nd"){
+
+  const texto = document
+    .getElementById("data_nd")
+    .value
+    .trim();
+
+  const lineas = texto
+    .split("\n")
+    .filter(x => x.trim());
+
+  // si solo escribió una raíz
+  if(lineas.length === 1 && lineas[0].split(/\s+/).length === 1){
+
+    const raiz = lineas[0];
+
+    try{
+
+      const registros = await buscarPorRaizND(raiz);
+
+      if(!registros.length){
+        showToast(
+          "warn",
+          "Sin resultados",
+          `No existe la raíz ${raiz}`
+        );
+        return;
+      }
+
+      document.getElementById("data_nd").value =
+        registros
+          .map(r =>
+            `${r.raiz} ${r.billingid} ${r.monto} ${r.factura}`
+          )
+          .join("\n");
+
+    }catch(err){
+
+      showToast(
+        "error",
+        "Error",
+        err.message
+      );
+
+      return;
+    }
+  }
+}
+
   const textoPrincipal = document.getElementById(`data_${mode}`).value;
 
   if(mode === "nc" && !raizDefault){

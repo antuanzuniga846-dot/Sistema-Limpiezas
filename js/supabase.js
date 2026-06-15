@@ -276,3 +276,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   cargarHistorial(true);
 });
 
+// ND nuevo
+
+window.buscarPorRaizND = async (raiz) => {
+
+  const { data, error } = await supabase
+    .from("limpiezas")
+    .select("raiz,billingid,monto,factura")
+    .eq("raiz", raiz);
+
+  if(error) throw error;
+
+  return data || [];
+};
