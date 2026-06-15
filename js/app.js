@@ -19,7 +19,7 @@
     h.textContent = `Hora: ${hora}:${min} ${ampm} | Usuario: ${getUsuarioActual()}`;
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", async () => {
 
   actualizarMeta();
   setInterval(actualizarMeta, 8000);
@@ -46,17 +46,17 @@
       await saveTheme(user.id, theme, supabase);
     });
   }
+
   const {
-   data: { user }
+    data: { user }
   } = await supabase.auth.getUser();
 
   if (user) {
     await loadTheme(user.id, supabase);
   }
+
 });
 
-import {
-  applyTheme,
-  saveTheme,
-  loadTheme
-} from "./theme.js";
+window.applyTheme = applyTheme;
+window.saveTheme = saveTheme;
+window.loadTheme = loadTheme;
