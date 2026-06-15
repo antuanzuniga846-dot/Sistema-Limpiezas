@@ -35,25 +35,6 @@
     <div style="margin-top:10px; color:rgba(232,241,255,.72); font-size:12px;" id="authMsg"></div>
   </div>
 </div>
-<!-- tema personalizado -->
-
-<div class="card">
-  <div class="cardHeader">
-    <h3>Personalización</h3>
-  </div>
-
-  <div class="cardBody">
-    <label>Color principal</label>
-    <input type="color" id="accent1Picker" value="#00d8f5">
-
-    <label>Color secundario</label>
-    <input type="color" id="accent2Picker" value="#0072ff">
-
-    <button class="btn btnPrimary" id="saveThemeBtn">
-      Guardar tema
-    </button>
-  </div>
-</div>
 
 <div class="app">
   <aside class="sidebar">
@@ -138,6 +119,23 @@
                 <button class="btn btnPrimary" onclick="go('gen-nd')">⚡ Ir al Generador ND</button>
                 <button class="btn btnPrimary" onclick="go('gen-acometida')">⚡ Ir al Generador Acometida</button>
                 <button class="btn btnPrimary" onclick="go('historial')">⚡ Ir al Historial</button>
+                <div class="card">
+                <div class="cardHeader">
+                    <h3>Personalización</h3>
+                  </div>
+
+                  <div class="cardBody">
+                    <label>Color principal</label>
+                    <input type="color" id="accent1Picker" value="#00d8f5">
+
+                    <label>Color secundario</label>
+                    <input type="color" id="accent2Picker" value="#0072ff">
+
+                    <button class="btn btnPrimary" id="saveThemeBtn">
+                      Guardar tema
+                    </button>
+                  </div>
+                  </div>
               </div>
               <div class="hintText" style="margin-top:10px;">
                 * El usuario actual se verá arriba a la derecha.
