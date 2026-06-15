@@ -10,6 +10,8 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
   }
 });
 
+window.supabase = supabase;
+
 const USER_DOMAIN = "sistema.local";
 
 const gate = document.getElementById("authGate");

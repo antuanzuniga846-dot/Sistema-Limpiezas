@@ -1,6 +1,4 @@
-    import { supabase } from "./supabase.js";
-    import { applyTheme, saveTheme } from "./theme.js";
-  
+
   // ===== Meta fecha/hora + usuario =====
   function actualizarMeta(){
     const f = document.getElementById("metaFecha");

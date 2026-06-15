@@ -8,12 +8,14 @@ function applyTheme(theme) {
 }
 
 async function saveTheme(userId, theme) {
-  await supabase
-    .from('user_settings')
+  const { error } = await window.supabase
+    .from("user_settings")
     .upsert({
       user_id: userId,
       ...theme
     });
+
+  console.log("saveTheme error:", error);
 }
 
 window.applyTheme = applyTheme;
