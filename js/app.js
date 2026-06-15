@@ -1,3 +1,6 @@
+    import { supabase } from "./supabase.js";
+    import { applyTheme, saveTheme } from "./theme.js";
+  
   // ===== Meta fecha/hora + usuario =====
   function actualizarMeta(){
     const f = document.getElementById("metaFecha");
@@ -17,7 +20,45 @@
     f.textContent = `Fecha: ${dia}/${mes}/${anio}`;
     h.textContent = `Hora: ${hora}:${min} ${ampm} | Usuario: ${getUsuarioActual()}`;
   }
+
   document.addEventListener("DOMContentLoaded", () => {
-    actualizarMeta();
-    setInterval(actualizarMeta, 8000);
-  });
+
+  actualizarMeta();
+  setInterval(actualizarMeta, 8000);
+
+  const saveBtn = document.getElementById("saveThemeBtn");
+
+  if (saveBtn) {
+    saveBtn.addEventListener("click", async () => {
+
+      const theme = {
+        accent1: document.getElementById("accent1Picker").value,
+        accent2: document.getElementById("accent2Picker").value,
+        bg1: "#0b1220",
+        bg2: "#0f2230"
+      };
+
+      const {
+        data: { user }
+      } = await supabase.auth.getUser();
+
+      if (!user) return;
+
+      applyTheme(theme);
+      await saveTheme(user.id, theme, supabase);
+    });
+  }
+  const {
+   data: { user }
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    await loadTheme(user.id, supabase);
+  }
+});
+
+import {
+  applyTheme,
+  saveTheme,
+  loadTheme
+} from "./theme.js";
