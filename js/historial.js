@@ -1,7 +1,8 @@
   // ============================
 // FILTROS
 // ============================
-let fechaSeleccionada = "";
+
+window.fechaSeleccionada = "";
 
 // ============================
 // HISTORIAL CON FILTRO
@@ -25,11 +26,32 @@ window.cargarHistorial = async (reset = true) => {
     const from = page * limit;
     const to = from + limit - 1;
 
+    if (window.fechaSeleccionada) {
+      const start = new Date(window.fechaSeleccionada);
+      const end = new Date(window.fechaSeleccionada);
+      end.setDate(end.getDate() + 1);
+
+      query = query
+      .gte("created_at", start.toISOString())
+     .lt("created_at", end.toISOString());
+    }
+
     let query = supabase
-      .from("limpiezas")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .range(from, to);
+     .from("limpiezas")
+     .select("*")
+      .order("created_at", { ascending: false });
+
+    if (window.fechaSeleccionada) {
+      const start = new Date(window.fechaSeleccionada);
+      const end = new Date(window.fechaSeleccionada);
+      end.setDate(end.getDate() + 1);
+
+     query = query
+       .gte("created_at", start.toISOString())
+        .lt("created_at", end.toISOString());
+    } else {
+       query = query.range(from, to);
+      }
 
 
     const { data, error } = await query;
@@ -162,12 +184,12 @@ document.addEventListener("click", (e) => {
 // FILTROS
 // ============================
 window.aplicarFiltros = () => {
-  fechaSeleccionada = document.getElementById("fechaFiltro").value;
-  cargarHistorial(true);
+  window.fechaSeleccionada = document.getElementById("fechaFiltro").value;
+  window.cargarHistorial(true);
 };
 
 window.limpiarFiltros = () => {
   document.getElementById("fechaFiltro").value = "";
-  fechaSeleccionada = "";
-  cargarHistorial(true);
+  window.fechaSeleccionada = "";
+  window.cargarHistorial(true);
 };
