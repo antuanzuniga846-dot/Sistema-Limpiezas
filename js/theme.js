@@ -40,13 +40,6 @@ const THEMES = {
     accent2: "#eab308",
     bg1: "#4a3c0b",
     bg2: "#2b1f0b"
-  },
-
-  negro: {
-    accent1: "#000000",
-    accent2: "#000000",
-    bg1: "#000000",
-    bg2: "#000000"
   }
 };
 
