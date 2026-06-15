@@ -27,11 +27,19 @@ const THEMES = {
     bg1: "#1a0a0a",
     bg2: "#2b1010"
   },
+
   rosado: {
     accent1: "#f472b6",
     accent2: "#ec4899",
     bg1: "#491249",
     bg2: "#2b102b"
+  },
+
+  amarillo: {
+    accent1: "#facc15",
+    accent2: "#eab308",
+    bg1: "#4a3c0b",
+    bg2: "#2b1f0b"
   }
 };
 
