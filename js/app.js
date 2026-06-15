@@ -37,14 +37,6 @@ if (saveBtn) {
 
     if (!user) return;
 
-    const {
-      data: { user }
-    } = await window.supabase.auth.getUser();
-
-    if (user) {
-      await loadTheme(user.id);
-    }
-
     const themeName =
       document.getElementById("themeSelector").value;
 
