@@ -77,6 +77,43 @@ window.guardarLimpiezaBatch = async function(registros){
 };
 
 // ============================
+// BUSCAR RAICES ND
+// ============================
+
+window.buscarPorRaizND = async function(raiz){
+
+  const { data, error } = await supabase
+    .from("limpiezas")
+    .select("raiz,billingid,monto,factura")
+    .eq("raiz", raiz);
+
+  if(error) throw error;
+
+  return data || [];
+};
+
+window.buscarPorRaicesND = async function(raices){
+
+  const { data, error } = await supabase
+    .from("limpiezas")
+    .select("raiz,billingid,monto,factura")
+    .in("raiz", raices);
+
+  if(error) throw error;
+
+  const facturasVistas = new Set();
+
+  return (data || []).filter(r => {
+
+    if(facturasVistas.has(r.factura)){
+      return false;
+    }
+
+    facturasVistas.add(r.factura);
+    return true;
+  });
+};
+// ============================
 // AUTH
 // ============================
 async function isAuthorized(){

@@ -196,6 +196,59 @@
 }
   window.generarPlantilla = generarPlantilla;
 
+  // ============================
+// AUTOCARGA ND POR RAIZ
+// ============================
+
+window.buscarRaicesNDAutomatico = async function(){
+
+  const textarea = document.getElementById("data_nd");
+
+  if(!textarea) return;
+
+  const texto = textarea.value.trim();
+
+  if(!texto) return;
+
+  const lineas = texto
+    .split("\n")
+    .map(x => x.trim())
+    .filter(Boolean);
+
+  const soloRaices = lineas.every(
+    x => x.split(/\s+/).length === 1
+  );
+
+  if(!soloRaices) return;
+
+  try{
+
+    const registros = await buscarPorRaicesND(lineas);
+
+    if(!registros.length){
+      showToast(
+        "warn",
+        "Sin resultados",
+        "No se encontraron raíces"
+      );
+      return;
+    }
+
+    textarea.value =
+      registros.map(r =>
+        `${r.raiz} ${r.billingid} ${r.monto} ${r.factura}`
+      ).join("\n");
+
+  }catch(err){
+
+    showToast(
+      "error",
+      "Error",
+      err.message
+    );
+  }
+};
+
   // ===== Generador Acometida =====
   function generarAcometidaUltra(){
     const texto = document.getElementById("data_acometida").value || "";
