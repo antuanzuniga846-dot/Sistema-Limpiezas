@@ -27,6 +27,7 @@ const THEMES = {
     bg1: "#1a0a0a",
     bg2: "#2b1010"
   },
+  
   blanco: {
     accent1: "#c084fc",
     accent2: "#7c3aed",
