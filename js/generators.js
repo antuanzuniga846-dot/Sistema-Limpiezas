@@ -146,6 +146,44 @@
   }
 }
 
+async function buscarPorRaicesND(raices){
+
+  const { data, error } = await supabase
+    .from("limpiezas")
+    .select("raiz,billingid,monto,factura")
+    .in("raiz", raices);
+
+  if(error) throw error;
+
+  const facturasVistas = new Set();
+
+  return (data || []).filter(r => {
+
+    if(facturasVistas.has(r.factura)){
+      return false;
+    }
+
+    facturasVistas.add(r.factura);
+    return true;
+  });
+}
+
+const lineas = texto
+  .split("\n")
+  .map(x => x.trim())
+  .filter(Boolean);
+
+const soloRaices = lineas.every(
+  x => x.split(/\s+/).length === 1
+);
+
+const registros = await buscarPorRaicesND(lineas);
+
+document.getElementById("data_nd").value =
+  registros.map(r =>
+    `${r.raiz} ${r.billingid} ${r.monto} ${r.factura}`
+  ).join("\n");
+
   const textoPrincipal = document.getElementById(`data_${mode}`).value;
 
   if(mode === "nc" && !raizDefault){
