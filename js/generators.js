@@ -93,62 +93,11 @@
 
   // ===== Generar plantilla NC/ND =====
  async function generarPlantilla(mode){
-  if(mode === "nd"){
+  const raizDefault = (mode === "nc")
+    ? document.getElementById(`raiz_${mode}`).value.trim()
+    : "";
 
-  const textoND = document
-    .getElementById("data_nd")
-    .value
-    .trim();
-
-  const lineas = textoND
-    .split(/\r?\n/)
-    .map(x => x.trim())
-    .filter(Boolean);
-
-  const soloRaices =
-    lineas.length > 0 &&
-    lineas.every(x => x.split(/\s+/).length === 1);
-
-  if(soloRaices){
-
-    try{
-
-      const registros =
-        await buscarPorRaicesND(lineas);
-
-      if(!registros.length){
-
-        showToast(
-          "warn",
-          "Sin resultados",
-          "No se encontraron registros para esas raíces."
-        );
-
-        return;
-      }
-
-      document.getElementById("data_nd").value =
-        registros
-          .map(r =>
-            `${r.raiz} ${r.billingid} ${r.monto} ${r.factura}`
-          )
-          .join("\n");
-
-    }catch(err){
-
-      showToast(
-        "error",
-        "Error",
-        err.message
-      );
-
-      return;
-    }
-  }
-}
-
-let textoPrincipal = document.getElementById(`data_${mode}`).value;
-textoPrincipal = document.getElementById(`data_${mode}`).value;
+  const textoPrincipal = document.getElementById(`data_${mode}`).value;
 
   if(mode === "nc" && !raizDefault){
     showToast("warn","Falta raíz","Escribe la raíz principal.");
@@ -247,11 +196,6 @@ textoPrincipal = document.getElementById(`data_${mode}`).value;
 }
   window.generarPlantilla = generarPlantilla;
 
-  if(mode === "nc" && !raizDefault){
-    showToast("warn","Falta raíz","Escribe la raíz principal.");
-    return;
-  }
-
   // ===== Generador Acometida =====
   function generarAcometidaUltra(){
     const texto = document.getElementById("data_acometida").value || "";
@@ -303,28 +247,3 @@ textoPrincipal = document.getElementById(`data_${mode}`).value;
     showToast("success","Limpio",`Se borró el generador ${mode.toUpperCase()}.`);
   }
   window.limpiarTodo = limpiarTodo;
-
-  // buscar por raíz en el historial
-
-  async function buscarPorRaicesND(raices){
-
-  const { data, error } = await supabase
-    .from("limpiezas")
-    .select("raiz,billingid,monto,factura")
-    .in("raiz", raices);
-
-  if(error) throw error;
-
-  const facturasVistas = new Set();
-
-  return (data || []).filter(r => {
-
-    if(facturasVistas.has(r.factura)){
-      return false;
-    }
-
-    facturasVistas.add(r.factura);
-    return true;
-
-  });
-}
