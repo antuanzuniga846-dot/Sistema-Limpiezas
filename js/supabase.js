@@ -27,11 +27,6 @@ function setUserTag(tag){
 }
 
 // ============================
-// FILTROS
-// ============================
-let fechaSeleccionada = "";
-
-// ============================
 // VALIDAR SESIÓN
 // ============================
 async function getSessionOrFail(){
@@ -151,90 +146,6 @@ let page = 0;
 const limit = 200;
 let loading = false;
 let noMoreData = false;
-
-// ============================
-// HISTORIAL CON FILTRO
-// ============================
-window.cargarHistorial = async (reset = true) => {
-  try{
-    if(loading || noMoreData) return;
-
-    await getSessionOrFail();
-
-    const tbody = document.getElementById("tablaHistorial");
-
-    if(reset){
-      tbody.innerHTML = "";
-      page = 0;
-      noMoreData = false;
-    }
-
-    loading = true;
-
-    const from = page * limit;
-    const to = from + limit - 1;
-
-    let query = supabase
-      .from("limpiezas")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .range(from, to);
-
-    // 🔥 APLICAR FILTRO DE FECHA AQUÍ (CORRECTO)
-    if (fechaSeleccionada) {
-      query = query
-        .gte("created_at", fechaSeleccionada + "T00:00:00")
-        .lte("created_at", fechaSeleccionada + "T23:59:59");
-    }
-
-    const { data, error } = await query;
-
-    if (error) {
-      console.error("ERROR SUPABASE:", error);
-      loading = false;
-      return;
-    }
-
-    if (!data || data.length === 0) {
-      noMoreData = true;
-      loading = false;
-      return;
-    }
-
-    const facturasVistas = new Set();
-
-data.forEach(item => {
-
-  const factura = String(item.factura || "").trim();
-
-  if(facturasVistas.has(factura)){
-    return;
-  }
-
-  facturasVistas.add(factura);
-
-  const tr = document.createElement("tr");
-
-  tr.innerHTML = `
-    <td><input type="checkbox" class="chkHist"
-      data-json="${encodeURIComponent(JSON.stringify(item))}"></td>
-    <td>${item.factura ?? ""}</td>
-    <td>${item.billingid ?? ""}</td>
-    <td>${item.monto ?? ""}</td>
-    <td>${item.raiz ?? ""}</td>
-    <td>${item.created_at ? new Date(item.created_at).toLocaleString() : "-"}</td>
-  `;
-
-  tbody.appendChild(tr);
-});
-
-    page++;
-    loading = false;
-
-  } catch(e){
-    console.warn("Historial cancelado por sesión");
-  }
-};
 
 
 // ============================
