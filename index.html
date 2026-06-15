@@ -123,36 +123,21 @@
               <div class="hintText" style="margin-top:10px;">
                 * El usuario actual se verá arriba a la derecha.
               </div>
-              <div style="margin-top:20px; border-top:1px solid rgba(255,255,255,.12); padding-top:15px;">
+              <div style="margin-top:20px;">
+  <label>🎨 Tema visual</label>
 
-  <h4 style="margin:0 0 12px;">🎨 Personalización</h4>
+  <select id="themeSelector">
+    <option value="azul">🔵 Azul</option>
+    <option value="verde">🟢 Verde</option>
+    <option value="morado">🟣 Morado</option>
+    <option value="rojo">🔴 Rojo</option>
+  </select>
 
-  <div style="display:flex; gap:20px; flex-wrap:wrap; align-items:center;">
-
-    <div>
-      <label>Color principal</label>
-      <input type="color"
-             id="accent1Picker"
-             value="#00d8f5"
-             style="width:60px;height:40px;padding:2px;">
-    </div>
-
-    <div>
-      <label>Color secundario</label>
-      <input type="color"
-             id="accent2Picker"
-             value="#0072ff"
-             style="width:60px;height:40px;padding:2px;">
-    </div>
-
-    <button
-      id="saveThemeBtn"
-      class="btn btnPrimary">
-      💾 Guardar tema
+  <div style="margin-top:10px;">
+    <button id="saveThemeBtn" class="btn btnPrimary">
+      Guardar tema
     </button>
-
   </div>
-
 </div>
             </div>
           </div>

@@ -24,36 +24,38 @@
   actualizarMeta();
   setInterval(actualizarMeta, 8000);
 
-  const saveBtn = document.getElementById("saveThemeBtn");
+const saveBtn =
+  document.getElementById("saveThemeBtn");
 
-  if (saveBtn) {
-    saveBtn.addEventListener("click", async () => {
+if (saveBtn) {
 
-      const theme = {
-        accent1: document.getElementById("accent1Picker").value,
-        accent2: document.getElementById("accent2Picker").value,
-        bg1: "#0b1220",
-        bg2: "#0f2230"
-      };
+  saveBtn.addEventListener("click", async () => {
 
-      const {
-        data: { user }
-      } = await supabase.auth.getUser();
+    const {
+      data: { user }
+    } = await window.supabase.auth.getUser();
 
-      if (!user) return;
+    if (!user) return;
 
-      applyTheme(theme);
-      await saveTheme(user.id, theme, supabase);
-    });
-  }
+    const {
+      data: { user }
+    } = await window.supabase.auth.getUser();
 
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
+    if (user) {
+      await loadTheme(user.id);
+    }
 
-  if (user) {
-    await loadTheme(user.id, supabase);
-  }
+    const themeName =
+      document.getElementById("themeSelector").value;
+
+    applyThemeByName(themeName);
+
+    await saveTheme(
+      user.id,
+      themeName
+    );
+  });
+}
 
 });
 
