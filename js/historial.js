@@ -1,109 +1,4 @@
-  // ============================
-// FILTROS
-// ============================
-
-window.fechaSeleccionada = "";
-
-// ============================
-// HISTORIAL CON FILTRO
-// ============================
-window.cargarHistorial = async (reset = true) => {
-  try{
-    if(loading || noMoreData) return;
-
-    await getSessionOrFail();
-
-    const tbody = document.getElementById("tablaHistorial");
-
-    if(reset){
-      tbody.innerHTML = "";
-      page = 0;
-      noMoreData = false;
-    }
-
-    loading = true;
-
-    const from = page * limit;
-    const to = from + limit - 1;
-
-    if (window.fechaSeleccionada) {
-      const start = new Date(window.fechaSeleccionada);
-      const end = new Date(window.fechaSeleccionada);
-      end.setDate(end.getDate() + 1);
-
-      query = query
-      .gte("created_at", start.toISOString())
-     .lt("created_at", end.toISOString());
-    }
-
-    let query = supabase
-     .from("limpiezas")
-     .select("*")
-      .order("created_at", { ascending: false });
-
-    if (window.fechaSeleccionada) {
-      const start = new Date(window.fechaSeleccionada);
-      const end = new Date(window.fechaSeleccionada);
-      end.setDate(end.getDate() + 1);
-
-     query = query
-       .gte("created_at", start.toISOString())
-        .lt("created_at", end.toISOString());
-    } else {
-       query = query.range(from, to);
-      }
-
-
-    const { data, error } = await query;
-
-    if (error) {
-      console.error("ERROR SUPABASE:", error);
-      loading = false;
-      return;
-    }
-
-    if (!data || data.length === 0) {
-      noMoreData = true;
-      loading = false;
-      return;
-    }
-
-    const facturasVistas = new Set();
-
-data.forEach(item => {
-
-  const factura = String(item.factura || "").trim();
-
-  if(facturasVistas.has(factura)){
-    return;
-  }
-
-  facturasVistas.add(factura);
-
-  const tr = document.createElement("tr");
-
-  tr.innerHTML = `
-    <td><input type="checkbox" class="chkHist"
-      data-json="${encodeURIComponent(JSON.stringify(item))}"></td>
-    <td>${item.factura ?? ""}</td>
-    <td>${item.billingid ?? ""}</td>
-    <td>${item.monto ?? ""}</td>
-    <td>${item.raiz ?? ""}</td>
-    <td>${item.created_at ? new Date(item.created_at).toLocaleString() : "-"}</td>
-  `;
-
-  tbody.appendChild(tr);
-});
-
-    page++;
-    loading = false;
-
-  } catch(e){
-    console.warn("Historial cancelado por sesión");
-  }
-};
-
-  window.usarSeleccionParaND = () => {
+    window.usarSeleccionParaND = () => {
   const checks = document.querySelectorAll(".chkHist:checked");
 
   if (!checks.length) {
@@ -184,12 +79,12 @@ document.addEventListener("click", (e) => {
 // FILTROS
 // ============================
 window.aplicarFiltros = () => {
-  window.fechaSeleccionada = document.getElementById("fechaFiltro").value;
-  window.cargarHistorial(true);
+  fechaSeleccionada = document.getElementById("fechaFiltro").value;
+  cargarHistorial(true);
 };
 
 window.limpiarFiltros = () => {
   document.getElementById("fechaFiltro").value = "";
-  window.fechaSeleccionada = "";
-  window.cargarHistorial(true);
+  fechaSeleccionada = "";
+  cargarHistorial(true);
 };
