@@ -1,3 +1,5 @@
+window.mostrarPlantilla = function(tipo){
+
 const plantillas = {
   nc: `
     <h3>Plantilla Nota de Crédito</h3>
