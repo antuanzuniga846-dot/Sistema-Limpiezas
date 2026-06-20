@@ -83,8 +83,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 });
 
-window.mostrarPlantilla = function(tipo){
-
   const plantillas = {
 
     nc: `
@@ -122,4 +120,7 @@ Compañeros su apoyo dando prioridad y autorización a la orden en CRM.
 
   contenedor.innerHTML =
     plantillas[tipo] || "Plantilla no encontrada";
+
+    window.mostrarPlantilla = function(tipo){
+  alert("Plantilla: " + tipo);
 };
