@@ -45,8 +45,8 @@ const THEMES = {
   vino: {
     accent1: "#922053",
     accent2: "#961d50",
-    bg1: "#585154",
-    bg2: "#2b102b"
+    bg1: "#423d40",
+    bg2: "#413b41"
   }
 };
 
