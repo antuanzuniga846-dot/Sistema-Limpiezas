@@ -12,7 +12,7 @@
     const title = document.getElementById("pageTitle");
     const sub = document.getElementById("pageSub");
     const map = {
-        historial: ["Historial", "Consulta y reutiliza limpiezas guardadas."],
+      historial: ["Historial", "Consulta y reutiliza limpiezas guardadas."],
       home: ["Inicio", "Panel de control y accesos rápidos."],
       "gen-nc": ["Generador NC", "Genera el formato NC (CM,908,...)."],
       "gen-nd": ["Generador ND", "Genera el formato ND (IN,911,...)."],
