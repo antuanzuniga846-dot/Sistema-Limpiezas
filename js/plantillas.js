@@ -39,6 +39,3 @@ Compañeros su apoyo dando prioridad y autorización a la orden en CRM.
     plantillas[tipo] || "Plantilla no encontrada";
 };
 
-window.mostrarPlantilla = function(tipo){
-  alert("Funciona: " + tipo);
-};
