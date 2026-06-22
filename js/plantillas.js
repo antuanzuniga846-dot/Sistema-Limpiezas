@@ -38,3 +38,7 @@ Compañeros su apoyo dando prioridad y autorización a la orden en CRM.
   contenedor.innerHTML =
     plantillas[tipo] || "Plantilla no encontrada";
 };
+
+window.mostrarPlantilla = function(tipo){
+  alert("Funciona: " + tipo);
+};
