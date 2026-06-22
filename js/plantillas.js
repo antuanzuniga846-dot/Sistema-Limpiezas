@@ -25,6 +25,18 @@ Se solicita prioridad, cualquier consulta adicional quedamos a su disposición.
 
 Compañeros su apoyo dando prioridad y autorización a la orden en CRM.
       </textarea>
+    `,
+
+    cancelacion: `
+      <h3>Plantilla Cancelación</h3>
+      <textarea style="width:100%;height:300px;">
+
+Buen día, por favor su ayuda con la prioridad de la ordenes:
+
+Orden se encuentra en despacho a la espera de asignación  
+
+Se solicita prioridad con el área encargada
+
     `
   };
 
