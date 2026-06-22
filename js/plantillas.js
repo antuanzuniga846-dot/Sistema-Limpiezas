@@ -58,14 +58,13 @@ Se solicita prioridad con el área encargada
         errordeaprovisionamiento: `
 <h3>Plantilla Error de Aprovisionamiento</h3>
 <textarea style="width:100%;height:300px;">
-
 Nombre: 
 Número de teléfono: 
 Cédula: 
 ID Cliente: 
 Orden CRM: 
 Orden EOM: 
-Versión CRM: 9.
+Versión CRM: 9.0
 Error: [SYNCERR?] Error
 Detalle: Error de aprovisionamiento
 </textarea>
@@ -74,7 +73,6 @@ Detalle: Error de aprovisionamiento
         cambiodesim: `
 <h3>Plantilla Cambio de SIM</h3>
 <textarea style="width:100%;height:300px;">
-
 Nombre: 
 Cedula: 
 Numero: 
