@@ -126,11 +126,21 @@ const THEMES = {
 
 };
 
+let rgbInterval;
+
 function applyThemeByName(themeName) {
+
+  clearInterval(rgbInterval);
 
   const theme = THEMES[themeName];
 
   if (!theme) return;
+
+  // Si es RGB, inicia la animación y termina aquí
+  if (theme.rgb) {
+    iniciarRGB();
+    return;
+  }
 
   const root = document.documentElement;
 
@@ -149,23 +159,6 @@ function applyThemeByName(themeName) {
   root.style.setProperty("--muted", theme.muted);
 }
 
-let rgbInterval;
-
-function applyTheme(theme){
-
-    clearInterval(rgbInterval);
-
-    if(theme.rgb){
-        iniciarRGB();
-        return;
-    }
-
-    document.documentElement.style.setProperty("--accent1", theme.accent1);
-    document.documentElement.style.setProperty("--accent2", theme.accent2);
-    document.documentElement.style.setProperty("--bg1", theme.bg1);
-    document.documentElement.style.setProperty("--bg2", theme.bg2);
-}
-
 function iniciarRGB(){
 
     let hue = 0;
@@ -174,11 +167,21 @@ function iniciarRGB(){
 
         hue = (hue + 1) % 360;
 
-        document.documentElement.style.setProperty("--accent1", `hsl(${hue},100%,55%)`);
-        document.documentElement.style.setProperty("--accent2", `hsl(${(hue+45)%360},100%,50%)`);
+        const root = document.documentElement;
 
-        document.documentElement.style.setProperty("--bg1", `hsl(${hue},35%,8%)`);
-        document.documentElement.style.setProperty("--bg2", `hsl(${(hue+25)%360},35%,12%)`);
+        root.style.setProperty("--accent1", `hsl(${hue},100%,55%)`);
+        root.style.setProperty("--accent2", `hsl(${(hue+45)%360},100%,50%)`);
+
+        root.style.setProperty("--bg1", `hsl(${hue},35%,8%)`);
+        root.style.setProperty("--bg2", `hsl(${(hue+25)%360},35%,12%)`);
+
+        root.style.setProperty("--card", `hsla(${hue},100%,50%,0.08)`);
+        root.style.setProperty("--card2", `hsla(${hue},100%,50%,0.12)`);
+
+        root.style.setProperty("--stroke", `hsla(${hue},100%,50%,0.25)`);
+
+        root.style.setProperty("--text", "#ffffff");
+        root.style.setProperty("--muted", "rgba(255,255,255,.72)");
 
     },25);
 }
