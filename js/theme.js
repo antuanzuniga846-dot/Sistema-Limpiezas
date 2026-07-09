@@ -118,7 +118,11 @@ const THEMES = {
     stroke: "rgba(163,230,53,.20)",
     text: "#f7fee7",
     muted: "rgba(247,254,231,.72)"
-  } 
+  },
+
+  rgb: {
+    rgb: true
+  }
 
 };
 
@@ -143,6 +147,40 @@ function applyThemeByName(themeName) {
 
   root.style.setProperty("--text", theme.text);
   root.style.setProperty("--muted", theme.muted);
+}
+
+let rgbInterval;
+
+function applyTheme(theme){
+
+    clearInterval(rgbInterval);
+
+    if(theme.rgb){
+        iniciarRGB();
+        return;
+    }
+
+    document.documentElement.style.setProperty("--accent1", theme.accent1);
+    document.documentElement.style.setProperty("--accent2", theme.accent2);
+    document.documentElement.style.setProperty("--bg1", theme.bg1);
+    document.documentElement.style.setProperty("--bg2", theme.bg2);
+}
+
+function iniciarRGB(){
+
+    let hue = 0;
+
+    rgbInterval = setInterval(()=>{
+
+        hue = (hue + 1) % 360;
+
+        document.documentElement.style.setProperty("--accent1", `hsl(${hue},100%,55%)`);
+        document.documentElement.style.setProperty("--accent2", `hsl(${(hue+45)%360},100%,50%)`);
+
+        document.documentElement.style.setProperty("--bg1", `hsl(${hue},35%,8%)`);
+        document.documentElement.style.setProperty("--bg2", `hsl(${(hue+25)%360},35%,12%)`);
+
+    },25);
 }
 
 async function saveTheme(userId, themeName) {
