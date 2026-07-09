@@ -94,6 +94,18 @@ const THEMES = {
     stroke: "rgba(249,115,22,.20)",
     text: "#fff7ed",
     muted: "rgba(255,247,237,.72)"
+  },
+
+  beige: { 
+    accent1: "#f5f5dc",
+    accent2: "#e0d8c3",
+    bg1: "#2b2b1f",
+    bg2: "#3a3a2b",
+    card: "rgba(245,245,220,.08)",
+    card2: "rgba(245,245,220,.12)",
+    stroke: "rgba(245,245,220,.20)",
+    text: "#fdfaf0",
+    muted: "rgba(253,250,240,.72)"
   }
 
 };
