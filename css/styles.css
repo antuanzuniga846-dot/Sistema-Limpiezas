@@ -48,15 +48,9 @@
     padding: 10px 10px 16px;
   }
   
-  .logo{
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
   .logo img{
-    width: 40px;   /* Ajusta el tamaño */
-    height: 40px;
+    width: 28px;
+    height: 28px;
   }
   
   .brand h1{
