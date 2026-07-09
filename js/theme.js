@@ -82,6 +82,18 @@ const THEMES = {
     stroke: "rgba(146,32,83,.25)",
     text: "#fdf2f8",
     muted: "rgba(253,242,248,.72)"
+  },
+
+  naranja: {
+    accent1: "#f97316",
+    accent2: "#ea580c",
+    bg1: "#2a140b",
+    bg2: "#3a1f0b",
+    card: "rgba(249,115,22,.08)",
+    card2: "rgba(249,115,22,.12)",
+    stroke: "rgba(249,115,22,.20)",
+    text: "#fff7ed",
+    muted: "rgba(255,247,237,.72)"
   }
 
 };
