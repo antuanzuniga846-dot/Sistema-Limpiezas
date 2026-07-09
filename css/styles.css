@@ -42,31 +42,29 @@
   }
 
   .brand{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    padding: 10px 10px 16px;
-  }
-  
-  .logo{
       display: flex;
       align-items: center;
       justify-content: center; /* o flex-start si lo quieres pegado a la izquierda */
-      gap: 10px;
-      white-space: nowrap;
+      padding: 16px 0;
+  }
+  
+  .logo{
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
   }
 
   .logo img{
-      width: 32px;
-      height: 32px;
+      width: 28px;
+      height: 28px;
       display: block;
   }
 
   .logo span{
+      margin: 0;
+      line-height: 1;
       font-size: 26px;
       font-weight: 700;
-      color: #fff;
-      line-height: 1;
   }
   
   .brand h1{
