@@ -106,7 +106,19 @@ const THEMES = {
     stroke: "rgba(245,245,220,.20)",
     text: "#fdfaf0",
     muted: "rgba(253,250,240,.72)"
-  }
+  },
+
+  verde_lima: {
+    accent1: "#a3e635",
+    accent2: "#84cc16",
+    bg1: "#1a2b0a",
+    bg2: "#2b3a0b",
+    card: "rgba(163,230,53,.08)",
+    card2: "rgba(163,230,53,.12)",
+    stroke: "rgba(163,230,53,.20)",
+    text: "#f7fee7",
+    muted: "rgba(247,254,231,.72)"
+  } 
 
 };
 
