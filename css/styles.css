@@ -273,7 +273,7 @@
     border-radius: 999px;
     border: 1px solid var(--stroke);
     background: var(--card);
-    color: rgba(232,241,255,.86);
+    color: rgb(0, 255, 21);
     font-size: 12px;
   }
   .dot{
