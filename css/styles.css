@@ -48,9 +48,25 @@
     padding: 10px 10px 16px;
   }
   
+  .logo{
+      display: flex;
+      align-items: center;
+      justify-content: center; /* o flex-start si lo quieres pegado a la izquierda */
+      gap: 10px;
+      white-space: nowrap;
+  }
+
   .logo img{
-    width: 28px;
-    height: 28px;
+      width: 32px;
+      height: 32px;
+      display: block;
+  }
+
+  .logo span{
+      font-size: 26px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1;
   }
   
   .brand h1{
