@@ -248,25 +248,51 @@
         </div>
       </section>
 
-      <section class="page" id="page-gen-nd">
-        <div class="card">
-          <div class="cardHeader">
-            <h3>Generador ND</h3>
-            <span>IN,911,... (Reversión)</span>
-          </div>
+<section class="page" id="page-gen-nd">
+  <div class="card">
+    <div class="cardHeader">
+      <h3>Generador ND</h3>
+      <span>IN,911,... (Reversión)</span>
+    </div>
 
-          <div class="cardBody">
-            <div class="formGrid">
-              <div>
-                <label>Tipo</label>
-                <input value="ND" disabled>
-                <div class="hintText">Este generador siempre crea ND.</div>
-              </div>
+    <div class="cardBody">
+      <div class="formGrid">
 
-              <div style="grid-column: 1 / -1;">
-                <label>Tabla principal (ND)</label>
-                <textarea id="data_nd" onblur="buscarRaicesNDAutomatico()" placeholder="1.1180330 1235446 28809.00 00012020303203"></textarea>
-              </div>
+        <div>
+          <label>Tipo</label>
+          <input value="ND" disabled>
+          <div class="hintText">Este generador siempre crea ND.</div>
+        </div>
+
+        <!-- NUEVO -->
+        <div>
+          <label>Comentario ND</label>
+          <select id="tipo_nd">
+            <option value="reversion">
+              Reversión Proyecto Venta Servicio Móvil
+            </option>
+
+            <option value="ajuste">
+              Ajuste Manual
+            </option>
+
+            <option value="recargo">
+              Recargo
+            </option>
+
+            <option value="otro">
+              Otro
+            </option>
+          </select>
+        </div>
+
+        <div style="grid-column: 1 / -1;">
+          <label>Tabla principal (ND)</label>
+          <textarea id="data_nd"
+            onblur="buscarRaicesNDAutomatico()"
+            placeholder="1.1180330 1235446 28809.00 00012020303203">
+          </textarea>
+        </div>
 
               <div style="grid-column: 1 / -1;">
                 <div class="ruleTop">
