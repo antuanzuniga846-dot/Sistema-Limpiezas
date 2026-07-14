@@ -92,6 +92,14 @@
   window.eliminarRegla = eliminarRegla;
 
   // ===== Generar plantilla NC/ND =====
+
+  const COMENTARIOS_ND = {
+
+    reversion: "IN,911,200_Se aplico reversión por proyecto de Venta Servicio Móvil Limpieza de Saldos",
+
+    reversionIncu: "IN,911,ND300",
+
+  };
  async function generarPlantilla(mode){
   const raizDefault = (mode === "nc")
     ? document.getElementById(`raiz_${mode}`).value.trim()
@@ -110,9 +118,19 @@
   const anio = ahora.getFullYear();
   const fecha = `${dia}/${mes}/${anio}`;
 
-  const descripcion = (mode === "nc")
-    ? "CM,908,200_Recuperacion de Clientes Proyecto de Ventas Móvil"
-    : "IN,911,200_Se aplico reversión por proyecto de Venta Servicio Móvil Limpieza de Saldos";
+  let descripcion;
+
+    if (mode === "nc") {
+
+        descripcion = "CM,908,200_Recuperacion de Clientes Proyecto de Ventas Móvil";
+
+    } else {
+
+        const tipo = document.getElementById("tipo_nd").value;
+
+        descripcion = COMENTARIOS_ND[tipo];
+
+    }
 
   const userTag = getUsuarioActual();
 
