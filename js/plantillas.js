@@ -96,6 +96,19 @@ Sistemas:   operaciones_sistemascr@claro.cr
 </textarea>
     `,
 
+    rechazos: `
+<h3>Plantilla Rechazos</h3>
+<textarea style="width:100%;height:300px;">
+Buen día, debes comunicarte con servicio al cliente al 7002-7002.
+
+Compañeros, estan seleccionando la opción equivocada, deben elegir "análisis de clientes desactivos", no la de soporte comercial, en caso de seguir derivando a este se les cerrara el caso, favor elegir la opción correcta.
+
+Compañeros no podemos cancelar orden debido a que directriz de claro no podemos cancelar ordenes si tienen orden pendiente a instalación en ETA.
+
+Lo sentimos, el tiempo de espera ha finalizado, si aún necesitas ayuda vuelve a contactarnos. ¡Gracias por comunicarte con nosotros!
+✨ ¡Claro que sí!
+</textarea>
+    `,
   };
 
   const contenedor = document.getElementById("contenidoPlantilla");
