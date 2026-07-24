@@ -316,6 +316,8 @@ window.buscarRaicesNDAutomatico = async function(){
     if(raizEl) raizEl.value = "";
     const dataEl = document.getElementById(`data_${mode}`);
     if(dataEl) dataEl.value = "";
+    const cedulaEl = document.getElementById("cedula");
+    if(cedulaEl) cedulaEl.value = "";
 
     const outId = (mode === "acometida") ? "resultado_acometida" : `resultado_${mode}`;
     const outEl = document.getElementById(outId);

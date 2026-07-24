@@ -261,6 +261,7 @@ data.forEach(item => {
     <td>${item.monto ?? ""}</td>
     <td>${item.raiz ?? ""}</td>
     <td>${item.created_at ? new Date(item.created_at).toLocaleString() : "-"}</td>
+    <td>${item.cedula ?? ""}</td>
   `;
 
   tbody.appendChild(tr);
