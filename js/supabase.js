@@ -59,13 +59,14 @@ window.guardarLimpiezaBatch = async function(registros){
           showToast("error", "Falta la cédula", "Debes ingresar una cédula antes de generar.");
           return;
       }
-      
+
     const payload = registros.map(r => ({
       user_id: session.user.id,
       factura: r.factura,
       billingid: r.billingid,
       monto: r.monto,
-      raiz: r.raiz
+      raiz: r.raiz,
+      cedula: cedula
     }));
 
     const { error } = await supabase
