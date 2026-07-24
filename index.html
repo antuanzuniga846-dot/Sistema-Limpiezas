@@ -222,25 +222,23 @@
                     <label style="margin:0;">Raíces extras (NC)</label>
                     <div class="hintText">Cada raíz extra trae su propia tabla completa.</div>
                   </div>
-                    <button class="btnRow" onclick="agregarRegla('nc')">➕ Agregar raíz extra</button>
-                    <button class="btn btnPrimary" onclick="generarPlantilla('nc')">⚡ Generar y Copiar</button>
-                    <button class="btn btnPrimary" onclick="copiarResultado('nc')">📋 Copiar</button>
-                   <button class="btn btnPrimary" onclick="limpiarTodo('nc')">🧹 Limpiar</button>
-                    <div class="rulesWrap" id="rules_nc"></div>
+                  <button class="btn btnPrimary" onclick="agregarRegla('nc')">➕ Agregar raíz extra</button>
+                </div>
+                <div class="rulesWrap" id="rules_nc"></div>
+              </div>
 
-                        <div class="statLine">
-                            <span class="pill">
-                                <span class="dot"></span>
-                                Registros:
-                                <b id="count_nc">0</b>
-                            </span>
-                        </div>
-                    </div>
-
-                    <label>Resultado (NC)</label>
-                    <textarea id="resultado_nc" readonly></textarea>
+              <div style="grid-column: 1 / -1;">
+                <label>Resultado (NC)</label>
+                <textarea id="resultado_nc" readonly></textarea>
               </div>
             </div>
+
+            <div class="actions">
+              <div class="btnRow">
+                <button class="btn btnPrimary" onclick="generarPlantilla('nc')">⚡ Generar y Copiar</button>
+                <button class="btn btnPrimary" onclick="copiarResultado('nc')">📋 Copiar</button>
+                <button class="btn btnPrimary" onclick="limpiarTodo('nc')">🧹 Limpiar</button>
+              </div>
               <div class="statLine">
                 <span class="pill"><span class="dot"></span>Registros: <b id="count_nc">0</b></span>
               </div>
