@@ -66,7 +66,7 @@ window.guardarLimpiezaBatch = async function(registros){
       billingid: r.billingid,
       monto: r.monto,
       raiz: r.raiz,
-      cedula: cedula
+      cedula: r.cedula
     }));
 
     const { error } = await supabase

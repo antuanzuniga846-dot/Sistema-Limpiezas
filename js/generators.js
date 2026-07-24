@@ -65,22 +65,30 @@
     item.className = "ruleItem";
 
     item.innerHTML = `
-      <div class="ruleTop">
-        <div style="flex:1;">
-          <label style="margin:0 0 6px;">Raíz extra</label>
-          <input class="ruleRaiz" type="text" placeholder="Ej: 1.2270038">
-        </div>
-        <button class="btn btnGhost" type="button" onclick="eliminarRegla(this)">🗑️ Quitar</button>
-      </div>
+  <div class="ruleTop">
+    <div style="flex:1;">
+      <label style="margin:0 0 6px;">Raíz extra</label>
+      <input class="ruleRaiz" type="text" placeholder="Ej: 1.2270038">
+    </div>
 
-      <div class="ruleGrid">
-        <div>
-          <label style="margin:0 0 6px;">Tabla de esta raíz</label>
-          <textarea class="ruleTabla" rows="6" placeholder="Pega aquí la tabla completa..."></textarea>
-          <div class="hintText">Debe traer factura, billing account y monto.</div>
-        </div>
-      </div>
-    `;
+    <div style="flex:1;">
+      <label style="margin:0 0 6px;">Cédula</label>
+      <input class="ruleCedula" type="text" placeholder="Ej: 702840496">
+    </div>
+
+    <button class="btn btnGhost" type="button" onclick="eliminarRegla(this)">
+      🗑️ Quitar
+    </button>
+  </div>
+
+  <div class="ruleGrid">
+    <div>
+      <label style="margin:0 0 6px;">Tabla de esta raíz</label>
+      <textarea class="ruleTabla" rows="6" placeholder="Pega aquí la tabla completa..."></textarea>
+      <div class="hintText">Debe traer factura, billing account y monto.</div>
+    </div>
+  </div>
+`;
     rules.appendChild(item);
   }
   window.agregarRegla = agregarRegla;
@@ -161,6 +169,7 @@
 
   for (const rule of rules) {
     const raizExtra = rule.querySelector(".ruleRaiz")?.value.trim();
+    const cedulaExtra = rule.querySelector(".ruleCedula")?.value.trim();
     const tablaExtra = rule.querySelector(".ruleTabla")?.value || "";
 
     if(mode === "nc" && !raizExtra) continue;
@@ -178,7 +187,8 @@
         factura: r.factura,
         billingid: r.billingid,
         monto: r.monto,
-        raiz: raizUsar
+        raiz: raizUsar,
+        cedula: cedulaExtra
       });
 
       count++;
