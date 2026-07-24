@@ -228,7 +228,7 @@
   window.generarPlantilla = generarPlantilla;
 
   // ============================
-// AUTOCARGA ND POR RAIZ
+// AUTOCARGA ND POR CÉDULA
 // ============================
 
 window.buscarRaicesNDAutomatico = async function(){
@@ -254,14 +254,14 @@ window.buscarRaicesNDAutomatico = async function(){
 
   try{
 
-    const registros = await buscarPorRaicesND(lineas);
+    const registros = await buscarPorCedulasND(lineas);
 
     if(!registros.length){
-      showToast(
-        "warn",
-        "Sin resultados",
-        "No se encontraron raíces"
-      );
+        showToast(
+          "warn",
+          "Sin resultados",
+          "No se encontraron cédulas"
+        );
       return;
     }
 

@@ -78,27 +78,15 @@ window.guardarLimpiezaBatch = async function(registros){
 };
 
 // ============================
-// BUSCAR RAICES ND
+// BUSCAR RAICES CEDULAS
 // ============================
 
-window.buscarPorRaizND = async function(raiz){
+window.buscarPorCedulasND = async function(cedulas){
 
   const { data, error } = await supabase
     .from("limpiezas")
     .select("raiz,billingid,monto,factura,cedula")
-    .eq("raiz", raiz);
-
-  if(error) throw error;
-
-  return data || [];
-};
-
-window.buscarPorRaicesND = async function(raices){
-
-  const { data, error } = await supabase
-    .from("limpiezas")
-    .select("raiz,billingid,monto,factura")
-    .in("raiz", raices);
+    .in("cedula", cedulas);
 
   if(error) throw error;
 
