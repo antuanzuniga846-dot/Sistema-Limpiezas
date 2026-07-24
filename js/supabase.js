@@ -53,7 +53,7 @@ async function getSessionOrFail(){
 window.guardarLimpiezaBatch = async function(registros){
   try{
     const session = await getSessionOrFail();
-    const cedula = document.getElementById("cedula").value.trim();
+    const cedula = document.getElementById("r.cedula").value.trim();
 
       if (!cedula) {
           showToast("error", "Falta la cédula", "Debes ingresar una cédula antes de generar.");
@@ -67,6 +67,7 @@ window.guardarLimpiezaBatch = async function(registros){
       monto: r.monto,
       raiz: r.raiz,
       cedula: r.cedula
+    
     }));
 
     const { error } = await supabase
