@@ -326,7 +326,7 @@
   .ruleTop{
     display:flex;
     align-items:center;
-    justify-content:space-between;
+    justify-content:end;
     gap: 10px;
     margin-bottom: 10px;
   }
