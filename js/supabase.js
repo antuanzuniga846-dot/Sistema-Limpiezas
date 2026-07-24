@@ -53,7 +53,7 @@ async function getSessionOrFail(){
 window.guardarLimpiezaBatch = async function(registros){
   try{
     const session = await getSessionOrFail();
-    
+
     const payload = registros.map(r => ({
       user_id: session.user.id,
       factura: r.factura,
@@ -61,7 +61,6 @@ window.guardarLimpiezaBatch = async function(registros){
       monto: r.monto,
       raiz: r.raiz,
       cedula: r.cedula
-    
     }));
 
     const { error } = await supabase

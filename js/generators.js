@@ -155,11 +155,14 @@
 
     resultado += `${raizUsar},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${userTag},,02\n`;
 
+    const cedulaPrincipal = document.getElementById("cedula").value.trim();
+
     registrosGuardar.push({
       factura: r.factura,
       billingid: r.billingid,
       monto: r.monto,
-      raiz: raizUsar
+      raiz: raizUsar,
+      cedula: cedulaPrincipal
     });
 
     count++;
