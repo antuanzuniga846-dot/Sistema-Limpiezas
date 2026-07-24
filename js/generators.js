@@ -89,7 +89,7 @@
     </div>
   </div>
 `;
-    rules.appendChild(item);
+    rules.prepend(item);
   }
   window.agregarRegla = agregarRegla;
 
