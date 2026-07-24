@@ -53,7 +53,13 @@ async function getSessionOrFail(){
 window.guardarLimpiezaBatch = async function(registros){
   try{
     const session = await getSessionOrFail();
+    const cedula = document.getElementById("cedula").value.trim();
 
+      if (!cedula) {
+          showToast("error", "Falta la cédula", "Debes ingresar una cédula antes de generar.");
+          return;
+      }
+      
     const payload = registros.map(r => ({
       user_id: session.user.id,
       factura: r.factura,
@@ -84,7 +90,7 @@ window.buscarPorRaizND = async function(raiz){
 
   const { data, error } = await supabase
     .from("limpiezas")
-    .select("raiz,billingid,monto,factura")
+    .select("raiz,billingid,monto,factura,cedula")
     .eq("raiz", raiz);
 
   if(error) throw error;
