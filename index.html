@@ -217,8 +217,10 @@
               </div>
 
               <div style="grid-column: 1 / -1;">
-                <div>
-                <button style="justify-content: end;" class="btn btnPrimary" onclick="agregarRegla('nc')">➕ Agregar raíz extra</button>
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px;">
+                <button class="btn btnPrimary" onclick="agregarRegla('nc')">➕ Agregar raíz extra</button>
+                <button class="btn btnPrimary" onclick="generarPlantilla('nc')">⚡ Generar y Copiar</button>
+                <button class="btn btnPrimary" onclick="limpiarTodo('nc')">🧹 Limpiar</button>
                     </div>
                 <div class="ruleTop">
                   <div>
@@ -236,11 +238,6 @@
             </div>
 
             <div class="actions">
-              <div class="btnRow">
-                <button class="btn btnPrimary" onclick="generarPlantilla('nc')">⚡ Generar y Copiar</button>
-                <button class="btn btnPrimary" onclick="copiarResultado('nc')">📋 Copiar</button>
-                <button class="btn btnPrimary" onclick="limpiarTodo('nc')">🧹 Limpiar</button>
-              </div>
               <div class="statLine">
                 <span class="pill"><span class="dot"></span>Registros: <b id="count_nc">0</b></span>
               </div>
