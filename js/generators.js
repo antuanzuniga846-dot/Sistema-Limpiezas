@@ -114,11 +114,21 @@
     : "";
 
   const textoPrincipal = document.getElementById(`data_${mode}`).value;
+  const cedulaPrincipal = document.getElementById("cedula")?.value.trim() || "";
 
-  if(mode === "nc" && !raizDefault){
-    showToast("warn","Falta raíz","Escribe la raíz principal.");
-    return;
-  }
+    if (mode === "nc" && !cedulaPrincipal) {
+      showToast(
+        "warn",
+        "Falta la cédula",
+        "Debes ingresar la cédula de la raíz principal."
+      );
+      return;
+    }
+
+    if(mode === "nc" && !raizDefault){
+      showToast("warn","Falta raíz","Escribe la raíz principal.");
+      return;
+    }
 
   const ahora = new Date();
   const dia = String(ahora.getDate()).padStart(2,'0');
@@ -174,6 +184,15 @@
     const raizExtra = rule.querySelector(".ruleRaiz")?.value.trim();
     const cedulaExtra = rule.querySelector(".ruleCedula")?.value.trim();
     const tablaExtra = rule.querySelector(".ruleTabla")?.value || "";
+
+    if (mode === "nc" && raizExtra && !cedulaExtra) {
+        showToast(
+          "warn",
+          "Falta la cédula",
+          `La raíz ${raizExtra} no tiene una cédula asignada.`
+        );
+        return;
+      }
 
     if(mode === "nc" && !raizExtra) continue;
 
