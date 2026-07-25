@@ -32,7 +32,7 @@ Compañeros su apoyo dando prioridad y autorización a la orden en CRM.
 <textarea style="width:100%;height:300px;">
 Compañeros no podemos cancelar orden debido a que directriz de claro no podemos cancelar ordenes si tienen orden pendiente a instalación en ETA.
 
-AM // C300 // Se cancela orden por solicitud del Agente Autorizado.
+${window.currentUserInitials} // C300 // Se cancela orden por solicitud del Agente Autorizado.
 
 Se procede con la cancelación, por favor validar, cualquier consulta adicional quedamos a su disposición.
 

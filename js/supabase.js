@@ -111,9 +111,13 @@ async function isAuthorized(){
 
   const { data } = await supabase
     .from("autorizados")
-    .select("user_id")
+    .select("user_id, iniciales")
     .eq("user_id", session.user.id)
     .maybeSingle();
+
+  if(data){
+    window.currentUserInitials = data.iniciales;
+  }
 
   return !!data;
 }
