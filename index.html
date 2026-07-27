@@ -67,10 +67,6 @@
         <span class="icon">📂</span> Historial
       </button>
 
-      <button type="button" class="navBtn" data-page="estadisticas" onclick="go('estadisticas')">
-        <span class="icon">📊</span> Estadísticas
-      </button>
-
       <button type="button" class="navBtn" data-page="plantillas" onclick="go('plantillas')">
         <span class="icon">📁</span> Plantillas
       </button>
@@ -412,47 +408,6 @@
     </div>
   </div>
 </section>
-  <section class="page" id="page-estadisticas">
-
-  <div class="card">
-
-    <div class="cardHeader">
-      <h3>Estadísticas</h3>
-      <span>Limpiezas por usuario</span>
-    </div>
-
-
-    <div class="filtrosEstadisticas">
-
-      <select id="tipoFiltroFecha">
-          <option value="todo">Todo</option>
-          <option value="dia">Día</option>
-          <option value="mes">Mes</option>
-      </select>
-
-      <input type="date" id="fechaFiltroDia" style="display:none">
-
-      <input type="month" id="fechaFiltroMes" style="display:none">
-
-      <button onclick="cargarEstadisticas()">
-          🔎 Filtrar
-      </button>
-
-    </div>
-
-
-    <div class="cardBody">
-
-      <canvas id="graficaUsuarios" height="120"></canvas>
-
-    </div>
-
-
-  </div>
-
-</section>
-
-  </section>
       <section class="page" id="page-help">
         <div class="card">
           <div class="cardHeader">
@@ -495,14 +450,12 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 </script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="js/helpers.js"></script>
 <script src="js/navigation.js"></script>
 <script src="js/generators.js"></script>
 <script src="js/historial.js"></script>
 <script src="js/theme.js"></script>
 <script src="js/plantillas.js"></script>
-<script src="js/estadisticas.js"></script>
 <script src="js/app.js"></script>
 
 <script type="module" src="js/supabase.js"></script>
