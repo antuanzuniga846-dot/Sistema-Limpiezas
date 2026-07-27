@@ -25,10 +25,11 @@
       title.textContent = map[page][0];
       sub.textContent = map[page][1];
     }
+    if(page === "estadisticas"){
+      cargarEstadisticas();
+    }
   }
-  if(page === "estadisticas"){
-    cargarEstadisticas();
-  }
+  
   document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".navBtn").forEach(b => {
       b.addEventListener("click", () => go(b.dataset.page));
