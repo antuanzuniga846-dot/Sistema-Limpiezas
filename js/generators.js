@@ -118,6 +118,10 @@
     reversionIncu: "IN,911,ND300",
 
   };
+
+  let archivoND = null;
+  let archivoNC = null;
+
  async function generarPlantilla(mode){
   const raizDefault = (mode === "nc")
     ? document.getElementById(`raiz_${mode}`).value.trim()
@@ -236,51 +240,64 @@
   }
 
   try{
-    await navigator.clipboard.writeText(resultado);
-    showToast("success","Generado y copiado",`Usuario: ${userTag} | Total: ${count}`);
+      await navigator.clipboard.writeText(resultado);
+      showToast("success","Generado y copiado",`Usuario: ${userTag} | Total: ${count}`);
   }catch{
-    showToast("error","No se pudo copiar","Usa https o localhost.");
+      showToast("error","No se pudo copiar","Usa https o localhost.");
   }
 
- if (window.guardarLimpiezaBatch) {
-  setTimeout(async () => {
-    await window.guardarLimpiezaBatch(registrosGuardar);
-    // ===== Descargar archivo TXT =====
-    const blob = new Blob([resultado], {
-        type: "text/plain;charset=utf-8"
-    });
+  // Guardar/Sobrescribir el TXT
+  try{
+      await guardarArchivoTXT(resultado, mode);
+  }catch(err){
+      console.error(err);
+  }
 
-    const url = URL.createObjectURL(blob);
+  if (window.guardarLimpiezaBatch) {
+      setTimeout(async () => {
+          await window.guardarLimpiezaBatch(registrosGuardar);
 
-    const a = document.createElement("a");
-    a.href = url;
+          if (typeof cargarHistorial === "function") {
+              cargarHistorial();
+          }
 
-    const ahoraTxt = new Date();
-    const fechaTxt =
-        ahoraTxt.getFullYear() +
-        String(ahoraTxt.getMonth() + 1).padStart(2, "0") +
-        String(ahoraTxt.getDate()).padStart(2, "0") + "_" +
-        String(ahoraTxt.getHours()).padStart(2, "0") +
-        String(ahoraTxt.getMinutes()).padStart(2, "0") +
-        String(ahoraTxt.getSeconds()).padStart(2, "0");
-
-    // Nombre del archivo
-    a.download = `${mode.toUpperCase()}_${count}_Registros_.txt`;
-
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-
-    URL.revokeObjectURL(url);
-    // 🔥 REFRESH AUTOMÁTICO DEL HISTORIAL
-    if (typeof cargarHistorial === "function") {
-      cargarHistorial();
-    }
-
-  }, 50);
-}
+      }, 50);
+  }
 }
   window.generarPlantilla = generarPlantilla;
+
+  async function guardarArchivoTXT(resultado, mode){
+
+    let archivo = mode === "nd" ? archivoND : archivoNC;
+
+    if(!archivo){
+
+        archivo = await window.showSaveFilePicker({
+
+            suggestedName: mode.toUpperCase() + ".txt",
+
+            types: [{
+                description: "Archivo de texto",
+                accept: {
+                    "text/plain": [".txt"]
+                }
+            }]
+
+        });
+
+        if(mode === "nd"){
+            archivoND = archivo;
+        }else{
+            archivoNC = archivo;
+        }
+    }
+
+    const writable = await archivo.createWritable();
+
+    await writable.write(resultado);
+
+    await writable.close();
+}
 
   // ============================
 // AUTOCARGA ND POR CÉDULA
