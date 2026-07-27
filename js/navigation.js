@@ -19,13 +19,16 @@
       "gen-acometida": ["Generador Acometida", "Genera formatos para acometidas."],
       help: ["Ayuda", "Guía rápida de uso."],
       plantillas: ["Plantillas", "Plantillas para OneMarketer y más."],
+      estadisticas: ["Estadísticas", "Visualiza estadísticas de uso."],
     };
     if(map[page]){
       title.textContent = map[page][0];
       sub.textContent = map[page][1];
     }
   }
-
+  if(page === "estadisticas"){
+    cargarEstadisticas();
+  }
   document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".navBtn").forEach(b => {
       b.addEventListener("click", () => go(b.dataset.page));
