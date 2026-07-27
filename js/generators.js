@@ -182,7 +182,7 @@
       billingid: r.billingid,
       monto: r.monto,
       raiz: raizUsar,
-      cedula: cedulaPrincipal
+      cedula: mode === "nd" ? r.cedula : cedulaPrincipal
     });
 
     count++;
@@ -216,11 +216,11 @@
       resultado += `${raizUsar},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${userTag},,02\n`;
 
       registrosGuardar.push({
-        factura: r.factura,
-        billingid: r.billingid,
-        monto: r.monto,
-        raiz: raizUsar,
-        cedula: cedulaExtra
+          factura: r.factura,
+          billingid: r.billingid,
+          monto: r.monto,
+          raiz: raizUsar,
+          cedula: mode === "nd" ? r.cedula : cedulaExtra
       });
 
       count++;
