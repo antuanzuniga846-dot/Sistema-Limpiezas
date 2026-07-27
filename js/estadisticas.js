@@ -6,8 +6,9 @@ async function cargarEstadisticas() {
 
     // Obtener todas las limpiezas
     const { data: limpiezas, error: errorL } = await window.supabase
-        .from("limpiezas")
-        .select("user_id, raiz");
+    .from("limpiezas")
+    .select("user_id, raiz")
+    .range(0, 99999);
 
     if (errorL) {
         console.error(errorL);
@@ -32,19 +33,29 @@ async function cargarEstadisticas() {
     });
 
     // Contar raíces únicas
-    const conteo = {};
+        const conteo = {};
 
-    limpiezas.forEach(r => {
+        // Crear todos los usuarios aunque tengan 0
+        usuarios.forEach(u => {
+            conteo[u.Nombre] = new Set();
+        });
 
-        const nombre = nombres[r.user_id] || "Sin nombre";
 
-        if (!conteo[nombre]) {
-            conteo[nombre] = new Set();
-        }
+        limpiezas.forEach(r => {
 
-        conteo[nombre].add(r.raiz);
+            if(!nombres[r.user_id]){
+                console.warn("Usuario sin nombre:", r.user_id);
+            }
 
-    });
+            const nombre = nombres[r.user_id] || "Sin nombre";
+
+            if (!conteo[nombre]) {
+                conteo[nombre] = new Set();
+            }
+
+            conteo[nombre].add(r.raiz);
+
+        });
 
     const labels = Object.keys(conteo);
     const valores = labels.map(n => conteo[n].size);
