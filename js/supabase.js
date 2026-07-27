@@ -81,12 +81,14 @@ window.guardarLimpiezaBatch = async function(registros){
 // BUSCAR RAICES CEDULAS
 // ============================
 
-window.buscarPorCedulasND = async function(cedulas){
+window.buscarPorCedulasND = async function(valores){
+
+  const consultas = valores.map(v => `cedula.eq.${v},raiz.eq.${v}`);
 
   const { data, error } = await supabase
     .from("limpiezas")
     .select("raiz,billingid,monto,factura,cedula")
-    .in("cedula", cedulas);
+    .or(consultas.join(","));
 
   if(error) throw error;
 
@@ -101,6 +103,7 @@ window.buscarPorCedulasND = async function(cedulas){
     facturasVistas.add(r.factura);
     return true;
   });
+
 };
 // ============================
 // AUTH

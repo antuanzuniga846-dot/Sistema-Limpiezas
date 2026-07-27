@@ -11,7 +11,7 @@
   checks.forEach(chk => {
     const data = JSON.parse(decodeURIComponent(chk.dataset.json));
 
-    // ND: raiz billing monto factura
+    // ND: raiz billing monto factura cedula
     resultado += `${data.raiz} ${data.billingid} ${data.monto} ${data.factura} ${data.cedula}\n`;
   });
 
