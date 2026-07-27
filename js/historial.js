@@ -12,7 +12,7 @@
     const data = JSON.parse(decodeURIComponent(chk.dataset.json));
 
     // ND: raiz billing monto factura
-    resultado += `${data.raiz} ${data.billingid} ${data.monto} ${data.factura}\n`;
+    resultado += `${data.raiz} ${data.billingid} ${data.monto} ${data.factura} ${data.cedula}\n`;
   });
 
   // meter en textarea ND
