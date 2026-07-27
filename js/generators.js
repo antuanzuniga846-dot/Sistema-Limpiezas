@@ -38,6 +38,7 @@
     const IDX_BILLING = 1;
     const IDX_MONTO   = 2;
     const IDX_FACTURA = 3;
+    const IDX_CEDULA  = 4;
 
     let start = 0;
     const first = splitRow(lines[0])[0]?.toLowerCase() || "";
@@ -48,12 +49,21 @@
       const cols = splitRow(lines[i]);
       if(cols.length <= Math.max(IDX_RAIZ, IDX_BILLING, IDX_MONTO, IDX_FACTURA)) continue;
 
-      const raiz = cols[IDX_RAIZ].trim();
-      const billingid = cols[IDX_BILLING].trim();
-      const monto = normalizarMonto(cols[IDX_MONTO]);
-      const factura = cols[IDX_FACTURA].trim();
-      if(!raiz || !billingid || !monto || !factura) continue;
-      out.push({ raiz, billingid, monto, factura });
+    const raiz = cols[IDX_RAIZ].trim();
+    const billingid = cols[IDX_BILLING].trim();
+    const monto = normalizarMonto(cols[IDX_MONTO]);
+    const factura = cols[IDX_FACTURA].trim();
+    const cedula = cols[IDX_CEDULA]?.trim() || "";
+
+    if(!raiz || !billingid || !monto || !factura) continue;
+
+    out.push({
+        raiz,
+        billingid,
+        monto,
+        factura,
+        cedula
+    });
     }
     return out;
   }
