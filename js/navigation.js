@@ -26,10 +26,6 @@
     }
   }
 
-  if(page === "estadisticas"){
-    cargarEstadisticas();
-  }
-
   document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".navBtn").forEach(b => {
       b.addEventListener("click", () => go(b.dataset.page));
