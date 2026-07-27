@@ -286,7 +286,7 @@ window.buscarRaicesNDAutomatico = async function(){
 
     textarea.value =
       registros.map(r =>
-        `${r.raiz} ${r.billingid} ${r.monto} ${r.factura}`
+        `${r.raiz} ${r.billingid} ${r.monto} ${r.factura} ${r.cedula}`
       ).join("\n");
 
   }catch(err){
