@@ -23,8 +23,6 @@
       const monto = normalizarMonto(cols[idxMonto]);
       if (!factura || !billingid || !monto) continue;
       out.push({ factura, billingid, monto });
-          console.log(out);
-
     }
     return out;
   }
