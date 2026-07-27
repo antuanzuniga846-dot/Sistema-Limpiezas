@@ -245,7 +245,33 @@
  if (window.guardarLimpiezaBatch) {
   setTimeout(async () => {
     await window.guardarLimpiezaBatch(registrosGuardar);
+    // ===== Descargar archivo TXT =====
+    const blob = new Blob([resultado], {
+        type: "text/plain;charset=utf-8"
+    });
 
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+
+    const ahoraTxt = new Date();
+    const fechaTxt =
+        ahoraTxt.getFullYear() +
+        String(ahoraTxt.getMonth() + 1).padStart(2, "0") +
+        String(ahoraTxt.getDate()).padStart(2, "0") + "_" +
+        String(ahoraTxt.getHours()).padStart(2, "0") +
+        String(ahoraTxt.getMinutes()).padStart(2, "0") +
+        String(ahoraTxt.getSeconds()).padStart(2, "0");
+
+    // Nombre del archivo
+    a.download = `${mode.toUpperCase()}_${count}_Registros_${fechaTxt}.txt`;
+
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    URL.revokeObjectURL(url);
     // 🔥 REFRESH AUTOMÁTICO DEL HISTORIAL
     if (typeof cargarHistorial === "function") {
       cargarHistorial();
