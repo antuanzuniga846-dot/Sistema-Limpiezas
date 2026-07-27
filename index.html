@@ -414,40 +414,43 @@
 </section>
   <section class="page" id="page-estadisticas">
 
-    <div class="card">
+  <div class="card">
 
-      <div class="cardHeader">
-        <h3>Estadísticas</h3>
-        <span>Limpiezas por usuario</span>
-      </div>
-      <div class="filtrosEstadisticas">
+    <div class="cardHeader">
+      <h3>Estadísticas</h3>
+      <span>Limpiezas por usuario</span>
+    </div>
 
-    <select id="tipoFiltroFecha">
-        <option value="todo">Todo</option>
-        <option value="dia">Día</option>
-        <option value="mes">Mes</option>
-    </select>
 
-    <input type="date" id="fechaFiltroDia" style="display:none">
+    <div class="filtrosEstadisticas">
 
-    <input type="month" id="fechaFiltroMes" style="display:none">
+      <select id="tipoFiltroFecha">
+          <option value="todo">Todo</option>
+          <option value="dia">Día</option>
+          <option value="mes">Mes</option>
+      </select>
 
-    <button onclick="cargarEstadisticas()">
-        🔎 Filtrar
-    </button>
+      <input type="date" id="fechaFiltroDia" style="display:none">
 
-</div>
+      <input type="month" id="fechaFiltroMes" style="display:none">
 
-<canvas id="graficaUsuarios"></canvas>
-
-      <div class="cardBody">
-
-        <canvas id="graficaUsuarios" height="120"></canvas>
-
-      </div>
-      
+      <button onclick="cargarEstadisticas()">
+          🔎 Filtrar
+      </button>
 
     </div>
+
+
+    <div class="cardBody">
+
+      <canvas id="graficaUsuarios" height="120"></canvas>
+
+    </div>
+
+
+  </div>
+
+</section>
 
   </section>
       <section class="page" id="page-help">
