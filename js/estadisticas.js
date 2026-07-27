@@ -4,40 +4,50 @@ async function cargarEstadisticas() {
 
     if (!window.supabase) return;
 
-    const { data, error } = await window.supabase
+    // Obtener todas las limpiezas
+    const { data: limpiezas, error: errorL } = await window.supabase
         .from("limpiezas")
-        .select(`
-            user_id,
-            raiz,
-            autorizados (
-                iniciales
-            )
-        `);
+        .select("user_id, raiz");
 
-    if (error) {
-        console.error(error);
+    if (errorL) {
+        console.error(errorL);
         return;
     }
 
-    const usuarios = {};
+    // Obtener usuarios autorizados
+    const { data: usuarios, error: errorU } = await window.supabase
+        .from("autorizados")
+        .select("user_id, Nombre");
 
-    data.forEach(registro => {
+    if (errorU) {
+        console.error(errorU);
+        return;
+    }
 
-        const nombre =
-            registro.autorizados?.iniciales ||
-            registro.user_id;
+    // Diccionario user_id -> nombre
+    const nombres = {};
 
-        if (!usuarios[nombre]) {
-            usuarios[nombre] = new Set();
+    usuarios.forEach(u => {
+        nombres[u.user_id] = u.Nombre;
+    });
+
+    // Contar raíces únicas
+    const conteo = {};
+
+    limpiezas.forEach(r => {
+
+        const nombre = nombres[r.user_id] || "Sin nombre";
+
+        if (!conteo[nombre]) {
+            conteo[nombre] = new Set();
         }
 
-        usuarios[nombre].add(registro.raiz);
+        conteo[nombre].add(r.raiz);
 
     });
 
-    const labels = Object.keys(usuarios);
-
-    const valores = labels.map(nombre => usuarios[nombre].size);
+    const labels = Object.keys(conteo);
+    const valores = labels.map(n => conteo[n].size);
 
     const ctx = document.getElementById("graficaUsuarios");
 
@@ -48,22 +58,47 @@ async function cargarEstadisticas() {
     }
 
     graficaUsuarios = new Chart(ctx, {
+
         type: "bar",
+
         data: {
+
             labels,
+
             datasets: [{
+
                 label: "Raíces únicas",
-                data: valores
+
+                data: valores,
+
+                borderWidth: 1
+
             }]
+
         },
+
         options: {
+
             responsive: true,
-            plugins: {
-                legend: {
-                    display: false
+
+            scales: {
+
+                y: {
+
+                    beginAtZero: true,
+
+                    ticks: {
+
+                        precision: 0
+
+                    }
+
                 }
+
             }
+
         }
+
     });
 
 }
