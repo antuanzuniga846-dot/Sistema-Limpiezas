@@ -24,6 +24,7 @@
       if (!factura || !billingid || !monto) continue;
       out.push({ factura, billingid, monto });
     }
+    console.log(out);
     return out;
   }
 
@@ -48,7 +49,7 @@
     for(let i = start; i < lines.length; i++){
       const cols = splitRow(lines[i]);
       if(cols.length <= Math.max(IDX_RAIZ, IDX_BILLING, IDX_MONTO, IDX_FACTURA)) continue;
-      console.log(cols);
+      
     const raiz = cols[IDX_RAIZ].trim();
     const billingid = cols[IDX_BILLING].trim();
     const monto = normalizarMonto(cols[IDX_MONTO]);
