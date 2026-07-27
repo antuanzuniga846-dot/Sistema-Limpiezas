@@ -265,7 +265,7 @@
         String(ahoraTxt.getSeconds()).padStart(2, "0");
 
     // Nombre del archivo
-    a.download = `${mode.toUpperCase()}_${count}_Registros_${fechaTxt}.txt`;
+    a.download = `${mode.toUpperCase()}_${count}_Registros_.txt`;
 
     document.body.appendChild(a);
     a.click();
