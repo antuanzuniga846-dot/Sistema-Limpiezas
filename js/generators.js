@@ -244,6 +244,7 @@
 
  if (window.guardarLimpiezaBatch) {
   setTimeout(async () => {
+    console.log(registrosGuardar);
     await window.guardarLimpiezaBatch(registrosGuardar);
 
     // 🔥 REFRESH AUTOMÁTICO DEL HISTORIAL
