@@ -1,19 +1,70 @@
 let graficaUsuarios = null;
 
+let filtroFecha = {
+    tipo: "todo",
+    fecha: null
+};
+
 async function cargarEstadisticas() {
 
     if (!window.supabase) return;
 
     // Obtener todas las limpiezas
-    const { data: limpiezas, error: errorL } = await window.supabase
+let query = window.supabase
     .from("limpiezas")
-    .select("user_id, raiz")
-    .range(0, 99999);
+    .select("user_id, raiz, created_at");
 
-    if (errorL) {
-        console.error(errorL);
-        return;
+
+// FILTRO POR FECHA
+const tipo = document.getElementById("tipoFiltroFecha")?.value;
+
+
+if(tipo === "dia"){
+
+    const fecha = document.getElementById("fechaFiltroDia").value;
+
+    if(fecha){
+
+        query = query
+        .gte("created_at", fecha + "T00:00:00")
+        .lte("created_at", fecha + "T23:59:59");
+
     }
+
+}
+
+
+
+if(tipo === "mes"){
+
+    const mes = document.getElementById("fechaFiltroMes").value;
+
+    if(mes){
+
+        const inicio = mes + "-01";
+
+        const siguiente = new Date(
+            new Date(inicio).setMonth(
+                new Date(inicio).getMonth()+1
+            )
+        )
+        .toISOString()
+        .split("T")[0];
+
+
+        query = query
+        .gte("created_at", inicio+"T00:00:00")
+        .lt("created_at", siguiente+"T00:00:00");
+
+    }
+
+}
+
+
+query = query.range(0,99999);
+
+
+const { data: limpiezas, error: errorL } = await query;
 
     // Obtener usuarios autorizados
     const { data: usuarios, error: errorU } = await window.supabase
@@ -113,3 +164,28 @@ async function cargarEstadisticas() {
     });
 
 }
+
+document.addEventListener("DOMContentLoaded", ()=>{
+
+    const tipo = document.getElementById("tipoFiltroFecha");
+    const dia = document.getElementById("fechaFiltroDia");
+    const mes = document.getElementById("fechaFiltroMes");
+
+
+    tipo.addEventListener("change", ()=>{
+
+        dia.style.display = "none";
+        mes.style.display = "none";
+
+
+        if(tipo.value === "dia"){
+            dia.style.display = "block";
+        }
+
+        if(tipo.value === "mes"){
+            mes.style.display = "block";
+        }
+
+    });
+
+});

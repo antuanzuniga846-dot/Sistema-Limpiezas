@@ -420,12 +420,32 @@
         <h3>Estadísticas</h3>
         <span>Limpiezas por usuario</span>
       </div>
+      <div class="filtrosEstadisticas">
+
+    <select id="tipoFiltroFecha">
+        <option value="todo">Todo</option>
+        <option value="dia">Día</option>
+        <option value="mes">Mes</option>
+    </select>
+
+    <input type="date" id="fechaFiltroDia" style="display:none">
+
+    <input type="month" id="fechaFiltroMes" style="display:none">
+
+    <button onclick="cargarEstadisticas()">
+        🔎 Filtrar
+    </button>
+
+</div>
+
+<canvas id="graficaUsuarios"></canvas>
 
       <div class="cardBody">
 
         <canvas id="graficaUsuarios" height="120"></canvas>
 
       </div>
+      
 
     </div>
 
