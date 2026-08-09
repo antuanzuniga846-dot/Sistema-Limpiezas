@@ -172,11 +172,15 @@
   let count = 0;
   let registrosGuardar = [];
 
-      const tipoLimpieza = mode === "nc"
-        ? "NC200"
-        : (document.getElementById("tipo_nd").value === "reversion"
-        ? "ND200"
-        : "ND300");
+  const tipoLimpieza = mode === "nc"
+    ? "NC200"
+    : (document.getElementById("tipo_nd").value === "reversion"
+      ? "ND200"
+      : "ND300");s
+
+  const tuplasPrincipal = (mode === "nc")
+    ? parseTablaNC(textoPrincipal)
+    : parseTablaND(textoPrincipal);
 
   for(const r of tuplasPrincipal){
     const raizUsar = (mode === "nc") ? raizDefault : r.raiz;
