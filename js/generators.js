@@ -176,7 +176,7 @@
     ? "NC200"
     : (document.getElementById("tipo_nd").value === "reversion"
       ? "ND200"
-      : "ND300");s
+      : "ND300");
 
   const tuplasPrincipal = (mode === "nc")
     ? parseTablaNC(textoPrincipal)
