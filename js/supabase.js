@@ -54,14 +54,15 @@ window.guardarLimpiezaBatch = async function(registros){
   try{
     const session = await getSessionOrFail();
 
-    const payload = registros.map(r => ({
-      user_id: session.user.id,
-      factura: r.factura,
-      billingid: r.billingid,
-      monto: r.monto,
-      raiz: r.raiz,
-      cedula: r.cedula
-    }));
+      const payload = registros.map(r => ({
+        user_id: session.user.id,
+        factura: r.factura,
+        billingid: r.billingid,
+        monto: r.monto,
+        raiz: r.raiz,
+        cedula: r.cedula,
+        tipo_limpieza: r.tipo_limpieza
+      }));
 
     const { error } = await supabase
       .from("limpiezas")
@@ -222,6 +223,20 @@ window.cargarHistorial = async (reset = true) => {
 
     const { data, error } = await query;
 
+    const { data: usuarios, error: errorUsuarios } = await supabase
+    .from("autorizados")
+    .select("user_id, Nombre");
+
+    if (errorUsuarios) {
+      console.error("ERROR USUARIOS:", errorUsuarios);
+    }
+
+    const nombresUsuarios = {};
+
+    (usuarios || []).forEach(usuario => {
+      nombresUsuarios[usuario.user_id] = usuario.Nombre;
+    });
+
     if (error) {
       console.error("ERROR SUPABASE:", error);
       loading = false;
@@ -248,16 +263,35 @@ data.forEach(item => {
 
   const tr = document.createElement("tr");
 
-  tr.innerHTML = `
-    <td><input type="checkbox" class="chkHist"
-      data-json="${encodeURIComponent(JSON.stringify(item))}"></td>
-    <td>${item.factura ?? ""}</td>
-    <td>${item.billingid ?? ""}</td>
-    <td>${item.monto ?? ""}</td>
-    <td>${item.raiz ?? ""}</td>
-    <td>${item.created_at ? new Date(item.created_at).toLocaleString() : "-"}</td>
-    <td>${item.cedula ?? ""}</td>
-  `;
+    tr.innerHTML = `
+      <td>
+        <input type="checkbox" class="chkHist"
+          data-json="${encodeURIComponent(JSON.stringify(item))}">
+      </td>
+
+      <td>${item.factura ?? ""}</td>
+
+      <td>${item.billingid ?? ""}</td>
+
+      <td>${item.monto ?? ""}</td>
+
+      <td>${item.raiz ?? ""}</td>
+
+      <td>${item.tipo_limpieza ?? "-"}</td>
+
+      <td>
+        ${item.created_at
+          ? new Date(item.created_at).toLocaleString()
+          : "-"
+        }
+      </td>
+
+      <td>${item.cedula ?? ""}</td>
+
+      <td>
+        ${nombresUsuarios[item.user_id] ?? "Usuario desconocido"}
+      </td>
+    `;
 
   tbody.appendChild(tr);
 });

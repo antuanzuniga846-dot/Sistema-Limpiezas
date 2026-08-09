@@ -172,9 +172,11 @@
   let count = 0;
   let registrosGuardar = [];
 
-  const tuplasPrincipal = (mode === "nc")
-    ? parseTablaNC(textoPrincipal)
-    : parseTablaND(textoPrincipal);
+      const tipoLimpieza = mode === "nc"
+        ? "NC200"
+        : (document.getElementById("tipo_nd").value === "reversion"
+        ? "ND200"
+        : "ND300");
 
   for(const r of tuplasPrincipal){
     const raizUsar = (mode === "nc") ? raizDefault : r.raiz;
@@ -188,7 +190,8 @@
       billingid: r.billingid,
       monto: r.monto,
       raiz: raizUsar,
-      cedula: mode === "nd" ? r.cedula : cedulaPrincipal
+      cedula: mode === "nd" ? r.cedula : cedulaPrincipal,
+      tipo_limpieza: tipoLimpieza
     });
 
     count++;
@@ -221,13 +224,14 @@
 
       resultado += `${raizUsar},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${userTag},,02\n`;
 
-      registrosGuardar.push({
-          factura: r.factura,
-          billingid: r.billingid,
-          monto: r.monto,
-          raiz: raizUsar,
-          cedula: mode === "nd" ? r.cedula : cedulaExtra
-      });
+    registrosGuardar.push({
+        factura: r.factura,
+        billingid: r.billingid,
+        monto: r.monto,
+        raiz: raizUsar,
+        cedula: mode === "nd" ? r.cedula : cedulaExtra,
+        tipo_limpieza: tipoLimpieza
+    });
 
       count++;
     }
