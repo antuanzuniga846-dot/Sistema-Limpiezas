@@ -158,17 +158,17 @@
 
   let descripcion;
 
-    if (mode === "nc") {
+  if (mode === "nc") {
 
-        descripcion = "CM,908,200_Recuperacion de Clientes Proyecto de Ventas Móvil";
+      descripcion = COMENTARIOS_NC.limpieza;
 
-    } else {
+  } else {
 
-        const tipo = document.getElementById("tipo_nd").value;
+      const tipo = document.getElementById("tipo_nd").value;
 
-        descripcion = COMENTARIOS_ND[tipo];
+      descripcion = COMENTARIOS_ND[tipo];
 
-    }
+  }
 
   const userTag = getUsuarioActual();
 
