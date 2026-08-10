@@ -178,11 +178,16 @@
   let count = 0;
   let registrosGuardar = [];
 
-  const tipoLimpieza = mode === "nc"
-    ? "NC200"
-    : (document.getElementById("tipo_nd").value === "reversion"
-      ? "ND200"
-      : "ND300");
+  const tipoND = document.getElementById("tipo_nd").value;
+
+  const tipoLimpieza =
+    mode === "nc"
+      ? "NC200"
+      : tipoND === "limpieza"
+        ? "NC200"
+        : tipoND === "reversion"
+          ? "ND200"
+          : "ND300";
 
   const tuplasPrincipal = (mode === "nc")
     ? parseTablaNC(textoPrincipal)
