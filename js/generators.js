@@ -159,8 +159,6 @@
 
         descripcion = "CM,908,200_Recuperacion de Clientes Proyecto de Ventas Móvil";
 
-        descripcion = COMENTARIOS_NC[tipo];
-
     } else {
 
         const tipo = document.getElementById("tipo_nd").value;
