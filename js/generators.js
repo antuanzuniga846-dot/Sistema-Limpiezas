@@ -117,7 +117,11 @@
 
     reversionIncu: "IN,911,ND300",
 
-    limpieza: "CM,908,200_Limpieza de Saldos Proyecto de Ventas Móvil",
+  };
+
+  const COMENTARIOS_NC = {
+
+        limpieza: "CM,908,200_Limpieza de Saldos Proyecto de Ventas Móvil",
 
   };
 
@@ -157,6 +161,8 @@
     if (mode === "nc") {
 
         descripcion = "CM,908,200_Recuperacion de Clientes Proyecto de Ventas Móvil";
+
+        descripcion = COMENTARIOS_NC[tipo];
 
     } else {
 
