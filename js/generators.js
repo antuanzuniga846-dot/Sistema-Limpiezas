@@ -103,6 +103,111 @@
   }
   window.agregarRegla = agregarRegla;
 
+  function pasarRaizAExtra(mode) {
+
+  const raizEl = document.getElementById(`raiz_${mode}`);
+  const cedulaEl = document.getElementById("cedula");
+  const tablaEl = document.getElementById(`data_${mode}`);
+
+  if (!raizEl || !tablaEl) return;
+
+  const raiz = raizEl.value.trim();
+  const cedula = cedulaEl?.value.trim() || "";
+  const tabla = tablaEl.value.trim();
+
+  // Validar que haya algo que pasar
+  if (!raiz && !tabla) {
+    showToast(
+      "warn",
+      "Sin datos",
+      "Primero coloca la raíz y los datos."
+    );
+    return;
+  }
+
+  // Crear la nueva regla
+  const rules = document.getElementById(`rules_${mode}`);
+
+  if (!rules) return;
+
+  const item = document.createElement("div");
+  item.className = "ruleItem";
+
+  item.innerHTML = `
+    <div class="ruleTop">
+
+      <div style="flex:1;">
+        <label style="margin:0 0 6px;">Raíz extra</label>
+        <input
+          class="ruleRaiz"
+          type="text"
+          value="${raiz}"
+          placeholder="Ej: 1.2270038"
+        >
+      </div>
+
+      <div style="flex:1;">
+        <label style="margin:0 0 6px;">Cédula</label>
+        <input
+          class="ruleCedula"
+          type="text"
+          value="${cedula}"
+          placeholder="Ej: 702840496"
+        >
+      </div>
+
+      <button
+        class="btn btnGhost"
+        type="button"
+        onclick="eliminarRegla(this)"
+      >
+        🗑️ Quitar
+      </button>
+
+    </div>
+
+    <div class="ruleGrid">
+
+      <div>
+        <label style="margin:0 0 6px;">Tabla de esta raíz</label>
+
+        <textarea
+          class="ruleTabla"
+          rows="6"
+          placeholder="Pega aquí la tabla completa..."
+        >${tabla}</textarea>
+
+        <div class="hintText">
+          Debe traer factura, billing account y monto.
+        </div>
+      </div>
+
+    </div>
+  `;
+
+  rules.prepend(item);
+
+  // ============================
+  // LIMPIAR RAÍZ PRINCIPAL
+  // ============================
+
+  raizEl.value = "";
+
+  if (cedulaEl) {
+    cedulaEl.value = "";
+  }
+
+  tablaEl.value = "";
+
+  showToast(
+    "success",
+    "Raíz extra agregada",
+    `La raíz ${raiz} fue movida a raíces extras.`
+  );
+}
+
+window.pasarRaizAExtra = pasarRaizAExtra;
+
   function eliminarRegla(btn){
     const item = btn.closest(".ruleItem");
     if(item) item.remove();
