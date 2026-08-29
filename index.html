@@ -330,7 +330,7 @@
         <input id="fechaFiltro" style="max-width:180px;" placeholder="📅 Seleccionar fecha" />
 
         <!-- Filtro por Tipo -->
-        <select id="tipoFiltro" style="max-width:160px;">
+        <select id="tipoFiltro" onchange="cargarHistorial(true)" style="max-width:160px;">
           <option value="">Todos los tipos</option>
           <option value="NC200">NC200</option>
           <option value="ND200">ND200</option>

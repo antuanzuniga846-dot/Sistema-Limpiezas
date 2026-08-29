@@ -1,16 +1,7 @@
 // ==========================================================================
-// 1. GESTIÓN DE FILTROS (Fecha y Tipo)
+// GESTIÓN DE FILTROS
 // ==========================================================================
-window.fechaSeleccionada = "";
-window.tipoSeleccionado = "";
-
 window.aplicarFiltros = () => {
-  const inputFecha = document.getElementById("fechaFiltro");
-  const selectTipo = document.getElementById("tipoFiltro");
-
-  window.fechaSeleccionada = inputFecha ? inputFecha.value.trim() : "";
-  window.tipoSeleccionado = selectTipo ? selectTipo.value.trim() : "";
-
   if (typeof cargarHistorial === "function") {
     cargarHistorial(true);
   }
@@ -23,17 +14,13 @@ window.limpiarFiltros = () => {
   if (inputFecha) {
     if (inputFecha._flatpickr) {
       inputFecha._flatpickr.clear();
-    } else {
-      inputFecha.value = "";
     }
+    inputFecha.value = "";
   }
 
   if (selectTipo) {
     selectTipo.value = "";
   }
-
-  window.fechaSeleccionada = "";
-  window.tipoSeleccionado = "";
 
   if (typeof cargarHistorial === "function") {
     cargarHistorial(true);

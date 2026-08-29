@@ -178,6 +178,9 @@ let loading = false;
 let noMoreData = false;
 let cacheUsuarios = null;
 
+// ==========================================================================
+// HISTORIAL CON FILTROS DIRECTOS DEL DOM
+// ==========================================================================
 window.cargarHistorial = async (reset = true) => {
   try {
     if (loading) return;
@@ -205,16 +208,26 @@ window.cargarHistorial = async (reset = true) => {
       .order("created_at", { ascending: false })
       .range(from, to);
 
-    // 🔥 FILTRO DE FECHA LEÍDO DIRECTAMENTE DE window.fechaSeleccionada
-    if (window.fechaSeleccionada) {
+    // 1. LEER VALORES DIRECTAMENTE DEL DOM (Evita fallos de variables)
+    const inputFecha = document.getElementById("fechaFiltro");
+    const selectTipo = document.getElementById("tipoFiltro");
+
+    const fechaVal = inputFecha ? inputFecha.value.trim() : "";
+    const tipoVal = selectTipo ? selectTipo.value.trim() : "";
+
+    // 2. APLICAR FILTRO DE FECHA (si hay fecha seleccionada)
+    if (fechaVal) {
       query = query
-        .gte("created_at", `${window.fechaSeleccionada}T00:00:00`)
-        .lte("created_at", `${window.fechaSeleccionada}T23:59:59`);
+        .gte("created_at", `${fechaVal}T00:00:00`)
+        .lte("created_at", `${fechaVal}T23:59:59`);
+    }
+
+    // 3. APLICAR FILTRO DE TIPO (Insensible a mayúsculas/minúsculas)
+    if (tipoVal) {
+      query = query.ilike("tipo_limpieza", `%${tipoVal}%`);
     }
 
     const { data, error } = await query;
-
-    
 
     // Cachear nombres de usuarios autorizados
     if (!cacheUsuarios) {
@@ -254,7 +267,7 @@ window.cargarHistorial = async (reset = true) => {
         <td>${item.billingid ?? ""}</td>
         <td>${item.monto ?? ""}</td>
         <td>${item.raiz ?? ""}</td>
-        <td>${item.tipo_limpieza ?? "-"}</td>
+        <td><span class="pill" style="font-size:11px;">${item.tipo_limpieza ?? "-"}</span></td>
         <td>${item.created_at ? new Date(item.created_at).toLocaleString() : "-"}</td>
         <td>${item.cedula ?? ""}</td>
         <td>${cacheUsuarios[item.user_id] ?? "Usuario desconocido"}</td>
@@ -267,7 +280,7 @@ window.cargarHistorial = async (reset = true) => {
     loading = false;
   } catch (e) {
     loading = false;
-    console.warn("Historial cancelado por sesión");
+    console.warn("Historial cancelado por sesión:", e);
   }
 };
 
