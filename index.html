@@ -323,18 +323,31 @@
     </div>
 
     <div class="cardBody">
-      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+      <!-- BARRA DE FILTROS ACTUALIZADA -->
+      <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:14px;">
 
-  <input id="fechaFiltro" placeholder="Seleccionar fecha" />
-<button class="btn btnPrimary" onclick="aplicarFiltros()">Filtrar</button>
-<button class="btn btnPrimary" onclick="limpiarFiltros()">Limpiar</button>
+        <!-- Filtro Fecha -->
+        <input id="fechaFiltro" style="max-width:180px;" placeholder="📅 Seleccionar fecha" />
 
-  <button class="btn btnPrimary" onclick="cargarHistorial(true)">🔄 Cargar historial</button>
-  <button class="btn btnPrimary" onclick="usarSeleccionParaND()">➡️ Usar en ND</button>
+        <!-- Filtro por Tipo -->
+        <select id="tipoFiltro" style="max-width:160px;">
+          <option value="">Todos los tipos</option>
+          <option value="NC200">NC200</option>
+          <option value="ND200">ND200</option>
+          <option value="ND300">ND300</option>
+        </select>
 
-</div>
-      <div style="max-height:400px; overflow:auto;">
-        <table style="width:100%; font-size:12px; border-collapse:collapse;">
+        <!-- Botones de Acción -->
+        <button class="btn btnPrimary" type="button" onclick="aplicarFiltros()">Filtrar</button>
+        <button class="btn btnGhost" type="button" onclick="limpiarFiltros()">🧹 Limpiar</button>
+        <button class="btn btnGhost" type="button" onclick="cargarHistorial(true)">🔄 Recargar</button>
+        <button class="btn btnPrimary" type="button" onclick="usarSeleccionParaND()">➡️ Usar en ND</button>
+
+      </div>
+
+      <!-- TABLA -->
+      <div style="max-height:450px; overflow:auto;">
+        <table id="tablaHistorialContenedor" style="width:100%; font-size:12px; border-collapse:collapse;">
           <thead>
             <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.2);">
               <th></th>
@@ -346,7 +359,6 @@
               <th>Fecha</th>
               <th>Cédula</th>
               <th>Usuario</th>
-              
             </tr>
           </thead>
           <tbody id="tablaHistorial"></tbody>

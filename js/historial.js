@@ -1,14 +1,25 @@
 // ==========================================================================
-// 1. GESTIÓN DE FILTROS (Conectado con window.fechaSeleccionada)
+// 1. GESTIÓN DE FILTROS (Fecha y Tipo)
 // ==========================================================================
+window.fechaSeleccionada = "";
+window.tipoSeleccionado = "";
+
 window.aplicarFiltros = () => {
   const inputFecha = document.getElementById("fechaFiltro");
+  const selectTipo = document.getElementById("tipoFiltro");
+
   window.fechaSeleccionada = inputFecha ? inputFecha.value.trim() : "";
-  cargarHistorial(true);
+  window.tipoSeleccionado = selectTipo ? selectTipo.value.trim() : "";
+
+  if (typeof cargarHistorial === "function") {
+    cargarHistorial(true);
+  }
 };
 
 window.limpiarFiltros = () => {
   const inputFecha = document.getElementById("fechaFiltro");
+  const selectTipo = document.getElementById("tipoFiltro");
+
   if (inputFecha) {
     if (inputFecha._flatpickr) {
       inputFecha._flatpickr.clear();
@@ -16,9 +27,26 @@ window.limpiarFiltros = () => {
       inputFecha.value = "";
     }
   }
+
+  if (selectTipo) {
+    selectTipo.value = "";
+  }
+
   window.fechaSeleccionada = "";
-  cargarHistorial(true);
+  window.tipoSeleccionado = "";
+
+  if (typeof cargarHistorial === "function") {
+    cargarHistorial(true);
+  }
 };
+
+// Filtrar automáticamente cuando se cambia el selector de tipo
+document.addEventListener("DOMContentLoaded", () => {
+  const selectTipo = document.getElementById("tipoFiltro");
+  if (selectTipo) {
+    selectTipo.addEventListener("change", () => window.aplicarFiltros());
+  }
+});
 
 // ==========================================================================
 // 2. RESALTAR FILAS Y AGRUPACIÓN POR RAÍZ (Toggle)

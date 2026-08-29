@@ -214,6 +214,8 @@ window.cargarHistorial = async (reset = true) => {
 
     const { data, error } = await query;
 
+    
+
     // Cachear nombres de usuarios autorizados
     if (!cacheUsuarios) {
       const { data: usuarios } = await supabase.from("autorizados").select("user_id, Nombre");
