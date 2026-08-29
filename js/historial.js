@@ -1,90 +1,92 @@
-    window.usarSeleccionParaND = () => {
+// ==========================================================================
+// 1. GESTIÓN DE FILTROS (Conectado con window.fechaSeleccionada)
+// ==========================================================================
+window.aplicarFiltros = () => {
+  const inputFecha = document.getElementById("fechaFiltro");
+  window.fechaSeleccionada = inputFecha ? inputFecha.value.trim() : "";
+  cargarHistorial(true);
+};
+
+window.limpiarFiltros = () => {
+  const inputFecha = document.getElementById("fechaFiltro");
+  if (inputFecha) {
+    if (inputFecha._flatpickr) {
+      inputFecha._flatpickr.clear();
+    } else {
+      inputFecha.value = "";
+    }
+  }
+  window.fechaSeleccionada = "";
+  cargarHistorial(true);
+};
+
+// ==========================================================================
+// 2. RESALTAR FILAS Y AGRUPACIÓN POR RAÍZ (Toggle)
+// ==========================================================================
+document.addEventListener("click", (e) => {
+  const fila = e.target.closest("#tablaHistorial tr");
+
+  // Ignorar clics fuera de filas del cuerpo o clics directos al checkbox
+  if (!fila || e.target.classList.contains("chkHist")) return;
+
+  const raizSeleccionada = fila.children[4]?.textContent.trim();
+  if (!raizSeleccionada) return;
+
+  const todasLasFilas = document.querySelectorAll("#tablaHistorial tr");
+  const yaEstabaActiva = fila.classList.contains("fila-activa");
+
+  // Desmarcar todo
+  todasLasFilas.forEach(tr => {
+    tr.classList.remove("fila-activa", "misma-raiz");
+    const chk = tr.querySelector(".chkHist");
+    if (chk) chk.checked = false;
+  });
+
+  // Si no estaba activa, seleccionar todas las que compartan la misma raíz
+  if (!yaEstabaActiva) {
+    const facturasVistas = new Set();
+
+    todasLasFilas.forEach(tr => {
+      const r = tr.children[4]?.textContent.trim();
+      const factura = tr.children[1]?.textContent.trim();
+      const chk = tr.querySelector(".chkHist");
+
+      if (r === raizSeleccionada && chk && !facturasVistas.has(factura)) {
+        chk.checked = true;
+        tr.classList.add("fila-activa", "misma-raiz");
+        facturasVistas.add(factura);
+      }
+    });
+  }
+});
+
+// ==========================================================================
+// 3. ENVIAR REGISTROS A GENERADOR ND
+// ==========================================================================
+window.usarSeleccionParaND = () => {
   const checks = document.querySelectorAll(".chkHist:checked");
 
   if (!checks.length) {
-    showToast("warn", "Nada seleccionado", "Marca al menos un registro del historial.");
+    if (typeof showToast === "function") {
+      showToast("warn", "Nada seleccionado", "Marca al menos un registro del historial.");
+    }
     return;
   }
 
   let resultado = "";
 
   checks.forEach(chk => {
-    const data = JSON.parse(decodeURIComponent(chk.dataset.json));
-
-    // ND: raiz billing monto factura cedula
-    resultado += `${data.raiz} ${data.billingid} ${data.monto} ${data.factura} ${data.cedula}\n`;
+    try {
+      const data = JSON.parse(decodeURIComponent(chk.dataset.json));
+      resultado += `${data.raiz || ""} ${data.billingid || ""} ${data.monto || ""} ${data.factura || ""} ${data.cedula || ""}\n`.trimStart();
+    } catch (err) {
+      console.error("Error parseando data-json:", err);
+    }
   });
 
-  // meter en textarea ND
   const nd = document.getElementById("data_nd");
   if (nd) nd.value = resultado;
 
-  // ir a página ND
-  go("gen-nd");
-
-  showToast("success", "Listo", "Datos enviados al generador ND.");
-};
-
-// ============================
-// RESALTAR FILAS Y RAÍCES
-// ============================
-document.addEventListener("click", (e) => {
-
-  const fila = e.target.closest("#tablaHistorial tr");
-
-  if (!fila) return;
-
-  // evitar doble click raro en checkbox
-  if (e.target.classList.contains("chkHist")) {
-    return;
-  }
-
-  // raíz seleccionada
-  const raiz = fila.children[4]?.textContent.trim();
-
-  if (!raiz) return;
-
-  const facturasVistas = new Set();
-
-  document.querySelectorAll("#tablaHistorial tr").forEach(tr => {
-
-    const r = tr.children[4]?.textContent.trim();
-
-    const factura =
-      tr.children[1]?.textContent.trim();
-
-    const chk =
-      tr.querySelector(".chkHist");
-
-    if (
-      r === raiz &&
-      chk &&
-      !facturasVistas.has(factura)
-    ) {
-
-      chk.checked = true;
-
-      tr.classList.add(
-        "fila-activa",
-        "misma-raiz"
-      );
-
-      facturasVistas.add(factura);
-    }
-
-  });
-
-});
-// ============================
-// FILTROS
-// ============================
-window.aplicarFiltros = () => {
-  fechaSeleccionada = document.getElementById("fechaFiltro").value;
-  cargarHistorial(true);
-};
-
-window.limpiarFiltros = () => {
-  document.getElementById("fechaFiltro").value = "";
-  fechaSeleccionada = "";
-  cargarHistorial(true);
+  if (typeof go === "function") go("gen-nd");
+  if (typeof showToast === "function") showToast("success", "Listo", "Datos enviados al generador ND.");
 };

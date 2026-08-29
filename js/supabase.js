@@ -13,32 +13,35 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
 window.supabase = supabase;
 
 const USER_DOMAIN = "sistema.local";
-
 const gate = document.getElementById("authGate");
 const msg = document.getElementById("authMsg");
 
-function setMsg(t=""){ if(msg) msg.textContent = t; }
+function setMsg(t = "") { 
+  if (msg) msg.textContent = t; 
+}
 
-function setUserTag(tag){
+function setUserTag(tag) {
   const t = String(tag || "").trim();
-  if(!t) return;
+  if (!t) return;
   window.currentUserTag = t;
   localStorage.setItem("userTag", t);
 }
 
-// ============================
-// FILTROS
-// ============================
-let fechaSeleccionada = "";
+// ==========================================================================
+// FILTRO GLOBAL COMPARTIDO
+// ==========================================================================
+window.fechaSeleccionada = "";
 
-// ============================
+// ==========================================================================
 // VALIDAR SESIÓN
-// ============================
-async function getSessionOrFail(){
+// ==========================================================================
+async function getSessionOrFail() {
   const { data: { session } } = await supabase.auth.getSession();
 
-  if(!session?.user){
-    showToast("error","Sesión expirada","Vuelve a iniciar sesión");
+  if (!session?.user) {
+    if (typeof showToast === "function") {
+      showToast("error", "Sesión expirada", "Vuelve a iniciar sesión");
+    }
     await supabase.auth.signOut();
     await refreshGate();
     throw new Error("No session");
@@ -46,44 +49,40 @@ async function getSessionOrFail(){
 
   return session;
 }
+window.getSessionOrFail = getSessionOrFail;
 
-// ============================
-// GUARDAR
-// ============================
-window.guardarLimpiezaBatch = async function(registros){
-  try{
+// ==========================================================================
+// GUARDAR BATCH
+// ==========================================================================
+window.guardarLimpiezaBatch = async function(registros) {
+  try {
     const session = await getSessionOrFail();
 
-      const payload = registros.map(r => ({
-        user_id: session.user.id,
-        factura: r.factura,
-        billingid: r.billingid,
-        monto: r.monto,
-        raiz: r.raiz,
-        cedula: r.cedula,
-        tipo_limpieza: r.tipo_limpieza
-      }));
+    const payload = registros.map(r => ({
+      user_id: session.user.id,
+      factura: r.factura,
+      billingid: r.billingid,
+      monto: r.monto,
+      raiz: r.raiz,
+      cedula: r.cedula,
+      tipo_limpieza: r.tipo_limpieza
+    }));
 
-    const { error } = await supabase
-      .from("limpiezas")
-      .insert(payload);
+    const { error } = await supabase.from("limpiezas").insert(payload);
 
-    if(error){
+    if (error) {
       console.error("🔥 ERROR REAL:", error);
-      showToast("error","Error", error.message);
+      if (typeof showToast === "function") showToast("error", "Error", error.message);
     }
-
-  } catch(err){
+  } catch (err) {
     console.warn("Guardado cancelado por sesión");
   }
 };
 
-// ============================
-// BUSCAR RAICES CEDULAS
-// ============================
-
-window.buscarPorCedulasND = async function(valores){
-
+// ==========================================================================
+// BUSCAR POR CÉDULAS
+// ==========================================================================
+window.buscarPorCedulasND = async function(valores) {
   const consultas = valores.map(v => `cedula.eq.${v},raiz.eq.${v}`);
 
   const { data, error } = await supabase
@@ -91,27 +90,22 @@ window.buscarPorCedulasND = async function(valores){
     .select("raiz,billingid,monto,factura,cedula")
     .or(consultas.join(","));
 
-  if(error) throw error;
+  if (error) throw error;
 
   const facturasVistas = new Set();
-
   return (data || []).filter(r => {
-
-    if(facturasVistas.has(r.factura)){
-      return false;
-    }
-
+    if (facturasVistas.has(r.factura)) return false;
     facturasVistas.add(r.factura);
     return true;
   });
-
 };
-// ============================
-// AUTH
-// ============================
-async function isAuthorized(){
+
+// ==========================================================================
+// AUTH & GATE
+// ==========================================================================
+async function isAuthorized() {
   const { data: { session } } = await supabase.auth.getSession();
-  if(!session?.user) return false;
+  if (!session?.user) return false;
 
   const { data } = await supabase
     .from("autorizados")
@@ -119,58 +113,55 @@ async function isAuthorized(){
     .eq("user_id", session.user.id)
     .maybeSingle();
 
-  if(data){
+  if (data) {
     window.currentUserInitials = data.iniciales;
   }
 
   return !!data;
 }
 
-async function refreshGate(){
+async function refreshGate() {
   const { data: { session } } = await supabase.auth.getSession();
   const logged = !!session?.user;
 
-  if(!logged){
-    gate.style.display = "grid";
+  if (!logged) {
+    if (gate) gate.style.display = "grid";
     return;
   }
 
   const email = session.user.email || "";
   const username = email.split("@")[0];
-  if(username) setUserTag(username);
+  if (username) setUserTag(username);
 
   const ok = await isAuthorized();
 
-  if(!ok){
+  if (!ok) {
     await supabase.auth.signOut();
-    gate.style.display = "grid";
+    if (gate) gate.style.display = "grid";
     setMsg("❌ Usuario NO autorizado.");
     return;
   }
 
-  gate.style.display = "none";
+  if (gate) gate.style.display = "none";
   setMsg("");
 }
+window.refreshGate = refreshGate;
 
-// ============================
-// LOGIN
-// ============================
 window.authLogin = async () => {
   setMsg("");
-
   const user = document.getElementById("authUser").value.trim().toLowerCase();
   const pass = document.getElementById("authPass").value.trim();
 
-  if(!user || !pass) return setMsg("Falta usuario o contraseña.");
+  if (!user || !pass) return setMsg("Falta usuario o contraseña.");
 
   const email = `${user}@${USER_DOMAIN}`;
-
   const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
 
-  if(error) return setMsg(error.message);
+  if (error) return setMsg(error.message);
 
   setUserTag(user);
   await refreshGate();
+  await cargarHistorial(true);
 };
 
 window.authLogout = async () => {
@@ -178,26 +169,26 @@ window.authLogout = async () => {
   await refreshGate();
 };
 
-// ============================
-// SCROLL CONFIG
-// ============================
+// ==========================================================================
+// HISTORIAL CON PAGINACIÓN Y FILTRO
+// ==========================================================================
 let page = 0;
 const limit = 200;
 let loading = false;
 let noMoreData = false;
+let cacheUsuarios = null;
 
-// ============================
-// HISTORIAL CON FILTRO
-// ============================
 window.cargarHistorial = async (reset = true) => {
-  try{
-    if(loading || noMoreData) return;
+  try {
+    if (loading) return;
+    if (!reset && noMoreData) return;
 
     await getSessionOrFail();
 
     const tbody = document.getElementById("tablaHistorial");
+    if (!tbody) return;
 
-    if(reset){
+    if (reset) {
       tbody.innerHTML = "";
       page = 0;
       noMoreData = false;
@@ -214,28 +205,23 @@ window.cargarHistorial = async (reset = true) => {
       .order("created_at", { ascending: false })
       .range(from, to);
 
-    // 🔥 APLICAR FILTRO DE FECHA AQUÍ (CORRECTO)
-    if (fechaSeleccionada) {
+    // 🔥 FILTRO DE FECHA LEÍDO DIRECTAMENTE DE window.fechaSeleccionada
+    if (window.fechaSeleccionada) {
       query = query
-        .gte("created_at", fechaSeleccionada + "T00:00:00")
-        .lte("created_at", fechaSeleccionada + "T23:59:59");
+        .gte("created_at", `${window.fechaSeleccionada}T00:00:00`)
+        .lte("created_at", `${window.fechaSeleccionada}T23:59:59`);
     }
 
     const { data, error } = await query;
 
-    const { data: usuarios, error: errorUsuarios } = await supabase
-    .from("autorizados")
-    .select("user_id, Nombre");
-
-    if (errorUsuarios) {
-      console.error("ERROR USUARIOS:", errorUsuarios);
+    // Cachear nombres de usuarios autorizados
+    if (!cacheUsuarios) {
+      const { data: usuarios } = await supabase.from("autorizados").select("user_id, Nombre");
+      cacheUsuarios = {};
+      (usuarios || []).forEach(u => {
+        cacheUsuarios[u.user_id] = u.Nombre;
+      });
     }
-
-    const nombresUsuarios = {};
-
-    (usuarios || []).forEach(usuario => {
-      nombresUsuarios[usuario.user_id] = usuario.Nombre;
-    });
 
     if (error) {
       console.error("ERROR SUPABASE:", error);
@@ -250,97 +236,63 @@ window.cargarHistorial = async (reset = true) => {
     }
 
     const facturasVistas = new Set();
+    const fragment = document.createDocumentFragment();
 
-  data.forEach(item => {
+    data.forEach(item => {
+      const factura = String(item.factura || "").trim();
+      if (facturasVistas.has(factura)) return;
+      facturasVistas.add(factura);
 
-  const factura = String(item.factura || "").trim();
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>
+          <input type="checkbox" class="chkHist" data-json="${encodeURIComponent(JSON.stringify(item))}">
+        </td>
+        <td>${item.factura ?? ""}</td>
+        <td>${item.billingid ?? ""}</td>
+        <td>${item.monto ?? ""}</td>
+        <td>${item.raiz ?? ""}</td>
+        <td>${item.tipo_limpieza ?? "-"}</td>
+        <td>${item.created_at ? new Date(item.created_at).toLocaleString() : "-"}</td>
+        <td>${item.cedula ?? ""}</td>
+        <td>${cacheUsuarios[item.user_id] ?? "Usuario desconocido"}</td>
+      `;
+      fragment.appendChild(tr);
+    });
 
-  if(facturasVistas.has(factura)){
-    return;
-  }
-
-  facturasVistas.add(factura);
-
-  const tr = document.createElement("tr");
-
-    tr.innerHTML = `
-      <td>
-        <input type="checkbox" class="chkHist"
-          data-json="${encodeURIComponent(JSON.stringify(item))}">
-      </td>
-
-      <td>${item.factura ?? ""}</td>
-
-      <td>${item.billingid ?? ""}</td>
-
-      <td>${item.monto ?? ""}</td>
-
-      <td>${item.raiz ?? ""}</td>
-
-      <td>${item.tipo_limpieza ?? "-"}</td>
-
-      <td>
-        ${item.created_at
-          ? new Date(item.created_at).toLocaleString()
-          : "-"
-        }
-      </td>
-
-      <td>${item.cedula ?? ""}</td>
-
-      <td>
-        ${nombresUsuarios[item.user_id] ?? "Usuario desconocido"}
-      </td>
-    `;
-
-  tbody.appendChild(tr);
-});
-
+    tbody.appendChild(fragment);
     page++;
     loading = false;
-
-  } catch(e){
+  } catch (e) {
+    loading = false;
     console.warn("Historial cancelado por sesión");
   }
 };
 
-
-// ============================
-// SCROLL INFINITO
-// ============================
+// ==========================================================================
+// SCROLL INFINITO & REALTIME
+// ==========================================================================
 document.addEventListener("DOMContentLoaded", () => {
   const container = document.querySelector("#page-historial div[style*='overflow:auto']");
-
-  if(!container) return;
-
-  container.addEventListener("scroll", () => {
-    const nearBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 50;
-
-    if(nearBottom){
-      cargarHistorial(false);
-    }
-  });
+  if (container) {
+    container.addEventListener("scroll", () => {
+      const nearBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 50;
+      if (nearBottom) cargarHistorial(false);
+    });
+  }
 });
 
-// ============================
-// REALTIME
-// ============================
 supabase
-  .channel('realtime-limpiezas')
-  .on('postgres_changes', {
-    event: 'INSERT',
-    schema: 'public',
-    table: 'limpiezas'
-  }, () => {
+  .channel("realtime-limpiezas")
+  .on("postgres_changes", { event: "INSERT", schema: "public", table: "limpiezas" }, () => {
     cargarHistorial(true);
   })
   .subscribe();
 
-// ============================
-// INIT
-// ============================
-document.addEventListener("DOMContentLoaded", async () => {
+// Inicialización de Auth y carga inicial
+(async () => {
   await refreshGate();
-  cargarHistorial(true);
-});
-
+  await cargarHistorial(true);
+  // Notificar que supabase está listo
+  window.dispatchEvent(new Event("supabase-ready"));
+})();
