@@ -49,9 +49,9 @@ No procede para la cancelación ya que la orden está en aprovisionamiento.
 <textarea style="width:100%;height:300px;">
 Buen día, por favor su ayuda con la prioridad de la ordenes:
 
-Orden se encuentra en despacho a la espera de asignación  
+Orden se encuentra en despacho a la espera de asignación.
 
-Se solicita prioridad con el área encargada
+Se solicita prioridad con el área encargada.
 </textarea>
     `,
 
@@ -79,7 +79,7 @@ Numero:
 Solicitud(eSim/Sim):
 Sim Nuevo: 
 
-Compañeros ya su solicitud fue realizada, por favor validar, cualquier consulta adicional quedamos a su disposición
+Compañeros ya su solicitud fue realizada, por favor validar, cualquier consulta adicional quedamos a su disposición.
 
 Buen día, le atiende Antuan Mora del equipo Soporte Comercial. Compañeros el documento de solicitud de cambio de SIM debe estar indexado y este cliente no lo tiene en OnBase.
 </textarea>
