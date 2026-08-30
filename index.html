@@ -78,6 +78,10 @@
         <button type="button" class="navBtn" data-page="help" onclick="go('help')">
           <span class="icon">❓</span> <span class="nav-text">Ayuda</span>
         </button>
+
+        <button type="button" class="navBtn" data-page="estadisticas" onclick="go('estadisticas')">
+          <span class="icon">📊</span> <span class="nav-text">Estadísticas</span>
+        </button>
       </div>
 
       <div class="sideFooter">
@@ -364,6 +368,87 @@
           </div>
         </section>
 
+        <!-- SECCIÓN DE ESTADÍSTICAS Y RANKING -->
+<section class="page" id="page-estadisticas">
+  <div class="grid">
+    
+    <!-- Encabezado y Filtros rápidos -->
+    <div class="card" style="grid-column: span 12;">
+      <div class="cardHeader">
+        <div>
+          <h3>🏆 Ranking de Limpiezas (Cédulas Únicas)</h3>
+          <span>Agentes con mayor cantidad de clientes/cédulas únicas procesadas</span>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button class="btn btnGhost" type="button" onclick="cargarEstadisticas()">🔄 Actualizar Gráfica</button>
+        </div>
+      </div>
+      
+      <!-- KPIs Resumen -->
+      <div class="cardBody">
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:14px; margin-bottom: 20px;">
+          <div class="kpi" style="grid-column:auto;">
+            <div class="label">🥇 Agente Líder</div>
+            <div class="value" id="kpiLider" style="font-size:20px;">--</div>
+            <div class="hint" id="kpiLiderCount">0 cédulas únicas</div>
+          </div>
+          <div class="kpi" style="grid-column:auto;">
+            <div class="label">👥 Agentes Activos</div>
+            <div class="value" id="kpiTotalAgentes">0</div>
+            <div class="hint">Total con registros cargados</div>
+          </div>
+          <div class="kpi" style="grid-column:auto;">
+            <div class="label">📄 Cédulas Únicas Totales</div>
+            <div class="value" id="kpiTotalCedulas">0</div>
+            <div class="hint">En todo el sistema</div>
+          </div>
+        </div>
+
+        <!-- Podio Top 3 -->
+        <div id="podiumContainer" class="podium-grid"></div>
+      </div>
+    </div>
+
+    <!-- Gráfica de Barras -->
+    <div class="card" style="grid-column: span 12;">
+      <div class="cardHeader">
+        <h3>📊 Gráfica Comparativa de Agentes</h3>
+        <span>Cédulas únicas por usuario</span>
+      </div>
+      <div class="cardBody" style="position: relative; height: 380px; width: 100%;">
+        <canvas id="chartRanking"></canvas>
+      </div>
+    </div>
+
+    <!-- Tabla Detallada de Posiciones -->
+    <div class="card" style="grid-column: span 12;">
+      <div class="cardHeader">
+        <h3>📋 Tabla de Posiciones</h3>
+        <span>Desglose por agente</span>
+      </div>
+      <div class="cardBody" style="max-height: 400px; overflow: auto;">
+        <table style="width:100%; font-size:13px; border-collapse:collapse;" id="tablaRanking">
+          <thead>
+            <tr style="text-align:left; border-bottom:1px solid var(--stroke); color:var(--muted); background:var(--card2);">
+              <th style="padding:10px 14px;">Posición</th>
+              <th style="padding:10px 14px;">Agente / Usuario</th>
+              <th style="padding:10px 14px;">Cédulas Únicas</th>
+              <th style="padding:10px 14px;">Total Registros</th>
+              <th style="padding:10px 14px;">Efectividad</th>
+            </tr>
+          </thead>
+          <tbody id="tablaRankingBody">
+            <tr>
+              <td colspan="5" style="text-align:center; padding:20px; color:var(--muted);">Cargando estadísticas...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</section>
+
         <section class="page" id="page-plantillas">
           <div class="card">
             <div class="cardHeader">
@@ -445,6 +530,8 @@ document.addEventListener("DOMContentLoaded", () => {
 <script src="js/historial.js"></script>
 <script src="js/theme.js"></script>
 <script src="js/plantillas.js"></script>
+<script src="js/estadisticas.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="js/app.js"></script>
 <script type="module" src="js/supabase.js"></script>
 
