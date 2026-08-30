@@ -25,10 +25,6 @@
       title.textContent = map[page][0];
       sub.textContent = map[page][1];
     }
-           // Si navegan a estadísticas, cargar datos automáticamente
-    if (pageId === 'estadisticas' && typeof cargarEstadisticas === 'function') {
-      cargarEstadisticas();
-    }
   }
   
   document.addEventListener("DOMContentLoaded", () => {
@@ -75,6 +71,11 @@ const originalGo = window.go;
 window.go = function(pageId) {
   if (typeof originalGo === "function") {
     originalGo(pageId);
+
+               // Si navegan a estadísticas, cargar datos automáticamente
+    if (pageId === 'estadisticas' && typeof cargarEstadisticas === 'function') {
+      cargarEstadisticas();
+    }
   }
   // Si está en pantalla pequeña, cerrar el sidebar tras hacer clic
   if (window.innerWidth <= 768) {
