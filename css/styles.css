@@ -36,6 +36,11 @@
   padding: 0;
 }
 
+html, body {
+  width: 100%;
+  min-height: 100vh;
+}
+
 body {
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   color: var(--text);
@@ -45,7 +50,6 @@ body {
     radial-gradient(900px 700px at 85% 10%, var(--card), transparent 65%),
     linear-gradient(180deg, var(--bg1), var(--bg2));
   background-attachment: fixed;
-  min-height: 100vh;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -68,15 +72,18 @@ body {
 }
 
 /* ==========================================================================
-   3. LAYOUT & SIDEBAR
+   3. LAYOUT PRINCIPAL & SIDEBAR
    ========================================================================== */
 .app {
-  display: grid;
-  grid-template-columns: 260px 1fr;
+  display: flex;
+  width: 100%;
   min-height: 100vh;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .sidebar {
+  width: 260px;
+  min-width: 260px;
   padding: 20px 14px;
   border-right: 1px solid var(--stroke);
   background: var(--card);
@@ -87,11 +94,14 @@ body {
   position: sticky;
   top: 0;
   height: 100vh;
+  z-index: 100;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .brand {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
   padding: 6px 8px 18px;
   border-bottom: 1px solid var(--stroke);
@@ -102,33 +112,25 @@ body {
   align-items: center;
   gap: 10px;
   text-decoration: none;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .logo img {
   width: 30px;
   height: 30px;
   display: block;
+  flex-shrink: 0;
 }
 
 .logo span {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 800;
   letter-spacing: -0.5px;
   background: linear-gradient(135deg, var(--accent1), var(--accent2));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-}
-
-.brand h1 {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 700;
-}
-
-.brand p {
-  margin: 2px 0 0;
-  font-size: 12px;
-  color: var(--muted);
+  transition: opacity 0.2s ease;
 }
 
 /* Navegación */
@@ -138,6 +140,8 @@ body {
   flex-direction: column;
   gap: 4px;
   flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .nav button {
@@ -150,11 +154,12 @@ body {
   color: var(--muted);
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   font-size: 13.5px;
   font-weight: 600;
   transition: all var(--duration) var(--ease);
   position: relative;
+  white-space: nowrap;
 }
 
 .nav button:hover {
@@ -185,6 +190,7 @@ body {
 .icon {
   width: 28px;
   height: 28px;
+  min-width: 28px;
   border-radius: 8px;
   display: grid;
   place-items: center;
@@ -206,15 +212,38 @@ body {
   border-top: 1px solid var(--stroke);
   color: var(--muted);
   font-size: 11.5px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* Botón cerrar para móvil */
+.btn-sidebar-close {
+  display: none;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.btn-sidebar-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
 }
 
 /* ==========================================================================
-   4. TOPBAR & CONTENIDO
+   4. TOPBAR & CONTENIDO FLUIDO (100% ANCHO)
    ========================================================================== */
 .main {
-  padding: 24px 30px;
-  max-width: 1560px;
+  flex: 1 1 0%;
   width: 100%;
+  min-width: 0;
+  padding: 24px 30px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .topbar {
@@ -229,6 +258,31 @@ body {
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   box-shadow: var(--shadow-sm);
+  width: 100%;
+}
+
+/* Botón toggle hamburguesa */
+.btn-toggle-sidebar {
+  background: var(--card2);
+  border: 1px solid var(--stroke);
+  color: var(--text);
+  font-size: 18px;
+  border-radius: 10px;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--duration) var(--ease);
+}
+
+.btn-toggle-sidebar:hover {
+  background: var(--card);
+  border-color: var(--accent1);
+  color: var(--accent1);
+  transform: scale(1.04);
 }
 
 .topbar h2 {
@@ -254,10 +308,13 @@ body {
 
 .content {
   margin-top: 20px;
+  width: 100%;
+  flex: 1;
 }
 
 .page {
   display: none;
+  width: 100%;
   animation: fadeIn 0.2s var(--ease) forwards;
 }
 
@@ -277,6 +334,7 @@ body {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   gap: 16px;
+  width: 100%;
 }
 
 .card {
@@ -288,6 +346,7 @@ body {
   -webkit-backdrop-filter: blur(16px);
   box-shadow: var(--shadow);
   overflow: hidden;
+  width: 100%;
   transition: border-color var(--duration) var(--ease);
 }
 
@@ -554,7 +613,6 @@ button.btn {
   background: var(--card2);
 }
 
-/* Fila activa vinculada al color acento actual */
 tr.fila-activa td {
   background: var(--card2) !important;
   color: var(--accent1) !important;
@@ -563,7 +621,6 @@ tr.fila-activa td {
   box-shadow: inset 3px 0 0 0 var(--accent1);
 }
 
-/* Filas con misma raíz */
 tr.misma-raiz td {
   background: var(--card) !important;
 }
@@ -668,20 +725,65 @@ tr.misma-raiz td {
 }
 
 /* ==========================================================================
-   11. RESPONSIVE BREAKPOINTS
+   11. OVERLAY (FONDO OSCURO MÓVIL)
+   ========================================================================== */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 99;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* ==========================================================================
+   12. MODO ESCRITORIO: SIDEBAR COLAPSADO (MINI-BAR)
+   ========================================================================== */
+@media (min-width: 769px) {
+  .app.sidebar-collapsed .sidebar {
+    width: 75px;
+    min-width: 75px;
+    padding: 20px 8px;
+  }
+
+  .app.sidebar-collapsed .brand {
+    padding: 6px 0 18px;
+    justify-content: center;
+  }
+
+  .app.sidebar-collapsed .brand .logo {
+    justify-content: center;
+  }
+
+  .app.sidebar-collapsed .brand-text,
+  .app.sidebar-collapsed .nav-text,
+  .app.sidebar-collapsed .sideFooter .footer-status,
+  .app.sidebar-collapsed .sideFooter .footer-copy {
+    display: none !important;
+  }
+
+  .app.sidebar-collapsed .nav button {
+    justify-content: center;
+    padding: 10px 0;
+  }
+
+  .app.sidebar-collapsed .nav button .icon {
+    margin: 0;
+  }
+
+  .app.sidebar-collapsed .sideFooter .pill {
+    padding: 4px;
+    justify-content: center;
+  }
+}
+
+/* ==========================================================================
+   13. RESPONSIVE BREAKPOINTS (TABLETS Y MÓVILES)
    ========================================================================== */
 @media (max-width: 980px) {
-  .app {
-    grid-template-columns: 1fr;
-  }
-  .sidebar {
-    position: sticky;
-    top: 0;
-    height: auto;
-    z-index: 20;
-    border-right: none;
-    border-bottom: 1px solid var(--stroke);
-  }
   .kpi {
     grid-column: span 12;
   }
@@ -690,119 +792,6 @@ tr.misma-raiz td {
   }
 }
 
-/* =========================================================
-   12. ESTILOS PARA EL SIDEBAR DESPLEGABLE / COLAPSABLE
-   ========================================================= */
-
-/* Transición suave para la app y sidebar */
-.app {
-  display: flex;
-  min-height: 100vh;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.sidebar {
-  width: 260px;
-  min-width: 260px;
-  display: flex;
-  flex-direction: column;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  z-index: 100;
-}
-
-.main {
-  flex: 1;
-  min-width: 0;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Botón toggle hamburguesa */
-.btn-toggle-sidebar {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #fff;
-  font-size: 18px;
-  border-radius: 10px;
-  width: 38px;
-  height: 38px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-toggle-sidebar:hover {
-  background: rgba(255, 255, 255, 0.18);
-  transform: scale(1.05);
-}
-
-/* Botón cerrar en sidebar */
-.btn-sidebar-close {
-  display: none;
-  background: transparent;
-  border: none;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 18px;
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 6px;
-}
-
-.btn-sidebar-close:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-}
-
-/* Fondo oscuro overlay (móvil) */
-.sidebar-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
-  z-index: 99;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-/* =========================================================
-   13. MODO DESCRITORIO: SIDEBAR COLAPSADO / MINI-BAR
-   ========================================================= */
-@media (min-width: 769px) {
-  .app.sidebar-collapsed .sidebar {
-    width: 75px;
-    min-width: 75px;
-  }
-
-  .app.sidebar-collapsed .brand-text,
-  .app.sidebar-collapsed .nav-text,
-  .app.sidebar-collapsed .sideFooter .footer-status,
-  .app.sidebar-collapsed .sideFooter .footer-copy {
-    display: none;
-  }
-
-  .app.sidebar-collapsed .navBtn {
-    justify-content: center;
-    padding: 12px 0;
-  }
-
-  .app.sidebar-collapsed .navBtn .icon {
-    margin: 0;
-    font-size: 20px;
-  }
-
-  .app.sidebar-collapsed .brand .logo {
-    justify-content: center;
-  }
-}
-
-/* =========================================================
-   14. MODO MÓVIL: SIDEBAR OFF-CANVAS (SLIDE IN/OUT)
-   ========================================================= */
 @media (max-width: 768px) {
   .sidebar {
     position: fixed;
@@ -819,18 +808,15 @@ tr.misma-raiz td {
     display: block;
   }
 
-  .brand {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  .main {
+    padding: 16px 14px;
   }
 
-  /* Cuando el sidebar está abierto en móvil */
+  /* Cuando el menú móvil está abierto */
   .app.sidebar-mobile-open .sidebar {
     transform: translateX(0);
   }
 
-  .app.sidebar-mobile-open ~ .sidebar-overlay,
   .sidebar-overlay.active {
     display: block;
     opacity: 1;
