@@ -1,6 +1,6 @@
 /**
  * js/estadisticas.js
- * Ranking optimizado conectado a la vista SQL de Supabase
+ * Ranking de cédulas únicas conectado a Supabase
  */
 
 let chartRankingInstance = null;
@@ -9,48 +9,62 @@ let cacheRanking = {
   timestamp: 0
 };
 
-const TIEMPO_CACHE_MS = 2 * 60 * 1000; // 2 minutos de caché
+const TIEMPO_CACHE_MS = 60 * 1000; // 1 minuto de caché
 
 /**
- * Consulta la vista ranking_limpiezas de Supabase
+ * Obtener el cliente activo de Supabase
+ */
+function getSupabaseClient() {
+  return window.supabase || window.supabaseClient || null;
+}
+
+/**
+ * Consulta la vista o función SQL de Supabase
  */
 async function obtenerRankingDesdeSupabase(forzarRecarga = false) {
   const ahora = Date.now();
 
+  // Si hay caché y no se fuerza recarga, devolverlo
   if (!forzarRecarga && cacheRanking.data && (ahora - cacheRanking.timestamp < TIEMPO_CACHE_MS)) {
     return cacheRanking.data;
   }
 
+  const client = getSupabaseClient();
+
+  if (!client) {
+    console.warn("⏳ Esperando conexión con Supabase...");
+    return null;
+  }
+
   try {
-    // Busca el cliente de Supabase disponible en tu proyecto
-    const client = window.supabaseClient || (window.supabase && window.supabase.createClient ? window.supabase : null);
+    // 1. Intentar llamar a la función RPC
+    let { data, error } = await client.rpc("get_ranking_limpiezas");
 
-    if (!client) {
-      console.warn("Cliente Supabase no encontrado en window.supabaseClient");
-      return null;
+    // 2. Si no existe el RPC, consultar la vista directa
+    if (error || !data) {
+      const res = await client.from("ranking_limpiezas").select("*");
+      data = res.data;
+      error = res.error;
     }
-
-    const { data, error } = await client
-      .from("ranking_limpiezas")
-      .select("*");
 
     if (error) {
-      console.error("Error al consultar ranking_limpiezas:", error);
+      console.error("❌ Error al consultar estadísticas en Supabase:", error);
       return null;
     }
 
+    console.log("✅ Estadísticas cargadas con éxito:", data);
     cacheRanking.data = data || [];
     cacheRanking.timestamp = ahora;
     return cacheRanking.data;
 
   } catch (err) {
-    console.error("Error al cargar estadísticas:", err);
+    console.error("❌ Error inesperado al cargar estadísticas:", err);
     return null;
   }
 }
 
 /**
- * Carga y actualiza toda la vista de estadísticas
+ * Carga y actualiza toda la interfaz de estadísticas
  */
 async function cargarEstadisticas(forzarRecarga = false) {
   const tbody = document.getElementById("tablaRankingBody");
@@ -126,9 +140,12 @@ function renderizarGrafica(ranking) {
   const textColor = computed.getPropertyValue("--text").trim() || "#e8f1ff";
   const strokeColor = computed.getPropertyValue("--stroke").trim() || "rgba(255,255,255,0.12)";
 
-  // Mostramos los nombres (o iniciales si el nombre es muy largo)
+  // Tomamos los nombres de los agentes para el eje X
   const topAgentes = ranking.slice(0, 10);
-  const labels = topAgentes.map(a => a.usuario.split(" ").slice(0, 2).join(" ")); // Primer nombre y apellido
+  const labels = topAgentes.map(a => {
+    const partes = (a.usuario || "").split(" ");
+    return partes.length > 1 ? `${partes[0]} ${partes[1]}` : a.usuario;
+  });
   const dataUnicas = topAgentes.map(a => a.cedulas_unicas);
   const dataTotales = topAgentes.map(a => a.total_registros);
 
@@ -222,3 +239,11 @@ function renderizarVacio() {
   const tbody = document.getElementById("tablaRankingBody");
   if (tbody) tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:20px; color:var(--muted);">No hay datos de limpiezas registrados en el sistema.</td></tr>`;
 }
+
+// Cargar automáticamente cuando Supabase esté listo o al navegar
+window.addEventListener("supabase-ready", () => {
+  const seccion = document.getElementById("page-estadisticas");
+  if (seccion && seccion.classList.contains("active")) {
+    cargarEstadisticas();
+  }
+});
