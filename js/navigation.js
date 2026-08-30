@@ -25,7 +25,8 @@
       title.textContent = map[page][0];
       sub.textContent = map[page][1];
     }
-    if(page === "estadisticas"){
+           // Si navegan a estadísticas, cargar datos automáticamente
+    if (pageId === 'estadisticas' && typeof cargarEstadisticas === 'function') {
       cargarEstadisticas();
     }
   }
