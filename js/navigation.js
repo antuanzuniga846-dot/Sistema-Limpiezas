@@ -36,3 +36,50 @@
     });
     go("home");
   });
+
+  /**
+ * Alterna el estado colapsado/expandido del Sidebar
+ */
+function toggleSidebar() {
+  const app = document.getElementById("appContainer") || document.querySelector(".app");
+  const overlay = document.getElementById("sidebarOverlay");
+  const isMobile = window.innerWidth <= 768;
+
+  if (isMobile) {
+    // Modo móvil: abrir/cerrar menú flotante
+    const isOpen = app.classList.toggle("sidebar-mobile-open");
+    if (overlay) {
+      overlay.classList.toggle("active", isOpen);
+    }
+  } else {
+    // Modo escritorio: colapsar/expandir ancho
+    const isCollapsed = app.classList.toggle("sidebar-collapsed");
+    localStorage.setItem("sidebarCollapsed", isCollapsed ? "true" : "false");
+  }
+}
+
+// Restaurar estado guardado en escritorio al cargar
+document.addEventListener("DOMContentLoaded", () => {
+  const isMobile = window.innerWidth <= 768;
+  const isCollapsed = localStorage.getItem("sidebarCollapsed") === "true";
+  const app = document.getElementById("appContainer") || document.querySelector(".app");
+
+  if (!isMobile && isCollapsed && app) {
+    app.classList.add("sidebar-collapsed");
+  }
+});
+
+// Auto-cerrar sidebar en móvil al seleccionar una página
+const originalGo = window.go;
+window.go = function(pageId) {
+  if (typeof originalGo === "function") {
+    originalGo(pageId);
+  }
+  // Si está en pantalla pequeña, cerrar el sidebar tras hacer clic
+  if (window.innerWidth <= 768) {
+    const app = document.getElementById("appContainer") || document.querySelector(".app");
+    const overlay = document.getElementById("sidebarOverlay");
+    if (app) app.classList.remove("sidebar-mobile-open");
+    if (overlay) overlay.classList.remove("active");
+  }
+};

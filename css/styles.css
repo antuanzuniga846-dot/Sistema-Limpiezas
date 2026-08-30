@@ -689,3 +689,150 @@ tr.misma-raiz td {
     grid-template-columns: 1fr;
   }
 }
+
+/* =========================================================
+   12. ESTILOS PARA EL SIDEBAR DESPLEGABLE / COLAPSABLE
+   ========================================================= */
+
+/* Transición suave para la app y sidebar */
+.app {
+  display: flex;
+  min-height: 100vh;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar {
+  width: 260px;
+  min-width: 260px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  z-index: 100;
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Botón toggle hamburguesa */
+.btn-toggle-sidebar {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-size: 18px;
+  border-radius: 10px;
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-toggle-sidebar:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: scale(1.05);
+}
+
+/* Botón cerrar en sidebar */
+.btn-sidebar-close {
+  display: none;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.btn-sidebar-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* Fondo oscuro overlay (móvil) */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 99;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* =========================================================
+   13. MODO DESCRITORIO: SIDEBAR COLAPSADO / MINI-BAR
+   ========================================================= */
+@media (min-width: 769px) {
+  .app.sidebar-collapsed .sidebar {
+    width: 75px;
+    min-width: 75px;
+  }
+
+  .app.sidebar-collapsed .brand-text,
+  .app.sidebar-collapsed .nav-text,
+  .app.sidebar-collapsed .sideFooter .footer-status,
+  .app.sidebar-collapsed .sideFooter .footer-copy {
+    display: none;
+  }
+
+  .app.sidebar-collapsed .navBtn {
+    justify-content: center;
+    padding: 12px 0;
+  }
+
+  .app.sidebar-collapsed .navBtn .icon {
+    margin: 0;
+    font-size: 20px;
+  }
+
+  .app.sidebar-collapsed .brand .logo {
+    justify-content: center;
+  }
+}
+
+/* =========================================================
+   14. MODO MÓVIL: SIDEBAR OFF-CANVAS (SLIDE IN/OUT)
+   ========================================================= */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    height: 100vh;
+    z-index: 1000;
+    transform: translateX(-100%);
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+  }
+
+  .btn-sidebar-close {
+    display: block;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* Cuando el sidebar está abierto en móvil */
+  .app.sidebar-mobile-open .sidebar {
+    transform: translateX(0);
+  }
+
+  .app.sidebar-mobile-open ~ .sidebar-overlay,
+  .sidebar-overlay.active {
+    display: block;
+    opacity: 1;
+  }
+}
