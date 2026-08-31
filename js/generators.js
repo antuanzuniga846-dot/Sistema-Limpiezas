@@ -1,110 +1,115 @@
- // ===== Parse NC con header =====
-  function parseTablaNC(texto){
-    const lines = (texto || "").trim().split("\n").filter(l => l.trim());
-    if (lines.length < 2) return [];
+// ==========================================================================
+// GENERATORS.JS
+// ==========================================================================
 
-    const splitRow = (row) => row.trim().split(/\t|\s{2,}/).filter(Boolean);
-    const header = splitRow(lines[0]).map(h => h.toLowerCase());
+// ===== Parse NC con header =====
+function parseTablaNC(texto) {
+  const lines = (texto || "").trim().split("\n").filter(l => l.trim());
+  if (lines.length < 2) return [];
 
-    const idxFactura = header.findIndex(h => h.includes("factura"));
-    const idxBilling = header.findIndex(h => h.includes("billing"));
-    let idxMonto = header.findIndex(h => h.includes("monto") && h.includes("pagar"));
-    if (idxMonto === -1) idxMonto = header.findIndex(h => h.includes("monto") && h.includes("factura"));
+  const splitRow = (row) => row.trim().split(/\t|\s{2,}/).filter(Boolean);
+  const header = splitRow(lines[0]).map(h => h.toLowerCase());
 
-    if (idxFactura === -1 || idxBilling === -1 || idxMonto === -1) return [];
+  const idxFactura = header.findIndex(h => h.includes("factura"));
+  const idxBilling = header.findIndex(h => h.includes("billing"));
+  let idxMonto = header.findIndex(h => h.includes("monto") && h.includes("pagar"));
+  if (idxMonto === -1) idxMonto = header.findIndex(h => h.includes("monto") && h.includes("factura"));
 
-    const out = [];
-    for (let i = 1; i < lines.length; i++) {
-      const cols = splitRow(lines[i]);
-      if (cols.length <= Math.max(idxFactura, idxBilling, idxMonto)) continue;
+  if (idxFactura === -1 || idxBilling === -1 || idxMonto === -1) return [];
 
-      const factura = cols[idxFactura].trim();
-      const billingid = cols[idxBilling].trim();
-      const monto = normalizarMonto(cols[idxMonto]);
-      if (!factura || !billingid || !monto) continue;
-      out.push({ factura, billingid, monto });
-    }
-    return out;
+  const out = [];
+  for (let i = 1; i < lines.length; i++) {
+    const cols = splitRow(lines[i]);
+    if (cols.length <= Math.max(idxFactura, idxBilling, idxMonto)) continue;
+
+    const factura = cols[idxFactura].trim();
+    const billingid = cols[idxBilling].trim();
+    const monto = normalizarMonto(cols[idxMonto]);
+    if (!factura || !billingid || !monto) continue;
+    out.push({ factura, billingid, monto });
   }
+  return out;
+}
 
-  // ===== Parse ND por fila =====
-  function parseTablaND(texto){
-    const lines = (texto || "").trim().split("\n").filter(l => l.trim());
-    if (lines.length === 0) return [];
+// ===== Parse ND por fila =====
+function parseTablaND(texto) {
+  const lines = (texto || "").trim().split("\n").filter(l => l.trim());
+  if (lines.length === 0) return [];
 
-    const splitRow = (row) => row.trim().split(/\t|\s{2,}|\s+/).filter(Boolean);
+  const splitRow = (row) => row.trim().split(/\t|\s{2,}|\s+/).filter(Boolean);
 
-    const IDX_RAIZ    = 0;
-    const IDX_BILLING = 1;
-    const IDX_MONTO   = 2;
-    const IDX_FACTURA = 3;
-    const IDX_CEDULA  = 4;
+  const IDX_RAIZ    = 0;
+  const IDX_BILLING = 1;
+  const IDX_MONTO   = 2;
+  const IDX_FACTURA = 3;
+  const IDX_CEDULA  = 4;
 
-    let start = 0;
-    const first = splitRow(lines[0])[0]?.toLowerCase() || "";
-    if (first.includes("raiz") || first.includes("factura")) start = 1;
+  let start = 0;
+  const first = splitRow(lines[0])[0]?.toLowerCase() || "";
+  if (first.includes("raiz") || first.includes("factura")) start = 1;
 
-    const out = [];
-    for(let i = start; i < lines.length; i++){
-      const cols = splitRow(lines[i]);
-      if(cols.length <= Math.max(IDX_RAIZ, IDX_BILLING, IDX_MONTO, IDX_FACTURA)) continue;
-      
+  const out = [];
+  for (let i = start; i < lines.length; i++) {
+    const cols = splitRow(lines[i]);
+    if (cols.length <= Math.max(IDX_RAIZ, IDX_BILLING, IDX_MONTO, IDX_FACTURA)) continue;
+
     const raiz = cols[IDX_RAIZ].trim();
     const billingid = cols[IDX_BILLING].trim();
     const monto = normalizarMonto(cols[IDX_MONTO]);
     const factura = cols[IDX_FACTURA].trim();
     const cedula = cols[IDX_CEDULA]?.trim() || "";
 
-    if(!raiz || !billingid || !monto || !factura) continue;
+    if (!raiz || !billingid || !monto || !factura) continue;
 
     out.push({
-        raiz,
-        billingid,
-        monto,
-        factura,
-        cedula
+      raiz,
+      billingid,
+      monto,
+      factura,
+      cedula
     });
-    }
-    return out;
   }
+  return out;
+}
 
-  // ===== Reglas extras =====
-  function agregarRegla(mode){
-    const rules = document.getElementById(`rules_${mode}`);
-    const item = document.createElement("div");
-    item.className = "ruleItem";
+// ===== Reglas extras =====
+function agregarRegla(mode) {
+  const rules = document.getElementById(`rules_${mode}`);
+  if (!rules) return;
 
-    item.innerHTML = `
-  <div class="ruleTop">
-    <div style="flex:1;">
-      <label style="margin:0 0 6px;">Raíz extra</label>
-      <input class="ruleRaiz" type="text" placeholder="Ej: 1.2270038">
+  const item = document.createElement("div");
+  item.className = "ruleItem";
+
+  item.innerHTML = `
+    <div class="ruleTop">
+      <div style="flex:1;">
+        <label style="margin:0 0 6px;">Raíz extra</label>
+        <input class="ruleRaiz" type="text" placeholder="Ej: 1.2270038">
+      </div>
+
+      <div style="flex:1;">
+        <label style="margin:0 0 6px;">Cédula</label>
+        <input class="ruleCedula" type="text" placeholder="Ej: 702840496">
+      </div>
+
+      <button class="btn btnGhost" type="button" onclick="eliminarRegla(this)">
+        🗑️ Quitar
+      </button>
     </div>
 
-    <div style="flex:1;">
-      <label style="margin:0 0 6px;">Cédula</label>
-      <input class="ruleCedula" type="text" placeholder="Ej: 702840496">
+    <div class="ruleGrid">
+      <div>
+        <label style="margin:0 0 6px;">Tabla de esta raíz</label>
+        <textarea class="ruleTabla" rows="6" placeholder="Pega aquí la tabla completa..."></textarea>
+        <div class="hintText">Debe traer factura, billing account y monto.</div>
+      </div>
     </div>
+  `;
+  rules.prepend(item);
+}
+window.agregarRegla = agregarRegla;
 
-    <button class="btn btnGhost" type="button" onclick="eliminarRegla(this)">
-      🗑️ Quitar
-    </button>
-  </div>
-
-  <div class="ruleGrid">
-    <div>
-      <label style="margin:0 0 6px;">Tabla de esta raíz</label>
-      <textarea class="ruleTabla" rows="6" placeholder="Pega aquí la tabla completa..."></textarea>
-      <div class="hintText">Debe traer factura, billing account y monto.</div>
-    </div>
-  </div>
-`;
-    rules.prepend(item);
-  }
-  window.agregarRegla = agregarRegla;
-
-  function pasarRaizAExtra(mode) {
-
+function pasarRaizAExtra(mode) {
   const raizEl = document.getElementById(`raiz_${mode}`);
   const cedulaEl = document.getElementById("cedula");
   const tablaEl = document.getElementById(`data_${mode}`);
@@ -127,7 +132,6 @@
 
   // Crear la nueva regla
   const rules = document.getElementById(`rules_${mode}`);
-
   if (!rules) return;
 
   const item = document.createElement("div");
@@ -135,7 +139,6 @@
 
   item.innerHTML = `
     <div class="ruleTop">
-
       <div style="flex:1;">
         <label style="margin:0 0 6px;">Raíz extra</label>
         <input
@@ -163,25 +166,20 @@
       >
         🗑️ Quitar
       </button>
-
     </div>
 
     <div class="ruleGrid">
-
       <div>
         <label style="margin:0 0 6px;">Tabla de esta raíz</label>
-
         <textarea
           class="ruleTabla"
           rows="6"
           placeholder="Pega aquí la tabla completa..."
         >${tabla}</textarea>
-
         <div class="hintText">
           Debe traer factura, billing account y monto.
         </div>
       </div>
-
     </div>
   `;
 
@@ -190,87 +188,81 @@
   // ============================
   // LIMPIAR RAÍZ PRINCIPAL
   // ============================
-
   raizEl.value = "";
-
   if (cedulaEl) {
     cedulaEl.value = "";
   }
-
   tablaEl.value = "";
 
   showToast(
     "success",
     "Raíz extra agregada",
-    `La raíz ${raiz} fue movida a raíces extras.`
+    `La raíz ${raiz || "extra"} fue movida a raíces extras.`
   );
 }
-
 window.pasarRaizAExtra = pasarRaizAExtra;
 
-  function eliminarRegla(btn){
-    const item = btn.closest(".ruleItem");
-    if(item) item.remove();
-  }
-  window.eliminarRegla = eliminarRegla;
+function eliminarRegla(btn) {
+  const item = btn.closest(".ruleItem");
+  if (item) item.remove();
+}
+window.eliminarRegla = eliminarRegla;
 
-  // ===== Generar plantilla NC/ND =====
+// ===== Generar plantilla NC/ND =====
+const COMENTARIOS_ND = {
+  reversion: "IN,911,200_Se aplico reversión por proyecto de Venta Servicio Móvil Limpieza de Saldos",
+  reversionIncu: "IN,911,ND300",
+  limpieza: "CM,908,200_Limpieza de Saldos Proyecto de Ventas Móvil"
+};
 
-  const COMENTARIOS_ND = {
+let archivoND = null;
+let archivoNC = null;
 
-    reversion: "IN,911,200_Se aplico reversión por proyecto de Venta Servicio Móvil Limpieza de Saldos",
-
-    reversionIncu: "IN,911,ND300",
-
-    limpieza: "CM,908,200_Limpieza de Saldos Proyecto de Ventas Móvil",
-
-
-  };
-
-  let archivoND = null;
-  let archivoNC = null;
-
- async function generarPlantilla(mode){
+async function generarPlantilla(mode) {
   const raizDefault = (mode === "nc")
-    ? document.getElementById(`raiz_${mode}`).value.trim()
+    ? (document.getElementById(`raiz_${mode}`)?.value.trim() || "")
     : "";
 
-  const textoPrincipal = document.getElementById(`data_${mode}`).value;
+  const textoPrincipal = document.getElementById(`data_${mode}`)?.value.trim() || "";
   const cedulaPrincipal = document.getElementById("cedula")?.value.trim() || "";
+  const rules = document.querySelectorAll(`#rules_${mode} .ruleItem`);
 
+  // 1. Parsear la tabla principal solo si el usuario pegó texto en ella
+  const tuplasPrincipal = textoPrincipal
+    ? (mode === "nc" ? parseTablaNC(textoPrincipal) : parseTablaND(textoPrincipal))
+    : [];
+
+  // 2. Validar raíz y cédula principal SOLO si hay datos en la tabla principal
+  if (tuplasPrincipal.length > 0) {
+    if (mode === "nc" && !raizDefault) {
+      showToast("warn", "Falta raíz", "Escribe la raíz principal para los datos pegados.");
+      return;
+    }
     if (mode === "nc" && !cedulaPrincipal) {
-      showToast(
-        "warn",
-        "Falta la cédula",
-        "Debes ingresar la cédula de la raíz principal."
-      );
+      showToast("warn", "Falta la cédula", "Debes ingresar la cédula de la raíz principal.");
       return;
     }
+  }
 
-    if(mode === "nc" && !raizDefault){
-      showToast("warn","Falta raíz","Escribe la raíz principal.");
-      return;
-    }
+  // 3. Validar si no hay nada en la tabla principal ni reglas extras
+  if (tuplasPrincipal.length === 0 && rules.length === 0) {
+    showToast("warn", "Sin datos", "Ingresa datos en la tabla principal o agrega una raíz extra.");
+    return;
+  }
 
   const ahora = new Date();
-  const dia = String(ahora.getDate()).padStart(2,'0');
-  const mes = String(ahora.getMonth()+1).padStart(2,'0');
+  const dia = String(ahora.getDate()).padStart(2, '0');
+  const mes = String(ahora.getMonth() + 1).padStart(2, '0');
   const anio = ahora.getFullYear();
   const fecha = `${dia}/${mes}/${anio}`;
 
   let descripcion;
-
-    if (mode === "nc") {
-
-        descripcion = "CM,908,200_Recuperacion de Clientes Proyecto de Ventas Móvil";
-
-    } else {
-
-        const tipo = document.getElementById("tipo_nd").value;
-
-        descripcion = COMENTARIOS_ND[tipo];
-
-    }
+  if (mode === "nc") {
+    descripcion = "CM,908,200_Recuperacion de Clientes Proyecto de Ventas Móvil";
+  } else {
+    const tipo = document.getElementById("tipo_nd").value;
+    descripcion = COMENTARIOS_ND[tipo];
+  }
 
   const userTag = getUsuarioActual();
 
@@ -278,8 +270,7 @@ window.pasarRaizAExtra = pasarRaizAExtra;
   let count = 0;
   let registrosGuardar = [];
 
-  const tipoND = document.getElementById("tipo_nd").value;
-
+  const tipoND = document.getElementById("tipo_nd")?.value || "";
   const tipoLimpieza =
     mode === "nc"
       ? "NC200"
@@ -289,16 +280,11 @@ window.pasarRaizAExtra = pasarRaizAExtra;
           ? "ND200"
           : "ND300";
 
-  const tuplasPrincipal = (mode === "nc")
-    ? parseTablaNC(textoPrincipal)
-    : parseTablaND(textoPrincipal);
-
-  for(const r of tuplasPrincipal){
+  // 4. Procesar tabla principal si trae registros válidos
+  for (const r of tuplasPrincipal) {
     const raizUsar = (mode === "nc") ? raizDefault : r.raiz;
 
     resultado += `${raizUsar},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${userTag},,02\n`;
-
-    const cedulaPrincipal = document.getElementById("cedula").value.trim();
 
     registrosGuardar.push({
       factura: r.factura,
@@ -312,41 +298,42 @@ window.pasarRaizAExtra = pasarRaizAExtra;
     count++;
   }
 
-  const rules = document.querySelectorAll(`#rules_${mode} .ruleItem`);
-
+  // 5. Procesar reglas extras
   for (const rule of rules) {
     const raizExtra = rule.querySelector(".ruleRaiz")?.value.trim();
     const cedulaExtra = rule.querySelector(".ruleCedula")?.value.trim();
     const tablaExtra = rule.querySelector(".ruleTabla")?.value || "";
 
-    if (mode === "nc" && raizExtra && !cedulaExtra) {
-        showToast(
-          "warn",
-          "Falta la cédula",
-          `La raíz ${raizExtra} no tiene una cédula asignada.`
-        );
-        return;
-      }
+    // Si la regla no tiene texto en su tabla, se omite
+    if (!tablaExtra.trim()) continue;
 
-    if(mode === "nc" && !raizExtra) continue;
+    if (mode === "nc" && !raizExtra) {
+      showToast("warn", "Falta raíz extra", "Hay una raíz extra sin número de raíz.");
+      return;
+    }
+
+    if (mode === "nc" && !cedulaExtra) {
+      showToast("warn", "Falta la cédula", `La raíz ${raizExtra} no tiene una cédula asignada.`);
+      return;
+    }
 
     const tuplasExtra = (mode === "nc")
       ? parseTablaNC(tablaExtra)
       : parseTablaND(tablaExtra);
 
-    for(const r of tuplasExtra){
+    for (const r of tuplasExtra) {
       const raizUsar = (mode === "nc") ? raizExtra : r.raiz;
 
       resultado += `${raizUsar},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${userTag},,02\n`;
 
-    registrosGuardar.push({
+      registrosGuardar.push({
         factura: r.factura,
         billingid: r.billingid,
         monto: r.monto,
         raiz: raizUsar,
         cedula: mode === "nd" ? r.cedula : cedulaExtra,
         tipo_limpieza: tipoLimpieza
-    });
+      });
 
       count++;
     }
@@ -355,84 +342,72 @@ window.pasarRaizAExtra = pasarRaizAExtra;
   document.getElementById(`resultado_${mode}`).value = resultado;
   document.getElementById(`count_${mode}`).textContent = String(count);
 
-  if(count === 0){
-    showToast("error","Sin datos","Pega tablas válidas.");
+  if (count === 0) {
+    showToast("error", "Sin datos", "Pega tablas válidas con encabezados.");
     return;
   }
 
-  try{
-      await navigator.clipboard.writeText(resultado);
-      showToast("success","Generado y copiado",`Usuario: ${userTag} | Total: ${count}`);
-  }catch{
-      showToast("error","No se pudo copiar","Usa https o localhost.");
+  try {
+    await navigator.clipboard.writeText(resultado);
+    showToast("success", "Generado y copiado", `Usuario: ${userTag} | Total: ${count}`);
+  } catch {
+    showToast("error", "No se pudo copiar", "Usa https o localhost.");
   }
 
   // Guardar/Sobrescribir el TXT
-  try{
-      await guardarArchivoTXT(resultado, mode);
-  }catch(err){
-      console.error(err);
+  try {
+    await guardarArchivoTXT(resultado, mode);
+  } catch (err) {
+    console.error(err);
   }
 
   if (window.guardarLimpiezaBatch) {
-      setTimeout(async () => {
-          await window.guardarLimpiezaBatch(registrosGuardar);
+    setTimeout(async () => {
+      await window.guardarLimpiezaBatch(registrosGuardar);
 
-          if (typeof cargarHistorial === "function") {
-              cargarHistorial();
-          }
-
-      }, 50);
+      if (typeof cargarHistorial === "function") {
+        cargarHistorial();
+      }
+    }, 50);
   }
 }
-  window.generarPlantilla = generarPlantilla;
+window.generarPlantilla = generarPlantilla;
 
-  async function guardarArchivoTXT(resultado, mode){
+async function guardarArchivoTXT(resultado, mode) {
+  let archivo = mode === "nd" ? archivoND : archivoNC;
 
-    let archivo = mode === "nd" ? archivoND : archivoNC;
-
-    if(!archivo){
-
-        archivo = await window.showSaveFilePicker({
-
-            suggestedName: mode.toUpperCase() + ".txt",
-
-            types: [{
-                description: "Archivo de texto",
-                accept: {
-                    "text/plain": [".txt"]
-                }
-            }]
-
-        });
-
-        if(mode === "nd"){
-            archivoND = archivo;
-        }else{
-            archivoNC = archivo;
+  if (!archivo) {
+    archivo = await window.showSaveFilePicker({
+      suggestedName: mode.toUpperCase() + ".txt",
+      types: [{
+        description: "Archivo de texto",
+        accept: {
+          "text/plain": [".txt"]
         }
+      }]
+    });
+
+    if (mode === "nd") {
+      archivoND = archivo;
+    } else {
+      archivoNC = archivo;
     }
+  }
 
-    const writable = await archivo.createWritable();
-
-    await writable.write(resultado);
-
-    await writable.close();
+  const writable = await archivo.createWritable();
+  await writable.write(resultado);
+  await writable.close();
 }
 
-  // ============================
+// ============================
 // AUTOCARGA ND POR CÉDULA
 // ============================
-
-window.buscarRaicesNDAutomatico = async function(){
-
+window.buscarRaicesNDAutomatico = async function() {
   const textarea = document.getElementById("data_nd");
-
-  if(!textarea) return;
+  if (!textarea) return;
 
   const texto = textarea.value.trim();
-
-  if(!texto) return;
+  if (!texto) return;
 
   const lineas = texto
     .split("\n")
@@ -443,18 +418,17 @@ window.buscarRaicesNDAutomatico = async function(){
     x => x.split(/\s+/).length === 1
   );
 
-  if(!soloRaices) return;
+  if (!soloRaices) return;
 
-  try{
-
+  try {
     const registros = await buscarPorCedulasND(lineas);
 
-    if(!registros.length){
-        showToast(
-          "warn",
-          "Sin resultados",
-          "No se encontraron cédulas"
-        );
+    if (!registros.length) {
+      showToast(
+        "warn",
+        "Sin resultados",
+        "No se encontraron cédulas"
+      );
       return;
     }
 
@@ -463,8 +437,7 @@ window.buscarRaicesNDAutomatico = async function(){
         `${r.raiz} ${r.billingid} ${r.monto} ${r.factura} ${r.cedula}`
       ).join("\n");
 
-  }catch(err){
-
+  } catch (err) {
     showToast(
       "error",
       "Error",
@@ -473,56 +446,56 @@ window.buscarRaicesNDAutomatico = async function(){
   }
 };
 
-  // ===== Generador Acometida =====
-  function generarAcometidaUltra(){
-    const texto = document.getElementById("data_acometida").value || "";
-    const lineas = texto.split("\n").map(l => l.trim()).filter(Boolean);
+// ===== Generador Acometida =====
+function generarAcometidaUltra() {
+  const texto = document.getElementById("data_acometida").value || "";
+  const lineas = texto.split("\n").map(l => l.trim()).filter(Boolean);
 
-    const cedulasVistas = new Set();
-    const salida = [];
+  const cedulasVistas = new Set();
+  const salida = [];
 
-    for (const linea of lineas){
-      const limpio = linea.replace(/\s+/g, " ");
-      const partes = limpio.split(" ");
-      if (partes.length < 2) continue;
+  for (const linea of lineas) {
+    const limpio = linea.replace(/\s+/g, " ");
+    const partes = limpio.split(" ");
+    if (partes.length < 2) continue;
 
-      const cedula = partes.shift();
-      const nombre = partes.join(" ").trim();
+    const cedula = partes.shift();
+    const nombre = partes.join(" ").trim();
 
-      if (cedulasVistas.has(cedula)) continue;
-      cedulasVistas.add(cedula);
+    if (cedulasVistas.has(cedula)) continue;
+    cedulasVistas.add(cedula);
 
-      salida.push(`${cedula}: ${nombre}:`);
-    }
-
-    const resultado = salida.join("\n");
-    document.getElementById("resultado_acometida").value = resultado;
-    document.getElementById("count_acometida").textContent = String(salida.length);
-
-    navigator.clipboard.writeText(resultado).catch(()=>{});
+    salida.push(`${cedula}: ${nombre}:`);
   }
-  window.generarAcometidaUltra = generarAcometidaUltra;
 
-  // ===== Limpieza =====
-  function limpiarTodo(mode){
-    const raizEl = document.getElementById(`raiz_${mode}`);
-    if(raizEl) raizEl.value = "";
-    const dataEl = document.getElementById(`data_${mode}`);
-    if(dataEl) dataEl.value = "";
-    const cedulaEl = document.getElementById("cedula");
-    if(cedulaEl) cedulaEl.value = "";
+  const resultado = salida.join("\n");
+  document.getElementById("resultado_acometida").value = resultado;
+  document.getElementById("count_acometida").textContent = String(salida.length);
 
-    const outId = (mode === "acometida") ? "resultado_acometida" : `resultado_${mode}`;
-    const outEl = document.getElementById(outId);
-    if(outEl) outEl.value = "";
+  navigator.clipboard.writeText(resultado).catch(() => {});
+}
+window.generarAcometidaUltra = generarAcometidaUltra;
 
-    const countId = (mode === "acometida") ? "count_acometida" : `count_${mode}`;
-    const c = document.getElementById(countId);
-    if(c) c.textContent = "0";
+// ===== Limpieza =====
+function limpiarTodo(mode) {
+  const raizEl = document.getElementById(`raiz_${mode}`);
+  if (raizEl) raizEl.value = "";
+  const dataEl = document.getElementById(`data_${mode}`);
+  if (dataEl) dataEl.value = "";
+  const cedulaEl = document.getElementById("cedula");
+  if (cedulaEl) cedulaEl.value = "";
 
-    const rules = document.getElementById(`rules_${mode}`);
-    if(rules) rules.innerHTML = "";
+  const outId = (mode === "acometida") ? "resultado_acometida" : `resultado_${mode}`;
+  const outEl = document.getElementById(outId);
+  if (outEl) outEl.value = "";
 
-    showToast("success","Limpio",`Se borró el generador ${mode.toUpperCase()}.`);
-  }
-  window.limpiarTodo = limpiarTodo;
+  const countId = (mode === "acometida") ? "count_acometida" : `count_${mode}`;
+  const c = document.getElementById(countId);
+  if (c) c.textContent = "0";
+
+  const rules = document.getElementById(`rules_${mode}`);
+  if (rules) rules.innerHTML = "";
+
+  showToast("success", "Limpio", `Se borró el generador ${mode.toUpperCase()}.`);
+}
+window.limpiarTodo = limpiarTodo;
