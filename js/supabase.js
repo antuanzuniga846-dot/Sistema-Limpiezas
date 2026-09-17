@@ -52,30 +52,49 @@ async function getSessionOrFail() {
 window.getSessionOrFail = getSessionOrFail;
 
 // ==========================================================================
-// GUARDAR BATCH
+// GUARDAR / ACTUALIZAR LIMPIEZAS (UPSERT SIN DUPLICADOS)
 // ==========================================================================
 window.guardarLimpiezaBatch = async function(registros) {
-  try {
-    const session = await getSessionOrFail();
+  if (!Array.isArray(registros) || registros.length === 0) return;
 
-    const payload = registros.map(r => ({
-      user_id: session.user.id,
-      factura: r.factura,
-      billingid: r.billingid,
-      monto: r.monto,
-      raiz: r.raiz,
-      cedula: r.cedula,
-      tipo_limpieza: r.tipo_limpieza
+  const client = window.supabase || window.supabaseClient;
+  if (!client) {
+    console.error("Cliente Supabase no disponible para guardar.");
+    return;
+  }
+
+  try {
+    // Obtener sesión del usuario actual
+    const { data: { session } } = await client.auth.getSession();
+    const userId = session?.user?.id || null;
+
+    // Formatear los registros asegurando fecha actual y user_id
+    const registrosLimpios = registros.map(r => ({
+      factura: String(r.factura).trim(),
+      billingid: String(r.billingid).trim(),
+      monto: Number(r.monto) || 0,
+      raiz: String(r.raiz).trim(),
+      cedula: String(r.cedula || "").trim(),
+      tipo_limpieza: r.tipo_limpieza || "NC200",
+      user_id: userId,
+      created_at: new Date().toISOString() // Actualiza la fecha a la de hoy
     }));
 
-    const { error } = await supabase.from("limpiezas").insert(payload);
+    // UPSERT: Si la factura ya existe, SOBRESCRIBE los datos con los nuevos
+    const { data, error } = await client
+      .from("limpiezas")
+      .upsert(registrosLimpios, {
+        onConflict: "factura" // Campo que identifica si es la misma factura
+      });
 
     if (error) {
-      console.error("🔥 ERROR REAL:", error);
-      if (typeof showToast === "function") showToast("error", "Error", error.message);
+      console.error("Error al guardar/actualizar en Supabase:", error);
+    } else {
+      console.log(`✅ ${registrosLimpios.length} registros guardados/actualizados.`);
     }
+
   } catch (err) {
-    console.warn("Guardado cancelado por sesión");
+    console.error("Excepción en guardarLimpiezaBatch:", err);
   }
 };
 

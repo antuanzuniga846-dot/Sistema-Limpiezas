@@ -361,10 +361,10 @@ async function generarPlantilla(mode) {
     console.error(err);
   }
 
-  if (window.guardarLimpiezaBatch) {
+  // Solo guardamos en base de datos si es una NC nueva (para no duplicar en ND)
+  if (window.guardarLimpiezaBatch && mode === "nc") {
     setTimeout(async () => {
       await window.guardarLimpiezaBatch(registrosGuardar);
-
       if (typeof cargarHistorial === "function") {
         cargarHistorial();
       }
