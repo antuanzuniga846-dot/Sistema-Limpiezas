@@ -884,3 +884,19 @@ tr.misma-raiz td {
   color: var(--muted);
   margin-top: 4px;
 }
+
+/* =========================================================
+   FONDO DE PANTALLA PERSONALIZADO
+   ========================================================= */
+body.has-custom-bg {
+  background-image: 
+    linear-gradient(
+      rgba(11, 18, 32, var(--bg-darkness, 0.75)), 
+      rgba(11, 18, 32, var(--bg-darkness, 0.75))
+    ),
+    var(--custom-bg-url) !important;
+  background-size: cover !important;
+  background-position: center center !important;
+  background-attachment: fixed !important;
+  background-repeat: no-repeat !important;
+}

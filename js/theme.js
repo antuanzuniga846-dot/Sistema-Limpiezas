@@ -222,3 +222,149 @@ async function loadTheme(userId) {
 window.saveTheme = saveTheme;
 window.loadTheme = loadTheme;
 window.applyThemeByName = applyThemeByName;
+
+// ==========================================================================
+// GESTIÓN DE FONDO DE PANTALLA PERSONALIZADO
+// ==========================================================================
+
+/**
+ * Procesa la imagen seleccionada, la optimiza y la guarda
+ */
+function manejarSubidaFondo(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  // Validar que sea imagen
+  if (!file.type.startsWith("image/")) {
+    if (typeof showToast === "function") {
+      showToast("error", "Formato no válido", "Por favor selecciona un archivo de imagen (PNG, JPG, WebP).");
+    }
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      // Redimensionar / optimizar la imagen con un Canvas para no saturar memoria
+      const canvas = document.createElement("canvas");
+      let width = img.width;
+      let height = img.height;
+
+      // Limitar a máximo 1920px de ancho/alto (calidad Full HD)
+      const MAX_SIZE = 1920;
+      if (width > MAX_SIZE || height > MAX_SIZE) {
+        if (width > height) {
+          height = Math.round((height * MAX_SIZE) / width);
+          width = MAX_SIZE;
+        } else {
+          width = Math.round((width * MAX_SIZE) / height);
+          height = MAX_SIZE;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, width, height);
+
+      // Convertir a JPEG comprimido
+      const dataUrlOptimizado = canvas.toDataURL("image/jpeg", 0.85);
+
+      try {
+        // Guardar en localStorage
+        localStorage.setItem("customBgImage", dataUrlOptimizado);
+        const oscuridad = localStorage.getItem("customBgDarkness") || "75";
+
+        aplicarFondoEnDOM(dataUrlOptimizado, oscuridad);
+
+        if (typeof showToast === "function") {
+          showToast("success", "Fondo actualizado", "La imagen de fondo se ha guardado correctamente.");
+        }
+      } catch (err) {
+        console.error("Error guardando imagen:", err);
+        if (typeof showToast === "function") {
+          showToast("warn", "Imagen muy grande", "Intenta con una imagen de menor tamaño.");
+        }
+      }
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+
+  // Limpiar input para permitir volver a subir el mismo archivo si se desea
+  event.target.value = "";
+}
+
+/**
+ * Aplica la imagen y la opacidad al DOM
+ */
+function aplicarFondoEnDOM(dataUrl, oscuridad = "75") {
+  const oscuridadDecimal = (parseInt(oscuridad, 10) / 100).toFixed(2);
+
+  document.documentElement.style.setProperty("--custom-bg-url", `url("${dataUrl}")`);
+  document.documentElement.style.setProperty("--bg-darkness", oscuridadDecimal);
+  document.body.classList.add("has-custom-bg");
+
+  // Mostrar controles de quitar y slider si existen
+  const removeBtn = document.getElementById("removeBgBtn");
+  const adjustWrap = document.getElementById("bgAdjustWrap");
+  const slider = document.getElementById("bgDarknessSlider");
+  const valText = document.getElementById("bgDarknessVal");
+
+  if (removeBtn) removeBtn.style.display = "inline-flex";
+  if (adjustWrap) adjustWrap.style.display = "block";
+  if (slider) slider.value = oscuridad;
+  if (valText) valText.textContent = `${oscuridad}%`;
+}
+
+/**
+ * Ajusta la capa oscura en tiempo real desde el slider
+ */
+function ajustarOscuridadFondo(valor) {
+  const oscuridadDecimal = (parseInt(valor, 10) / 100).toFixed(2);
+  document.documentElement.style.setProperty("--bg-darkness", oscuridadDecimal);
+  localStorage.setItem("customBgDarkness", valor);
+
+  const valText = document.getElementById("bgDarknessVal");
+  if (valText) valText.textContent = `${valor}%`;
+}
+
+/**
+ * Restablece el fondo por defecto
+ */
+function quitarFondoPersonalizado() {
+  localStorage.removeItem("customBgImage");
+  localStorage.removeItem("customBgDarkness");
+
+  document.body.classList.remove("has-custom-bg");
+  document.documentElement.style.removeProperty("--custom-bg-url");
+  document.documentElement.style.removeProperty("--bg-darkness");
+
+  const removeBtn = document.getElementById("removeBgBtn");
+  const adjustWrap = document.getElementById("bgAdjustWrap");
+
+  if (removeBtn) removeBtn.style.display = "none";
+  if (adjustWrap) adjustWrap.style.display = "none";
+
+  if (typeof showToast === "function") {
+    showToast("success", "Fondo restablecido", "Se ha vuelto al fondo original.");
+  }
+}
+
+/**
+ * Cargar fondo guardado al iniciar la página
+ */
+function inicializarFondoPersonalizado() {
+  const bgGuardado = localStorage.getItem("customBgImage");
+  const oscuridadGuardada = localStorage.getItem("customBgDarkness") || "75";
+
+  if (bgGuardado) {
+    aplicarFondoEnDOM(bgGuardado, oscuridadGuardada);
+  }
+}
+
+// Ejecutar al cargar la página
+document.addEventListener("DOMContentLoaded", () => {
+  inicializarFondoPersonalizado();
+});

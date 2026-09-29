@@ -160,6 +160,42 @@
                     <option value="verde_lima">🍋 Lima</option>
                     <option value="rgb">🎮 RGB</option>
                   </select>
+                  <!-- PERSONALIZADOR DE FONDO DE PANTALLA -->
+                  <div style="margin-top:24px; padding-top:18px; border-top:1px solid var(--stroke);">
+                    <label>🖼️ Imagen de fondo personalizada</label>
+                    <div class="hintText" style="margin-bottom:12px;">Sube una imagen de tu equipo para usarla como fondo.</div>
+
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                      <!-- Input oculto para seleccionar archivo -->
+                      <input type="file" id="bgImageInput" accept="image/*" style="display:none;" onchange="manejarSubidaFondo(event)">
+                      
+                      <button class="btn btnPrimary" type="button" onclick="document.getElementById('bgImageInput').click()">
+                        📁 Seleccionar imagen
+                      </button>
+
+                      <button class="btn btnGhost" type="button" id="removeBgBtn" onclick="quitarFondoPersonalizado()" style="display:none;">
+                        🗑️ Quitar imagen de fondo
+                      </button>
+                    </div>
+
+                    <!-- Control deslizante de oscuridad/legibilidad -->
+                    <div id="bgAdjustWrap" style="margin-top:14px; display:none;">
+                      <div style="display:flex; justify-content:space-between; max-width:280px; margin-bottom:4px;">
+                        <label style="font-size:11.5px; margin:0;">Oscuridad del fondo:</label>
+                        <span id="bgDarknessVal" style="font-size:11.5px; color:var(--accent1); font-weight:700;">75%</span>
+                      </div>
+                      <input 
+                        type="range" 
+                        id="bgDarknessSlider" 
+                        min="20" 
+                        max="95" 
+                        value="75" 
+                        oninput="ajustarOscuridadFondo(this.value)" 
+                        style="width:100%; max-width:280px; accent-color:var(--accent1); cursor:pointer;"
+                      >
+                      <div class="hintText" style="font-size:11px;">Aumenta la oscuridad si el texto te cuesta leer.</div>
+                    </div>
+                  </div>
 
                   <div style="margin-top:10px;">
                     <button id="saveThemeBtn" class="btn btnPrimary">
