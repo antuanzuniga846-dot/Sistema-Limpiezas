@@ -551,6 +551,47 @@ button.btn {
   transform: translateY(0) scale(0.98);
 }
 
+.btnDanger {
+  color: #ffffff;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  border-color: #b91c1c;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);
+}
+
+.btnDanger:hover {
+  filter: brightness(1.15);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(220, 38, 38, 0.45);
+}
+
+.btnDanger:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.btn-del-row {
+  background: transparent;
+  border: 1px solid transparent;
+  color: #ef4444;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 13px;
+  transition: all var(--duration) var(--ease);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-del-row:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.35);
+  transform: scale(1.12);
+}
+
+.btn-del-row:active {
+  transform: scale(0.95);
+}
+
 .statLine {
   color: var(--muted);
   font-size: 12px;

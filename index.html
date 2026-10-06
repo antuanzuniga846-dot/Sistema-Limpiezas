@@ -376,17 +376,22 @@
                   <option value="ND300">ND300</option>
                 </select>
 
+                <input id="cedulaFiltro" style="max-width:180px;" placeholder="🔍 Filtrar por cédula(s)..." />
+
                 <button class="btn btnPrimary" type="button" onclick="aplicarFiltros()">Filtrar</button>
                 <button class="btn btnGhost" type="button" onclick="limpiarFiltros()">🧹 Limpiar</button>
                 <button class="btn btnGhost" type="button" onclick="cargarHistorial(true)">🔄 Recargar</button>
                 <button class="btn btnPrimary" type="button" onclick="usarSeleccionParaND()">➡️ Usar en ND</button>
+                <button class="btn btnDanger" type="button" id="btnBorrarLimpiezas" onclick="confirmarBorrarLimpiezas()">🗑️ Borrar limpiezas</button>
               </div>
 
               <div style="max-height:450px; overflow:auto;">
                 <table id="tablaHistorialContenedor" style="width:100%; font-size:12px; border-collapse:collapse;">
                   <thead>
                     <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.2);">
-                      <th></th>
+                      <th style="width:36px; padding:8px 4px; text-align:center;">
+                        <input type="checkbox" id="chkSelectAllHist" title="Seleccionar todas" onchange="toggleSelectAllHist(this.checked)">
+                      </th>
                       <th>Factura</th>
                       <th>Billing</th>
                       <th>Monto</th>
@@ -395,6 +400,7 @@
                       <th>Fecha</th>
                       <th>Cédula</th>
                       <th>Usuario</th>
+                      <th style="text-align:center; width:50px;">Acción</th>
                     </tr>
                   </thead>
                   <tbody id="tablaHistorial"></tbody>
@@ -525,6 +531,28 @@
       </div>
     </main>
   </div>
+
+<!-- MODAL DE CONFIRMACIÓN PARA BORRAR -->
+<div id="modalConfirmarBorrado" style="position:fixed; inset:0; display:none; place-items:center; padding:18px; background:rgba(0,0,0,.65); backdrop-filter:blur(8px); z-index:99998;">
+  <div style="width:min(450px, 100%); background:var(--card); border:1px solid rgba(239,68,68,0.4); border-radius:18px; padding:22px; box-shadow:0 20px 50px rgba(0,0,0,0.6);">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+      <div style="width:42px; height:42px; border-radius:10px; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); display:grid; place-items:center; font-size:20px;">
+        ⚠️
+      </div>
+      <div>
+        <h3 style="margin:0; font-size:16px;">Confirmar eliminación</h3>
+        <span style="font-size:12px; color:var(--muted);">Esta acción es irreversible</span>
+      </div>
+    </div>
+    <div id="modalConfirmarTexto" style="margin:14px 0 20px; font-size:13.5px; line-height:1.5; color:var(--text);">
+      ¿Estás seguro de que deseas eliminar las limpiezas seleccionadas?
+    </div>
+    <div style="display:flex; justify-content:flex-end; gap:10px;">
+      <button class="btn btnGhost" type="button" onclick="cerrarModalConfirmarBorrado()">Cancelar</button>
+      <button class="btn btnDanger" type="button" id="btnEjecutarBorrado">Sí, eliminar</button>
+    </div>
+  </div>
+</div>
 
 <!-- Toast -->
 <div id="toast" class="toast" aria-live="polite" aria-atomic="true">

@@ -214,6 +214,8 @@ window.cargarHistorial = async (reset = true) => {
       tbody.innerHTML = "";
       page = 0;
       noMoreData = false;
+      const chkAll = document.getElementById("chkSelectAllHist");
+      if (chkAll) chkAll.checked = false;
     }
 
     loading = true;
@@ -230,9 +232,11 @@ window.cargarHistorial = async (reset = true) => {
     // 1. LEER VALORES DIRECTAMENTE DEL DOM (Evita fallos de variables)
     const inputFecha = document.getElementById("fechaFiltro");
     const selectTipo = document.getElementById("tipoFiltro");
+    const inputCedula = document.getElementById("cedulaFiltro");
 
     const fechaVal = inputFecha ? inputFecha.value.trim() : "";
     const tipoVal = selectTipo ? selectTipo.value.trim() : "";
+    const cedulaVal = inputCedula ? inputCedula.value.trim() : "";
 
     // 2. APLICAR FILTRO DE FECHA (si hay fecha seleccionada)
     if (fechaVal) {
@@ -244,6 +248,17 @@ window.cargarHistorial = async (reset = true) => {
     // 3. APLICAR FILTRO DE TIPO (Insensible a mayúsculas/minúsculas)
     if (tipoVal) {
       query = query.ilike("tipo_limpieza", `%${tipoVal}%`);
+    }
+
+    // 4. APLICAR FILTRO DE CÉDULA(S) (una o varias separadas por comas/espacios)
+    if (cedulaVal) {
+      const tokens = cedulaVal.split(/[,;\s]+/).map(t => t.trim().replace(/[%_(),]/g, "")).filter(Boolean);
+      if (tokens.length === 1) {
+        query = query.ilike("cedula", `%${tokens[0]}%`);
+      } else if (tokens.length > 1) {
+        const orExpr = tokens.map(t => `cedula.ilike.%${t}%`).join(",");
+        query = query.or(orExpr);
+      }
     }
 
     const { data, error } = await query;
@@ -279,7 +294,7 @@ window.cargarHistorial = async (reset = true) => {
 
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td>
+        <td style="text-align:center;">
           <input type="checkbox" class="chkHist" data-json="${encodeURIComponent(JSON.stringify(item))}">
         </td>
         <td>${item.factura ?? ""}</td>
@@ -290,6 +305,9 @@ window.cargarHistorial = async (reset = true) => {
         <td>${item.created_at ? new Date(item.created_at).toLocaleString() : "-"}</td>
         <td>${item.cedula ?? ""}</td>
         <td>${cacheUsuarios[item.user_id] ?? "Usuario desconocido"}</td>
+        <td style="text-align:center;">
+          <button type="button" class="btn-del-row" title="Borrar esta limpieza" onclick="confirmarBorrarUna('${item.id || ''}', '${item.factura || ''}')">🗑️</button>
+        </td>
       `;
       fragment.appendChild(tr);
     });
@@ -300,6 +318,57 @@ window.cargarHistorial = async (reset = true) => {
   } catch (e) {
     loading = false;
     console.warn("Historial cancelado por sesión:", e);
+  }
+};
+
+// ==========================================================================
+// BORRAR REGISTROS DE LIMPIEZAS
+// ==========================================================================
+window.ejecutarBorradoLimpiezas = async function(items) {
+  if (!Array.isArray(items) || items.length === 0) return;
+
+  try {
+    await getSessionOrFail();
+
+    const client = window.supabase || supabase;
+    const ids = items.map(it => it.id).filter(Boolean);
+    const facturas = items.map(it => it.factura).filter(Boolean);
+
+    let resError = null;
+
+    if (ids.length > 0) {
+      const { error } = await client.from("limpiezas").delete().in("id", ids);
+      resError = error;
+    } else if (facturas.length > 0) {
+      const { error } = await client.from("limpiezas").delete().in("factura", facturas);
+      resError = error;
+    }
+
+    if (resError) {
+      console.error("Error al borrar limpiezas en Supabase:", resError);
+      if (typeof showToast === "function") {
+        showToast("error", "Error al borrar", resError.message || "No se pudo eliminar los registros.");
+      }
+      return;
+    }
+
+    if (typeof showToast === "function") {
+      const msj = items.length === 1 ? "1 limpieza eliminada." : `${items.length} limpiezas eliminadas.`;
+      showToast("success", "Eliminado", msj);
+    }
+
+    // Recargar tabla de historial
+    await window.cargarHistorial(true);
+
+    // Actualizar ranking si está disponible
+    if (typeof cargarEstadisticas === "function") {
+      cargarEstadisticas(true);
+    }
+  } catch (err) {
+    console.error("Excepción al ejecutar borrado:", err);
+    if (typeof showToast === "function") {
+      showToast("error", "Error", "Ocurrió un error inesperado al eliminar.");
+    }
   }
 };
 
@@ -318,7 +387,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 supabase
   .channel("realtime-limpiezas")
-  .on("postgres_changes", { event: "INSERT", schema: "public", table: "limpiezas" }, () => {
+  .on("postgres_changes", { event: "*", schema: "public", table: "limpiezas" }, () => {
     cargarHistorial(true);
   })
   .subscribe();
