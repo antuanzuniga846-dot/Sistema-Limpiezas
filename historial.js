@@ -1,249 +1,501 @@
-/**
- * js/estadisticas.js
- * Ranking de cédulas únicas conectado a Supabase
- */
+// ==========================================================================
+// GENERATORS.JS
+// ==========================================================================
 
-let chartRankingInstance = null;
-let cacheRanking = {
-  data: null,
-  timestamp: 0
-};
+// ===== Parse NC con header =====
+function parseTablaNC(texto) {
+  const lines = (texto || "").trim().split("\n").filter(l => l.trim());
+  if (lines.length < 2) return [];
 
-const TIEMPO_CACHE_MS = 60 * 1000; // 1 minuto de caché
+  const splitRow = (row) => row.trim().split(/\t|\s{2,}/).filter(Boolean);
+  const header = splitRow(lines[0]).map(h => h.toLowerCase());
 
-/**
- * Obtener el cliente activo de Supabase
- */
-function getSupabaseClient() {
-  return window.supabase || window.supabaseClient || null;
+  const idxFactura = header.findIndex(h => h.includes("factura"));
+  const idxBilling = header.findIndex(h => h.includes("billing"));
+  let idxMonto = header.findIndex(h => h.includes("monto") && h.includes("pagar"));
+  if (idxMonto === -1) idxMonto = header.findIndex(h => h.includes("monto") && h.includes("factura"));
+
+  if (idxFactura === -1 || idxBilling === -1 || idxMonto === -1) return [];
+
+  const out = [];
+  for (let i = 1; i < lines.length; i++) {
+    const cols = splitRow(lines[i]);
+    if (cols.length <= Math.max(idxFactura, idxBilling, idxMonto)) continue;
+
+    const factura = cols[idxFactura].trim();
+    const billingid = cols[idxBilling].trim();
+    const monto = normalizarMonto(cols[idxMonto]);
+    if (!factura || !billingid || !monto) continue;
+    out.push({ factura, billingid, monto });
+  }
+  return out;
 }
 
-/**
- * Consulta la vista o función SQL de Supabase
- */
-async function obtenerRankingDesdeSupabase(forzarRecarga = false) {
-  const ahora = Date.now();
+// ===== Parse ND por fila =====
+function parseTablaND(texto) {
+  const lines = (texto || "").trim().split("\n").filter(l => l.trim());
+  if (lines.length === 0) return [];
 
-  // Si hay caché y no se fuerza recarga, devolverlo
-  if (!forzarRecarga && cacheRanking.data && (ahora - cacheRanking.timestamp < TIEMPO_CACHE_MS)) {
-    return cacheRanking.data;
+  const splitRow = (row) => row.trim().split(/\t|\s{2,}|\s+/).filter(Boolean);
+
+  const IDX_RAIZ    = 0;
+  const IDX_BILLING = 1;
+  const IDX_MONTO   = 2;
+  const IDX_FACTURA = 3;
+  const IDX_CEDULA  = 4;
+
+  let start = 0;
+  const first = splitRow(lines[0])[0]?.toLowerCase() || "";
+  if (first.includes("raiz") || first.includes("factura")) start = 1;
+
+  const out = [];
+  for (let i = start; i < lines.length; i++) {
+    const cols = splitRow(lines[i]);
+    if (cols.length <= Math.max(IDX_RAIZ, IDX_BILLING, IDX_MONTO, IDX_FACTURA)) continue;
+
+    const raiz = cols[IDX_RAIZ].trim();
+    const billingid = cols[IDX_BILLING].trim();
+    const monto = normalizarMonto(cols[IDX_MONTO]);
+    const factura = cols[IDX_FACTURA].trim();
+    const cedula = cols[IDX_CEDULA]?.trim() || "";
+
+    if (!raiz || !billingid || !monto || !factura) continue;
+
+    out.push({
+      raiz,
+      billingid,
+      monto,
+      factura,
+      cedula
+    });
   }
-
-  const client = getSupabaseClient();
-
-  if (!client) {
-    console.warn("⏳ Esperando conexión con Supabase...");
-    return null;
-  }
-
-  try {
-    // 1. Intentar llamar a la función RPC
-    let { data, error } = await client.rpc("get_ranking_limpiezas");
-
-    // 2. Si no existe el RPC, consultar la vista directa
-    if (error || !data) {
-      const res = await client.from("ranking_limpiezas").select("*");
-      data = res.data;
-      error = res.error;
-    }
-
-    if (error) {
-      console.error("❌ Error al consultar estadísticas en Supabase:", error);
-      return null;
-    }
-
-    console.log("✅ Estadísticas cargadas con éxito:", data);
-    cacheRanking.data = data || [];
-    cacheRanking.timestamp = ahora;
-    return cacheRanking.data;
-
-  } catch (err) {
-    console.error("❌ Error inesperado al cargar estadísticas:", err);
-    return null;
-  }
+  return out;
 }
 
-/**
- * Carga y actualiza toda la interfaz de estadísticas
- */
-async function cargarEstadisticas(forzarRecarga = false) {
-  const tbody = document.getElementById("tablaRankingBody");
-  if (tbody && (!cacheRanking.data || forzarRecarga)) {
-    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:20px; color:var(--muted);">⏳ Consultando datos a Supabase...</td></tr>`;
-  }
+// ===== Reglas extras =====
+function agregarRegla(mode) {
+  const rules = document.getElementById(`rules_${mode}`);
+  if (!rules) return;
 
-  const ranking = await obtenerRankingDesdeSupabase(forzarRecarga);
+  const item = document.createElement("div");
+  item.className = "ruleItem";
 
-  if (!ranking || ranking.length === 0) {
-    renderizarVacio();
+  item.innerHTML = `
+    <div class="ruleTop">
+      <div style="flex:1;">
+        <label style="margin:0 0 6px;">Raíz extra</label>
+        <input class="ruleRaiz" type="text" placeholder="Ej: 1.2270038">
+      </div>
+
+      <div style="flex:1;">
+        <label style="margin:0 0 6px;">Cédula</label>
+        <input class="ruleCedula" type="text" placeholder="Ej: 702840496">
+      </div>
+
+      <button class="btn btnGhost" type="button" onclick="eliminarRegla(this)">
+        🗑️ Quitar
+      </button>
+    </div>
+
+    <div class="ruleGrid">
+      <div>
+        <label style="margin:0 0 6px;">Tabla de esta raíz</label>
+        <textarea class="ruleTabla" rows="6" placeholder="Pega aquí la tabla completa..."></textarea>
+        <div class="hintText">Debe traer factura, billing account y monto.</div>
+      </div>
+    </div>
+  `;
+  rules.prepend(item);
+}
+window.agregarRegla = agregarRegla;
+
+function pasarRaizAExtra(mode) {
+  const raizEl = document.getElementById(`raiz_${mode}`);
+  const cedulaEl = document.getElementById("cedula");
+  const tablaEl = document.getElementById(`data_${mode}`);
+
+  if (!raizEl || !tablaEl) return;
+
+  const raiz = raizEl.value.trim();
+  const cedula = cedulaEl?.value.trim() || "";
+  const tabla = tablaEl.value.trim();
+
+  // Validar que haya algo que pasar
+  if (!raiz && !tabla) {
+    showToast(
+      "warn",
+      "Sin datos",
+      "Primero coloca la raíz y los datos."
+    );
     return;
   }
 
-  renderizarKPIs(ranking);
-  renderizarPodium(ranking);
-  renderizarGrafica(ranking);
-  renderizarTablaRanking(ranking);
-}
+  // Crear la nueva regla
+  const rules = document.getElementById(`rules_${mode}`);
+  if (!rules) return;
 
-function renderizarKPIs(ranking) {
-  const kpiLider = document.getElementById("kpiLider");
-  const kpiLiderCount = document.getElementById("kpiLiderCount");
-  const kpiTotalAgentes = document.getElementById("kpiTotalAgentes");
-  const kpiTotalCedulas = document.getElementById("kpiTotalCedulas");
+  const item = document.createElement("div");
+  item.className = "ruleItem";
 
-  if (ranking.length > 0) {
-    if (kpiLider) kpiLider.textContent = ranking[0].usuario;
-    if (kpiLiderCount) kpiLiderCount.textContent = `${ranking[0].cedulas_unicas} cédulas únicas`;
-  }
-
-  if (kpiTotalAgentes) kpiTotalAgentes.textContent = ranking.length;
-
-  const totalUnicas = ranking.reduce((acc, curr) => acc + Number(curr.cedulas_unicas || 0), 0);
-  if (kpiTotalCedulas) kpiTotalCedulas.textContent = totalUnicas;
-}
-
-function renderizarPodium(ranking) {
-  const container = document.getElementById("podiumContainer");
-  if (!container) return;
-
-  const medallas = [
-    { medal: "🥇", pos: "1º Lugar", color: "#ffd700", border: "rgba(255,215,0,0.4)" },
-    { medal: "🥈", pos: "2º Lugar", color: "#c0c0c0", border: "rgba(192,192,192,0.4)" },
-    { medal: "🥉", pos: "3º Lugar", color: "#cd7f32", border: "rgba(205,127,50,0.4)" }
-  ];
-
-  const top3 = ranking.slice(0, 3);
-  let html = "";
-
-  top3.forEach((item, index) => {
-    const m = medallas[index];
-    html += `
-      <div class="podium-card" style="border-color:${m.border};">
-        <div class="podium-badge" style="background:${m.color}22; color:${m.color};">${m.medal} ${m.pos}</div>
-        <div class="podium-name">${item.usuario}</div>
-        <div class="podium-score"><b>${item.cedulas_unicas}</b> <span>cédulas únicas</span></div>
-        <div class="podium-sub">${item.total_registros} registros totales (${item.efectividad}% efectividad)</div>
+  item.innerHTML = `
+    <div class="ruleTop">
+      <div style="flex:1;">
+        <label style="margin:0 0 6px;">Raíz extra</label>
+        <input
+          class="ruleRaiz"
+          type="text"
+          value="${raiz}"
+          placeholder="Ej: 1.2270038"
+        >
       </div>
-    `;
-  });
 
-  container.innerHTML = html;
-}
+      <div style="flex:1;">
+        <label style="margin:0 0 6px;">Cédula</label>
+        <input
+          class="ruleCedula"
+          type="text"
+          value="${cedula}"
+          placeholder="Ej: 702840496"
+        >
+      </div>
 
-function renderizarGrafica(ranking) {
-  const ctx = document.getElementById("chartRanking");
-  if (!ctx) return;
+      <button
+        class="btn btnGhost"
+        type="button"
+        onclick="eliminarRegla(this)"
+      >
+        🗑️ Quitar
+      </button>
+    </div>
 
-  const computed = getComputedStyle(document.documentElement);
-  const accent1 = computed.getPropertyValue("--accent1").trim() || "#00d8f5";
-  const accent2 = computed.getPropertyValue("--accent2").trim() || "#0072ff";
-  const textColor = computed.getPropertyValue("--text").trim() || "#e8f1ff";
-  const strokeColor = computed.getPropertyValue("--stroke").trim() || "rgba(255,255,255,0.12)";
+    <div class="ruleGrid">
+      <div>
+        <label style="margin:0 0 6px;">Tabla de esta raíz</label>
+        <textarea
+          class="ruleTabla"
+          rows="6"
+          placeholder="Pega aquí la tabla completa..."
+        >${tabla}</textarea>
+        <div class="hintText">
+          Debe traer factura, billing account y monto.
+        </div>
+      </div>
+    </div>
+  `;
 
-  // Tomamos los nombres de los agentes para el eje X
-  const topAgentes = ranking.slice(0, 10);
-  const labels = topAgentes.map(a => {
-    const partes = (a.usuario || "").split(" ");
-    return partes.length > 1 ? `${partes[0]} ${partes[1]}` : a.usuario;
-  });
-  const dataUnicas = topAgentes.map(a => a.cedulas_unicas);
-  const dataTotales = topAgentes.map(a => a.total_registros);
+  rules.prepend(item);
 
-  if (chartRankingInstance) {
-    chartRankingInstance.destroy();
+  // ============================
+  // LIMPIAR RAÍZ PRINCIPAL
+  // ============================
+  raizEl.value = "";
+  if (cedulaEl) {
+    cedulaEl.value = "";
   }
+  tablaEl.value = "";
 
-  chartRankingInstance = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: labels,
-      datasets: [
-        {
-          label: "Cédulas Únicas",
-          data: dataUnicas,
-          backgroundColor: accent1,
-          borderRadius: 6,
-          maxBarThickness: 45
-        },
-        {
-          label: "Total Registros",
-          data: dataTotales,
-          backgroundColor: accent2 + "44",
-          borderColor: accent2,
-          borderWidth: 1,
-          borderRadius: 6,
-          maxBarThickness: 45
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          labels: { color: textColor, font: { family: "Inter, sans-serif", weight: "600" } }
-        },
-        tooltip: {
-          backgroundColor: "rgba(11, 18, 32, 0.9)",
-          titleColor: accent1,
-          bodyColor: "#fff",
-          borderColor: strokeColor,
-          borderWidth: 1,
-          padding: 12
-        }
-      },
-      scales: {
-        x: {
-          ticks: { color: textColor, font: { size: 11 } },
-          grid: { display: false }
-        },
-        y: {
-          beginAtZero: true,
-          ticks: { color: textColor, stepSize: 1 },
-          grid: { color: strokeColor }
-        }
-      }
+  showToast(
+    "success",
+    "Raíz extra agregada",
+    `La raíz ${raiz || "extra"} fue movida a raíces extras.`
+  );
+}
+window.pasarRaizAExtra = pasarRaizAExtra;
+
+function eliminarRegla(btn) {
+  const item = btn.closest(".ruleItem");
+  if (item) item.remove();
+}
+window.eliminarRegla = eliminarRegla;
+
+// ===== Generar plantilla NC/ND =====
+const COMENTARIOS_ND = {
+  reversion: "IN,911,200_Se aplico reversión por proyecto de Venta Servicio Móvil Limpieza de Saldos",
+  reversionIncu: "IN,911,ND300",
+  limpieza: "CM,908,200_Limpieza de Saldos Proyecto de Ventas Móvil"
+};
+
+let archivoND = null;
+let archivoNC = null;
+
+async function generarPlantilla(mode) {
+  const raizDefault = (mode === "nc")
+    ? (document.getElementById(`raiz_${mode}`)?.value.trim() || "")
+    : "";
+
+  const textoPrincipal = document.getElementById(`data_${mode}`)?.value.trim() || "";
+  const cedulaPrincipal = document.getElementById("cedula")?.value.trim() || "";
+  const rules = document.querySelectorAll(`#rules_${mode} .ruleItem`);
+
+  // 1. Parsear la tabla principal solo si el usuario pegó texto en ella
+  const tuplasPrincipal = textoPrincipal
+    ? (mode === "nc" ? parseTablaNC(textoPrincipal) : parseTablaND(textoPrincipal))
+    : [];
+
+  // 2. Validar raíz y cédula principal SOLO si hay datos en la tabla principal
+  if (tuplasPrincipal.length > 0) {
+    if (mode === "nc" && !raizDefault) {
+      showToast("warn", "Falta raíz", "Escribe la raíz principal para los datos pegados.");
+      return;
     }
-  });
-}
-
-function renderizarTablaRanking(ranking) {
-  const tbody = document.getElementById("tablaRankingBody");
-  if (!tbody) return;
-
-  let html = "";
-  ranking.forEach((item, index) => {
-    const pos = index + 1;
-    let iconPos = `#${pos}`;
-    if (pos === 1) iconPos = "🥇 1º";
-    else if (pos === 2) iconPos = "🥈 2º";
-    else if (pos === 3) iconPos = "🥉 3º";
-
-    html += `
-      <tr style="border-bottom:1px solid var(--stroke);">
-        <td style="padding:12px 14px; font-weight:700;">${iconPos}</td>
-        <td style="padding:12px 14px; font-weight:600; color:var(--accent1);">${item.usuario} <span style="font-size:11px; color:var(--muted);">(${item.iniciales})</span></td>
-        <td style="padding:12px 14px;"><b style="font-size:15px;">${item.cedulas_unicas}</b> <span style="font-size:11px; color:var(--muted);">únicas</span></td>
-        <td style="padding:12px 14px; color:var(--muted);">${item.total_registros}</td>
-        <td style="padding:12px 14px;">
-          <span class="pill" style="font-size:11px;">${item.efectividad}% efectividad</span>
-        </td>
-      </tr>
-    `;
-  });
-
-  tbody.innerHTML = html;
-}
-
-function renderizarVacio() {
-  const tbody = document.getElementById("tablaRankingBody");
-  if (tbody) tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:20px; color:var(--muted);">No hay datos de limpiezas registrados en el sistema.</td></tr>`;
-}
-
-// Cargar automáticamente cuando Supabase esté listo o al navegar
-window.addEventListener("supabase-ready", () => {
-  const seccion = document.getElementById("page-estadisticas");
-  if (seccion && seccion.classList.contains("active")) {
-    cargarEstadisticas();
+    if (mode === "nc" && !cedulaPrincipal) {
+      showToast("warn", "Falta la cédula", "Debes ingresar la cédula de la raíz principal.");
+      return;
+    }
   }
-});
+
+  // 3. Validar si no hay nada en la tabla principal ni reglas extras
+  if (tuplasPrincipal.length === 0 && rules.length === 0) {
+    showToast("warn", "Sin datos", "Ingresa datos en la tabla principal o agrega una raíz extra.");
+    return;
+  }
+
+  const ahora = new Date();
+  const dia = String(ahora.getDate()).padStart(2, '0');
+  const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+  const anio = ahora.getFullYear();
+  const fecha = `${dia}/${mes}/${anio}`;
+
+  let descripcion;
+  if (mode === "nc") {
+    descripcion = "CM,908,200_Recuperacion de Clientes Proyecto de Ventas Móvil";
+  } else {
+    const tipo = document.getElementById("tipo_nd").value;
+    descripcion = COMENTARIOS_ND[tipo];
+  }
+
+  const userTag = getUsuarioActual();
+
+  let resultado = "";
+  let count = 0;
+  let registrosGuardar = [];
+
+  const tipoND = document.getElementById("tipo_nd")?.value || "";
+  const tipoLimpieza =
+    mode === "nc"
+      ? "NC200"
+      : tipoND === "limpieza"
+        ? "NC200"
+        : tipoND === "reversion"
+          ? "ND200"
+          : "ND300";
+
+  // 4. Procesar tabla principal si trae registros válidos
+  for (const r of tuplasPrincipal) {
+    const raizUsar = (mode === "nc") ? raizDefault : r.raiz;
+
+    resultado += `${raizUsar},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${userTag},,02\n`;
+
+    registrosGuardar.push({
+      factura: r.factura,
+      billingid: r.billingid,
+      monto: r.monto,
+      raiz: raizUsar,
+      cedula: mode === "nd" ? r.cedula : cedulaPrincipal,
+      tipo_limpieza: tipoLimpieza
+    });
+
+    count++;
+  }
+
+  // 5. Procesar reglas extras
+  for (const rule of rules) {
+    const raizExtra = rule.querySelector(".ruleRaiz")?.value.trim();
+    const cedulaExtra = rule.querySelector(".ruleCedula")?.value.trim();
+    const tablaExtra = rule.querySelector(".ruleTabla")?.value || "";
+
+    // Si la regla no tiene texto en su tabla, se omite
+    if (!tablaExtra.trim()) continue;
+
+    if (mode === "nc" && !raizExtra) {
+      showToast("warn", "Falta raíz extra", "Hay una raíz extra sin número de raíz.");
+      return;
+    }
+
+    if (mode === "nc" && !cedulaExtra) {
+      showToast("warn", "Falta la cédula", `La raíz ${raizExtra} no tiene una cédula asignada.`);
+      return;
+    }
+
+    const tuplasExtra = (mode === "nc")
+      ? parseTablaNC(tablaExtra)
+      : parseTablaND(tablaExtra);
+
+    for (const r of tuplasExtra) {
+      const raizUsar = (mode === "nc") ? raizExtra : r.raiz;
+
+      resultado += `${raizUsar},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${userTag},,02\n`;
+
+      registrosGuardar.push({
+        factura: r.factura,
+        billingid: r.billingid,
+        monto: r.monto,
+        raiz: raizUsar,
+        cedula: mode === "nd" ? r.cedula : cedulaExtra,
+        tipo_limpieza: tipoLimpieza
+      });
+
+      count++;
+    }
+  }
+
+  document.getElementById(`resultado_${mode}`).value = resultado;
+  document.getElementById(`count_${mode}`).textContent = String(count);
+
+  if (count === 0) {
+    showToast("error", "Sin datos", "Pega tablas válidas con encabezados.");
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(resultado);
+    showToast("success", "Generado y copiado", `Usuario: ${userTag} | Total: ${count}`);
+  } catch {
+    showToast("error", "No se pudo copiar", "Usa https o localhost.");
+  }
+
+  // Guardar/Sobrescribir el TXT
+  try {
+    await guardarArchivoTXT(resultado, mode);
+  } catch (err) {
+    console.error(err);
+  }
+
+  // Solo guardamos en base de datos si es una NC nueva (para no duplicar en ND)
+  if (window.guardarLimpiezaBatch && mode === "nc") {
+    setTimeout(async () => {
+      await window.guardarLimpiezaBatch(registrosGuardar);
+      if (typeof cargarHistorial === "function") {
+        cargarHistorial();
+      }
+    }, 50);
+  }
+}
+window.generarPlantilla = generarPlantilla;
+
+async function guardarArchivoTXT(resultado, mode) {
+  let archivo = mode === "nd" ? archivoND : archivoNC;
+
+  if (!archivo) {
+    archivo = await window.showSaveFilePicker({
+      suggestedName: mode.toUpperCase() + ".txt",
+      types: [{
+        description: "Archivo de texto",
+        accept: {
+          "text/plain": [".txt"]
+        }
+      }]
+    });
+
+    if (mode === "nd") {
+      archivoND = archivo;
+    } else {
+      archivoNC = archivo;
+    }
+  }
+
+  const writable = await archivo.createWritable();
+  await writable.write(resultado);
+  await writable.close();
+}
+
+// ============================
+// AUTOCARGA ND POR CÉDULA
+// ============================
+window.buscarRaicesNDAutomatico = async function() {
+  const textarea = document.getElementById("data_nd");
+  if (!textarea) return;
+
+  const texto = textarea.value.trim();
+  if (!texto) return;
+
+  const lineas = texto
+    .split("\n")
+    .map(x => x.trim())
+    .filter(Boolean);
+
+  const soloRaices = lineas.every(
+    x => x.split(/\s+/).length === 1
+  );
+
+  if (!soloRaices) return;
+
+  try {
+    const registros = await buscarPorCedulasND(lineas);
+
+    if (!registros.length) {
+      showToast(
+        "warn",
+        "Sin resultados",
+        "No se encontraron cédulas"
+      );
+      return;
+    }
+
+    textarea.value =
+      registros.map(r =>
+        `${r.raiz} ${r.billingid} ${r.monto} ${r.factura} ${r.cedula}`
+      ).join("\n");
+
+  } catch (err) {
+    showToast(
+      "error",
+      "Error",
+      err.message
+    );
+  }
+};
+
+// ===== Generador Acometida =====
+function generarAcometidaUltra() {
+  const texto = document.getElementById("data_acometida").value || "";
+  const lineas = texto.split("\n").map(l => l.trim()).filter(Boolean);
+
+  const cedulasVistas = new Set();
+  const salida = [];
+
+  for (const linea of lineas) {
+    const limpio = linea.replace(/\s+/g, " ");
+    const partes = limpio.split(" ");
+    if (partes.length < 2) continue;
+
+    const cedula = partes.shift();
+    const nombre = partes.join(" ").trim();
+
+    if (cedulasVistas.has(cedula)) continue;
+    cedulasVistas.add(cedula);
+
+    salida.push(`${cedula}: ${nombre}:`);
+  }
+
+  const resultado = salida.join("\n");
+  document.getElementById("resultado_acometida").value = resultado;
+  document.getElementById("count_acometida").textContent = String(salida.length);
+
+  navigator.clipboard.writeText(resultado).catch(() => {});
+}
+window.generarAcometidaUltra = generarAcometidaUltra;
+
+// ===== Limpieza =====
+function limpiarTodo(mode) {
+  const raizEl = document.getElementById(`raiz_${mode}`);
+  if (raizEl) raizEl.value = "";
+  const dataEl = document.getElementById(`data_${mode}`);
+  if (dataEl) dataEl.value = "";
+  const cedulaEl = document.getElementById("cedula");
+  if (cedulaEl) cedulaEl.value = "";
+
+  const outId = (mode === "acometida") ? "resultado_acometida" : `resultado_${mode}`;
+  const outEl = document.getElementById(outId);
+  if (outEl) outEl.value = "";
+
+  const countId = (mode === "acometida") ? "count_acometida" : `count_${mode}`;
+  const c = document.getElementById(countId);
+  if (c) c.textContent = "0";
+
+  const rules = document.getElementById(`rules_${mode}`);
+  if (rules) rules.innerHTML = "";
+
+  showToast("success", "Limpio", `Se borró el generador ${mode.toUpperCase()}.`);
+}
+window.limpiarTodo = limpiarTodo;

@@ -1,401 +1,370 @@
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+const THEMES = {
 
-const SUPABASE_URL = "https://upxhiylyiebljnpfgmut.supabase.co";
-const SUPABASE_KEY = "sb_publishable_ctDXquEkqLpXpuzOoRvtXQ_Vazap6tB";
+  azul: {
+    accent1: "#00d8f5",
+    accent2: "#0072ff",
+    bg1: "#0b1220",
+    bg2: "#0f2230",
+    card: "rgba(255,255,255,.06)",
+    card2: "rgba(255,255,255,.08)",
+    stroke: "rgba(255,255,255,.12)",
+    text: "#e8f1ff",
+    muted: "rgba(232,241,255,.72)"
+  },
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true
+  verde: {
+    accent1: "#22c55e",
+    accent2: "#16a34a",
+    bg1: "#07130b",
+    bg2: "#10241a",
+    card: "rgba(34,197,94,.08)",
+    card2: "rgba(34,197,94,.12)",
+    stroke: "rgba(34,197,94,.20)",
+    text: "#ecfdf5",
+    muted: "rgba(236,253,245,.72)"
+  },
+
+  morado: {
+    accent1: "#c084fc",
+    accent2: "#7c3aed",
+    bg1: "#120b20",
+    bg2: "#21103a",
+    card: "rgba(192,132,252,.08)",
+    card2: "rgba(192,132,252,.12)",
+    stroke: "rgba(192,132,252,.20)",
+    text: "#f5f3ff",
+    muted: "rgba(245,243,255,.72)"
+  },
+
+  rojo: {
+    accent1: "#ef4444",
+    accent2: "#b91c1c",
+    bg1: "#1a0a0a",
+    bg2: "#2b1010",
+    card: "rgba(239,68,68,.08)",
+    card2: "rgba(239,68,68,.12)",
+    stroke: "rgba(239,68,68,.20)",
+    text: "#fef2f2",
+    muted: "rgba(254,242,242,.72)"
+  },
+
+  rosado: {
+    accent1: "#f472b6",
+    accent2: "#ec4899",
+    bg1: "#491249",
+    bg2: "#2b102b",
+    card: "rgba(244,114,182,.08)",
+    card2: "rgba(244,114,182,.12)",
+    stroke: "rgba(244,114,182,.20)",
+    text: "#fdf2f8",
+    muted: "rgba(253,242,248,.72)"
+  },
+
+  amarillo: {
+    accent1: "#facc15",
+    accent2: "#eab308",
+    bg1: "#4a3c0b",
+    bg2: "#2b1f0b",
+    card: "rgba(250,204,21,.08)",
+    card2: "rgba(250,204,21,.12)",
+    stroke: "rgba(250,204,21,.20)",
+    text: "#fefce8",
+    muted: "rgba(254,252,232,.72)"
+  },
+
+  vino: {
+    accent1: "#922053",
+    accent2: "#961d50",
+    bg1: "#2a0f1a",
+    bg2: "#1a0a12",
+    card: "rgba(146,32,83,.10)",
+    card2: "rgba(146,32,83,.14)",
+    stroke: "rgba(146,32,83,.25)",
+    text: "#fdf2f8",
+    muted: "rgba(253,242,248,.72)"
+  },
+
+  naranja: {
+    accent1: "#f97316",
+    accent2: "#ea580c",
+    bg1: "#2a140b",
+    bg2: "#3a1f0b",
+    card: "rgba(249,115,22,.08)",
+    card2: "rgba(249,115,22,.12)",
+    stroke: "rgba(249,115,22,.20)",
+    text: "#fff7ed",
+    muted: "rgba(255,247,237,.72)"
+  },
+
+  beige: { 
+    accent1: "#f5f5dc",
+    accent2: "#e0d8c3",
+    bg1: "#2b2b1f",
+    bg2: "#3a3a2b",
+    card: "rgba(245,245,220,.08)",
+    card2: "rgba(245,245,220,.12)",
+    stroke: "rgba(245,245,220,.20)",
+    text: "#fdfaf0",
+    muted: "rgba(253,250,240,.72)"
+  },
+
+  verde_lima: {
+    accent1: "#a3e635",
+    accent2: "#84cc16",
+    bg1: "#1a2b0a",
+    bg2: "#2b3a0b",
+    card: "rgba(163,230,53,.08)",
+    card2: "rgba(163,230,53,.12)",
+    stroke: "rgba(163,230,53,.20)",
+    text: "#f7fee7",
+    muted: "rgba(247,254,231,.72)"
+  },
+
+  rgb: {
+    rgb: true
   }
-});
 
-window.supabase = supabase;
+};
 
-const USER_DOMAIN = "sistema.local";
-const gate = document.getElementById("authGate");
-const msg = document.getElementById("authMsg");
+let rgbInterval;
 
-function setMsg(t = "") { 
-  if (msg) msg.textContent = t; 
-}
+function applyThemeByName(themeName) {
 
-function setUserTag(tag) {
-  const t = String(tag || "").trim();
-  if (!t) return;
-  window.currentUserTag = t;
-  localStorage.setItem("userTag", t);
-}
+  clearInterval(rgbInterval);
 
-// ==========================================================================
-// FILTRO GLOBAL COMPARTIDO
-// ==========================================================================
-window.fechaSeleccionada = "";
+  const theme = THEMES[themeName];
 
-// ==========================================================================
-// VALIDAR SESIÓN
-// ==========================================================================
-async function getSessionOrFail() {
-  const { data: { session } } = await supabase.auth.getSession();
+  if (!theme) return;
 
-  if (!session?.user) {
-    if (typeof showToast === "function") {
-      showToast("error", "Sesión expirada", "Vuelve a iniciar sesión");
-    }
-    await supabase.auth.signOut();
-    await refreshGate();
-    throw new Error("No session");
-  }
-
-  return session;
-}
-window.getSessionOrFail = getSessionOrFail;
-
-// ==========================================================================
-// GUARDAR / ACTUALIZAR LIMPIEZAS (UPSERT SIN DUPLICADOS)
-// ==========================================================================
-window.guardarLimpiezaBatch = async function(registros) {
-  if (!Array.isArray(registros) || registros.length === 0) return;
-
-  const client = window.supabase || window.supabaseClient;
-  if (!client) {
-    console.error("Cliente Supabase no disponible para guardar.");
+  // Si es RGB, inicia la animación y termina aquí
+  if (theme.rgb) {
+    iniciarRGB();
     return;
   }
 
-  try {
-    // Obtener sesión del usuario actual
-    const { data: { session } } = await client.auth.getSession();
-    const userId = session?.user?.id || null;
+  const root = document.documentElement;
 
-    // Formatear los registros asegurando fecha actual y user_id
-    const registrosLimpios = registros.map(r => ({
-      factura: String(r.factura).trim(),
-      billingid: String(r.billingid).trim(),
-      monto: Number(r.monto) || 0,
-      raiz: String(r.raiz).trim(),
-      cedula: String(r.cedula || "").trim(),
-      tipo_limpieza: r.tipo_limpieza || "NC200",
+  root.style.setProperty("--accent1", theme.accent1);
+  root.style.setProperty("--accent2", theme.accent2);
+
+  root.style.setProperty("--bg1", theme.bg1);
+  root.style.setProperty("--bg2", theme.bg2);
+
+  root.style.setProperty("--card", theme.card);
+  root.style.setProperty("--card2", theme.card2);
+
+  root.style.setProperty("--stroke", theme.stroke);
+
+  root.style.setProperty("--text", theme.text);
+  root.style.setProperty("--muted", theme.muted);
+}
+
+function iniciarRGB(){
+
+    let hue = 0;
+
+    rgbInterval = setInterval(()=>{
+
+        hue = (hue + 1) % 360;
+
+        const root = document.documentElement;
+
+        root.style.setProperty("--accent1", `hsl(${hue},100%,55%)`);
+        root.style.setProperty("--accent2", `hsl(${(hue+45)%360},100%,50%)`);
+
+        root.style.setProperty("--bg1", `hsl(${hue},35%,8%)`);
+        root.style.setProperty("--bg2", `hsl(${(hue+25)%360},35%,12%)`);
+
+        root.style.setProperty("--card", `hsla(${hue},100%,50%,0.08)`);
+        root.style.setProperty("--card2", `hsla(${hue},100%,50%,0.12)`);
+
+        root.style.setProperty("--stroke", `hsla(${hue},100%,50%,0.25)`);
+
+        root.style.setProperty("--text", "#ffffff");
+        root.style.setProperty("--muted", "rgba(255,255,255,.72)");
+
+    },25);
+}
+
+async function saveTheme(userId, themeName) {
+
+  const { error } = await window.supabase
+    .from("user_settings")
+    .upsert({
       user_id: userId,
-      created_at: new Date().toISOString() // Actualiza la fecha a la de hoy
-    }));
-
-    // UPSERT: Si la factura ya existe, SOBRESCRIBE los datos con los nuevos
-    const { data, error } = await client
-      .from("limpiezas")
-      .upsert(registrosLimpios, {
-        onConflict: "factura" // Campo que identifica si es la misma factura
-      });
-
-    if (error) {
-      console.error("Error al guardar/actualizar en Supabase:", error);
-    } else {
-      console.log(`✅ ${registrosLimpios.length} registros guardados/actualizados.`);
-    }
-
-  } catch (err) {
-    console.error("Excepción en guardarLimpiezaBatch:", err);
-  }
-};
-
-// ==========================================================================
-// BUSCAR POR CÉDULAS
-// ==========================================================================
-window.buscarPorCedulasND = async function(valores) {
-  const consultas = valores.map(v => `cedula.eq.${v},raiz.eq.${v}`);
-
-  const { data, error } = await supabase
-    .from("limpiezas")
-    .select("raiz,billingid,monto,factura,cedula")
-    .or(consultas.join(","));
-
-  if (error) throw error;
-
-  const facturasVistas = new Set();
-  return (data || []).filter(r => {
-    if (facturasVistas.has(r.factura)) return false;
-    facturasVistas.add(r.factura);
-    return true;
-  });
-};
-
-// ==========================================================================
-// AUTH & GATE
-// ==========================================================================
-async function isAuthorized() {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) return false;
-
-  const { data } = await supabase
-    .from("autorizados")
-    .select("user_id, iniciales")
-    .eq("user_id", session.user.id)
-    .maybeSingle();
-
-  if (data) {
-    window.currentUserInitials = data.iniciales;
-  }
-
-  return !!data;
-}
-
-async function refreshGate() {
-  const { data: { session } } = await supabase.auth.getSession();
-  const logged = !!session?.user;
-
-  if (!logged) {
-    if (gate) gate.style.display = "grid";
-    return;
-  }
-
-  const email = session.user.email || "";
-  const username = email.split("@")[0];
-  if (username) setUserTag(username);
-
-  const ok = await isAuthorized();
-
-  if (!ok) {
-    await supabase.auth.signOut();
-    if (gate) gate.style.display = "grid";
-    setMsg("❌ Usuario NO autorizado.");
-    return;
-  }
-
-  if (gate) gate.style.display = "none";
-  setMsg("");
-}
-window.refreshGate = refreshGate;
-
-window.authLogin = async () => {
-  setMsg("");
-  const user = document.getElementById("authUser").value.trim().toLowerCase();
-  const pass = document.getElementById("authPass").value.trim();
-
-  if (!user || !pass) return setMsg("Falta usuario o contraseña.");
-
-  const email = `${user}@${USER_DOMAIN}`;
-  const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
-
-  if (error) return setMsg(error.message);
-
-  setUserTag(user);
-  await refreshGate();
-  await cargarHistorial(true);
-};
-
-window.authLogout = async () => {
-  await supabase.auth.signOut();
-  await refreshGate();
-};
-
-// ==========================================================================
-// HISTORIAL CON PAGINACIÓN Y FILTRO
-// ==========================================================================
-let page = 0;
-const limit = 200;
-let loading = false;
-let noMoreData = false;
-let cacheUsuarios = null;
-
-// ==========================================================================
-// HISTORIAL CON FILTROS DIRECTOS DEL DOM
-// ==========================================================================
-window.cargarHistorial = async (reset = true) => {
-  try {
-    if (loading) return;
-    if (!reset && noMoreData) return;
-
-    await getSessionOrFail();
-
-    const tbody = document.getElementById("tablaHistorial");
-    if (!tbody) return;
-
-    if (reset) {
-      tbody.innerHTML = "";
-      page = 0;
-      noMoreData = false;
-      const chkAll = document.getElementById("chkSelectAllHist");
-      if (chkAll) chkAll.checked = false;
-    }
-
-    loading = true;
-
-    const from = page * limit;
-    const to = from + limit - 1;
-
-    let query = supabase
-      .from("limpiezas")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .range(from, to);
-
-    // 1. LEER VALORES DIRECTAMENTE DEL DOM (Evita fallos de variables)
-    const inputFecha = document.getElementById("fechaFiltro");
-    const selectTipo = document.getElementById("tipoFiltro");
-    const inputCedula = document.getElementById("cedulaFiltro");
-
-    const fechaVal = inputFecha ? inputFecha.value.trim() : "";
-    const tipoVal = selectTipo ? selectTipo.value.trim() : "";
-    const cedulaVal = inputCedula ? inputCedula.value.trim() : "";
-
-    // 2. APLICAR FILTRO DE FECHA (si hay fecha seleccionada)
-    if (fechaVal) {
-      query = query
-        .gte("created_at", `${fechaVal}T00:00:00`)
-        .lte("created_at", `${fechaVal}T23:59:59`);
-    }
-
-    // 3. APLICAR FILTRO DE TIPO (Insensible a mayúsculas/minúsculas)
-    if (tipoVal) {
-      query = query.ilike("tipo_limpieza", `%${tipoVal}%`);
-    }
-
-    // 4. APLICAR FILTRO DE CÉDULA(S) (una o varias separadas por comas/espacios)
-    if (cedulaVal) {
-      const tokens = cedulaVal.split(/[,;\s]+/).map(t => t.trim().replace(/[%_(),]/g, "")).filter(Boolean);
-      if (tokens.length === 1) {
-        query = query.ilike("cedula", `%${tokens[0]}%`);
-      } else if (tokens.length > 1) {
-        const orExpr = tokens.map(t => `cedula.ilike.%${t}%`).join(",");
-        query = query.or(orExpr);
-      }
-    }
-
-    const { data, error } = await query;
-
-    // Cachear nombres de usuarios autorizados
-    if (!cacheUsuarios) {
-      const { data: usuarios } = await supabase.from("autorizados").select("user_id, Nombre");
-      cacheUsuarios = {};
-      (usuarios || []).forEach(u => {
-        cacheUsuarios[u.user_id] = u.Nombre;
-      });
-    }
-
-    if (error) {
-      console.error("ERROR SUPABASE:", error);
-      loading = false;
-      return;
-    }
-
-    if (!data || data.length === 0) {
-      noMoreData = true;
-      loading = false;
-      return;
-    }
-
-    const facturasVistas = new Set();
-    const fragment = document.createDocumentFragment();
-
-    data.forEach(item => {
-      const factura = String(item.factura || "").trim();
-      if (facturasVistas.has(factura)) return;
-      facturasVistas.add(factura);
-
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td style="text-align:center;">
-          <input type="checkbox" class="chkHist" data-json="${encodeURIComponent(JSON.stringify(item))}">
-        </td>
-        <td>${item.factura ?? ""}</td>
-        <td>${item.billingid ?? ""}</td>
-        <td>${item.monto ?? ""}</td>
-        <td>${item.raiz ?? ""}</td>
-        <td><span class="pill" style="font-size:11px;">${item.tipo_limpieza ?? "-"}</span></td>
-        <td>${item.created_at ? new Date(item.created_at).toLocaleString() : "-"}</td>
-        <td>${item.cedula ?? ""}</td>
-        <td>${cacheUsuarios[item.user_id] ?? "Usuario desconocido"}</td>
-        <td style="text-align:center;">
-          <button type="button" class="btn-del-row" title="Borrar esta limpieza" onclick="confirmarBorrarUna('${item.id || ''}', '${item.factura || ''}')">🗑️</button>
-        </td>
-      `;
-      fragment.appendChild(tr);
+      theme_name: themeName,
+      updated_at: new Date().toISOString()
     });
 
-    tbody.appendChild(fragment);
-    page++;
-    loading = false;
-  } catch (e) {
-    loading = false;
-    console.warn("Historial cancelado por sesión:", e);
+  console.log("saveTheme:", error);
+}
+
+async function loadTheme(userId) {
+
+  const { data, error } = await window.supabase
+    .from("user_settings")
+    .select("theme_name")
+    .eq("user_id", userId)
+    .single();
+
+  if (error || !data) return;
+
+  applyThemeByName(data.theme_name);
+
+  const selector =
+    document.getElementById("themeSelector");
+
+  if (selector) {
+    selector.value = data.theme_name;
   }
-};
+}
+
+window.saveTheme = saveTheme;
+window.loadTheme = loadTheme;
+window.applyThemeByName = applyThemeByName;
 
 // ==========================================================================
-// BORRAR REGISTROS DE LIMPIEZAS
+// GESTIÓN DE FONDO DE PANTALLA PERSONALIZADO
 // ==========================================================================
-window.ejecutarBorradoLimpiezas = async function(items) {
-  if (!Array.isArray(items) || items.length === 0) return;
 
-  try {
-    await getSessionOrFail();
+/**
+ * Procesa la imagen seleccionada, la optimiza y la guarda
+ */
+function manejarSubidaFondo(event) {
+  const file = event.target.files[0];
+  if (!file) return;
 
-    const client = window.supabase || supabase;
-    const ids = items.map(it => it.id).filter(Boolean);
-    const facturas = items.map(it => it.factura).filter(Boolean);
-
-    let resError = null;
-
-    if (ids.length > 0) {
-      const { error } = await client.from("limpiezas").delete().in("id", ids);
-      resError = error;
-    } else if (facturas.length > 0) {
-      const { error } = await client.from("limpiezas").delete().in("factura", facturas);
-      resError = error;
+  // Validar que sea imagen
+  if (!file.type.startsWith("image/")) {
+    if (typeof showToast === "function") {
+      showToast("error", "Formato no válido", "Por favor selecciona un archivo de imagen (PNG, JPG, WebP).");
     }
+    return;
+  }
 
-    if (resError) {
-      console.error("Error al borrar limpiezas en Supabase:", resError);
-      if (typeof showToast === "function") {
-        showToast("error", "Error al borrar", resError.message || "No se pudo eliminar los registros.");
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      // Redimensionar / optimizar la imagen con un Canvas para no saturar memoria
+      const canvas = document.createElement("canvas");
+      let width = img.width;
+      let height = img.height;
+
+      // Limitar a máximo 1920px de ancho/alto (calidad Full HD)
+      const MAX_SIZE = 1920;
+      if (width > MAX_SIZE || height > MAX_SIZE) {
+        if (width > height) {
+          height = Math.round((height * MAX_SIZE) / width);
+          width = MAX_SIZE;
+        } else {
+          width = Math.round((width * MAX_SIZE) / height);
+          height = MAX_SIZE;
+        }
       }
-      return;
-    }
 
-    if (typeof showToast === "function") {
-      const msj = items.length === 1 ? "1 limpieza eliminada." : `${items.length} limpiezas eliminadas.`;
-      showToast("success", "Eliminado", msj);
-    }
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, width, height);
 
-    // Recargar tabla de historial
-    await window.cargarHistorial(true);
+      // Convertir a JPEG comprimido
+      const dataUrlOptimizado = canvas.toDataURL("image/jpeg", 0.85);
 
-    // Actualizar ranking si está disponible
-    if (typeof cargarEstadisticas === "function") {
-      cargarEstadisticas(true);
-    }
-  } catch (err) {
-    console.error("Excepción al ejecutar borrado:", err);
-    if (typeof showToast === "function") {
-      showToast("error", "Error", "Ocurrió un error inesperado al eliminar.");
-    }
+      try {
+        // Guardar en localStorage
+        localStorage.setItem("customBgImage", dataUrlOptimizado);
+        const oscuridad = localStorage.getItem("customBgDarkness") || "75";
+
+        aplicarFondoEnDOM(dataUrlOptimizado, oscuridad);
+
+        if (typeof showToast === "function") {
+          showToast("success", "Fondo actualizado", "La imagen de fondo se ha guardado correctamente.");
+        }
+      } catch (err) {
+        console.error("Error guardando imagen:", err);
+        if (typeof showToast === "function") {
+          showToast("warn", "Imagen muy grande", "Intenta con una imagen de menor tamaño.");
+        }
+      }
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+
+  // Limpiar input para permitir volver a subir el mismo archivo si se desea
+  event.target.value = "";
+}
+
+/**
+ * Aplica la imagen y la opacidad al DOM
+ */
+function aplicarFondoEnDOM(dataUrl, oscuridad = "75") {
+  const oscuridadDecimal = (parseInt(oscuridad, 10) / 100).toFixed(2);
+
+  document.documentElement.style.setProperty("--custom-bg-url", `url("${dataUrl}")`);
+  document.documentElement.style.setProperty("--bg-darkness", oscuridadDecimal);
+  document.body.classList.add("has-custom-bg");
+
+  // Mostrar controles de quitar y slider si existen
+  const removeBtn = document.getElementById("removeBgBtn");
+  const adjustWrap = document.getElementById("bgAdjustWrap");
+  const slider = document.getElementById("bgDarknessSlider");
+  const valText = document.getElementById("bgDarknessVal");
+
+  if (removeBtn) removeBtn.style.display = "inline-flex";
+  if (adjustWrap) adjustWrap.style.display = "block";
+  if (slider) slider.value = oscuridad;
+  if (valText) valText.textContent = `${oscuridad}%`;
+}
+
+/**
+ * Ajusta la capa oscura en tiempo real desde el slider
+ */
+function ajustarOscuridadFondo(valor) {
+  const oscuridadDecimal = (parseInt(valor, 10) / 100).toFixed(2);
+  document.documentElement.style.setProperty("--bg-darkness", oscuridadDecimal);
+  localStorage.setItem("customBgDarkness", valor);
+
+  const valText = document.getElementById("bgDarknessVal");
+  if (valText) valText.textContent = `${valor}%`;
+}
+
+/**
+ * Restablece el fondo por defecto
+ */
+function quitarFondoPersonalizado() {
+  localStorage.removeItem("customBgImage");
+  localStorage.removeItem("customBgDarkness");
+
+  document.body.classList.remove("has-custom-bg");
+  document.documentElement.style.removeProperty("--custom-bg-url");
+  document.documentElement.style.removeProperty("--bg-darkness");
+
+  const removeBtn = document.getElementById("removeBgBtn");
+  const adjustWrap = document.getElementById("bgAdjustWrap");
+
+  if (removeBtn) removeBtn.style.display = "none";
+  if (adjustWrap) adjustWrap.style.display = "none";
+
+  if (typeof showToast === "function") {
+    showToast("success", "Fondo restablecido", "Se ha vuelto al fondo original.");
   }
-};
+}
 
-// ==========================================================================
-// SCROLL INFINITO & REALTIME
-// ==========================================================================
+/**
+ * Cargar fondo guardado al iniciar la página
+ */
+function inicializarFondoPersonalizado() {
+  const bgGuardado = localStorage.getItem("customBgImage");
+  const oscuridadGuardada = localStorage.getItem("customBgDarkness") || "75";
+
+  if (bgGuardado) {
+    aplicarFondoEnDOM(bgGuardado, oscuridadGuardada);
+  }
+}
+
+// Ejecutar al cargar la página
 document.addEventListener("DOMContentLoaded", () => {
-  const container = document.querySelector("#page-historial div[style*='overflow:auto']");
-  if (container) {
-    container.addEventListener("scroll", () => {
-      const nearBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 50;
-      if (nearBottom) cargarHistorial(false);
-    });
-  }
+  inicializarFondoPersonalizado();
 });
-
-supabase
-  .channel("realtime-limpiezas")
-  .on("postgres_changes", { event: "*", schema: "public", table: "limpiezas" }, () => {
-    cargarHistorial(true);
-  })
-  .subscribe();
-
-// Inicialización de Auth y carga inicial
-(async () => {
-  await refreshGate();
-  await cargarHistorial(true);
-  // Notificar que supabase está listo
-  window.dispatchEvent(new Event("supabase-ready"));
-})();

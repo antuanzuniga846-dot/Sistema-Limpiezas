@@ -1,87 +1,124 @@
-// ===== NAV =====
-  function go(page){
-    document.querySelectorAll(".navBtn").forEach(b => {
-      b.classList.toggle("active", b.dataset.page === page);
-    });
+window.mostrarPlantilla = function(tipo){
 
-    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-    const target = document.getElementById("page-" + page);
-    if(!target){ console.warn("No existe la página:", "page-" + page); return; }
-    target.classList.add("active");
+  const plantillas = {
 
-    const title = document.getElementById("pageTitle");
-    const sub = document.getElementById("pageSub");
-    const map = {
-      historial: ["Historial", "Consulta y reutiliza limpiezas guardadas."],
-      home: ["Inicio", "Panel de control y accesos rápidos."],
-      "gen-nc": ["Generador NC", "Genera el formato NC (CM,908,...)."],
-      "gen-nd": ["Generador ND", "Genera el formato ND (IN,911,...)."],
-      "gen-acometida": ["Generador Acometida", "Genera formatos para acometidas."],
-      help: ["Ayuda", "Guía rápida de uso."],
-      plantillas: ["Plantillas", "Plantillas para OneMarketer y más."],
-      estadisticas: ["Estadísticas", "Visualiza estadísticas de uso."],
-    };
-    if(map[page]){
-      title.textContent = map[page][0];
-      sub.textContent = map[page][1];
-    }
+    nc: `
+<h3>Plantilla Nota de Crédito</h3>
+<textarea style="width:100%;height:300px;">
+200_Recuperacion de Clientes Proyecto de Ventas Móvil
+
+200_ Se aplica limpieza de saldos por el monto de
+VB Operaciones Comerciales
+
+200_Se aplico reversión por proyecto de Venta Servicio Móvil Limpieza de Saldos
+
+Se procede para la reversión de nota de crédito.
+</textarea>
+    `,
+
+    autorizacion: `
+<h3>Plantilla Autorización</h3>
+<textarea style="width:100%;height:300px;">
+Se procede con la autorización, por favor validar, cualquier consulta adicional quedamos a su disposición.
+
+Se solicita prioridad, cualquier consulta adicional quedamos a su disposición.
+
+Compañeros su apoyo dando prioridad y autorización a la orden en CRM.
+</textarea>
+    `,
+
+    cancelacion: `
+<h3>Plantilla Cancelación</h3>
+<textarea style="width:100%;height:300px;">
+Compañeros no podemos cancelar orden debido a que directriz de claro no podemos cancelar ordenes si tienen orden pendiente a instalación en ETA.
+
+${window.currentUserInitials} // C300 // Se cancela orden por solicitud del Agente Autorizado.
+
+Se procede con la cancelación, por favor validar, cualquier consulta adicional quedamos a su disposición.
+
+En este momento no se puede realizar la cancelación, ya que fue creada por otro Agente autorizado hace menos de 24 horas.
+
+En este momento no se puede realizar la cancelación, ya que fue creada por otro Agente autorizado hace menos de 72 horas.
+
+No procede para la cancelación ya que la orden está en aprovisionamiento.
+</textarea>
+    `,
+
+    despacho: `
+<h3>Plantilla Despacho</h3>
+<textarea style="width:100%;height:300px;">
+Buen día, por favor su ayuda con la prioridad de la ordenes:
+
+Orden se encuentra en despacho a la espera de asignación.
+
+Se solicita prioridad con el área encargada.
+</textarea>
+    `,
+
+        errordeaprovisionamiento: `
+<h3>Plantilla Error de Aprovisionamiento</h3>
+<textarea style="width:100%;height:300px;">
+Nombre: 
+Número de teléfono: 
+Cédula: 
+ID Cliente: 
+Orden CRM: 
+Orden EOM: 
+Versión CRM: 9.0
+Error: [SYNCERR?] Error
+Detalle: Error de aprovisionamiento
+</textarea>
+    `,
+
+        cambiodesim: `
+<h3>Plantilla Cambio de SIM</h3>
+<textarea style="width:100%;height:300px;">
+Nombre: 
+Cedula: 
+Numero: 
+Solicitud(eSim/Sim):
+Sim Nuevo: 
+
+Compañeros ya su solicitud fue realizada, por favor validar, cualquier consulta adicional quedamos a su disposición.
+
+Buen día, le atiende Antuan Mora del equipo Soporte Comercial. Compañeros el documento de solicitud de cambio de SIM debe estar indexado y este cliente no lo tiene en OnBase.
+</textarea>
+    `,
+
+        qflow: `
+<h3>Plantilla Qflow</h3>
+<textarea style="width:100%;height:300px;">
+Bo Fijo: multimediacr@claro.cr 
+
+Bo Móvil: backofficemasivo@claro.cr
+
+Sistemas:   operaciones_sistemascr@claro.cr 
+</textarea>
+    `,
+
+    rechazos: `
+<h3>Plantilla Rechazos</h3>
+<textarea style="width:100%;height:300px;">
+Buen día, debes comunicarte con servicio al cliente al 7002-7002.
+
+Compañeros, estan seleccionando la opción equivocada, deben elegir "análisis de clientes desactivos", no la de soporte comercial, en caso de seguir derivando a este se les cerrara el caso, favor elegir la opción correcta.
+
+Compañeros no podemos cancelar orden debido a que directriz de claro no podemos cancelar ordenes si tienen orden pendiente a instalación en ETA.
+
+Lo sentimos, el tiempo de espera ha finalizado, si aún necesitas ayuda vuelve a contactarnos. ¡Gracias por comunicarte con nosotros!
+✨ ¡Claro que sí!
+</textarea>
+    `,
+  };
+
+  const contenedor = document.getElementById("contenidoPlantilla");
+
+  if (!contenedor) {
+    console.error("No existe #contenidoPlantilla");
+    return;
   }
-  
-  document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll(".navBtn").forEach(b => {
-      b.addEventListener("click", () => go(b.dataset.page));
-    });
-    go("home");
-  });
 
-  /**
- * Alterna el estado colapsado/expandido del Sidebar
- */
-function toggleSidebar() {
-  const app = document.getElementById("appContainer") || document.querySelector(".app");
-  const overlay = document.getElementById("sidebarOverlay");
-  const isMobile = window.innerWidth <= 768;
-
-  if (isMobile) {
-    // Modo móvil: abrir/cerrar menú flotante
-    const isOpen = app.classList.toggle("sidebar-mobile-open");
-    if (overlay) {
-      overlay.classList.toggle("active", isOpen);
-    }
-  } else {
-    // Modo escritorio: colapsar/expandir ancho
-    const isCollapsed = app.classList.toggle("sidebar-collapsed");
-    localStorage.setItem("sidebarCollapsed", isCollapsed ? "true" : "false");
-  }
-}
-
-// Restaurar estado guardado en escritorio al cargar
-document.addEventListener("DOMContentLoaded", () => {
-  const isMobile = window.innerWidth <= 768;
-  const isCollapsed = localStorage.getItem("sidebarCollapsed") === "true";
-  const app = document.getElementById("appContainer") || document.querySelector(".app");
-
-  if (!isMobile && isCollapsed && app) {
-    app.classList.add("sidebar-collapsed");
-  }
-});
-
-// Auto-cerrar sidebar en móvil al seleccionar una página
-const originalGo = window.go;
-window.go = function(pageId) {
-  if (typeof originalGo === "function") {
-    originalGo(pageId);
-
-               // Si navegan a estadísticas, cargar datos automáticamente
-    if (pageId === 'estadisticas' && typeof cargarEstadisticas === 'function') {
-      cargarEstadisticas();
-    }
-  }
-  // Si está en pantalla pequeña, cerrar el sidebar tras hacer clic
-  if (window.innerWidth <= 768) {
-    const app = document.getElementById("appContainer") || document.querySelector(".app");
-    const overlay = document.getElementById("sidebarOverlay");
-    if (app) app.classList.remove("sidebar-mobile-open");
-    if (overlay) overlay.classList.remove("active");
-  }
+  contenedor.innerHTML =
+    plantillas[tipo] || "Plantilla no encontrada";
 };
+

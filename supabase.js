@@ -1,230 +1,87 @@
-// ==========================================================================
-// GESTIÓN DE FILTROS
-// ==========================================================================
-window.aplicarFiltros = () => {
-  if (typeof cargarHistorial === "function") {
-    cargarHistorial(true);
-  }
-};
-
-window.limpiarFiltros = () => {
-  const inputFecha = document.getElementById("fechaFiltro");
-  const selectTipo = document.getElementById("tipoFiltro");
-  const inputCedula = document.getElementById("cedulaFiltro");
-
-  if (inputFecha) {
-    if (inputFecha._flatpickr) {
-      inputFecha._flatpickr.clear();
-    }
-    inputFecha.value = "";
-  }
-
-  if (selectTipo) {
-    selectTipo.value = "";
-  }
-
-  if (inputCedula) {
-    inputCedula.value = "";
-  }
-
-  const chkAll = document.getElementById("chkSelectAllHist");
-  if (chkAll) {
-    chkAll.checked = false;
-  }
-
-  if (typeof cargarHistorial === "function") {
-    cargarHistorial(true);
-  }
-};
-
-// Filtrar automáticamente cuando se cambia el selector o se presiona Enter en cédula
-document.addEventListener("DOMContentLoaded", () => {
-  const selectTipo = document.getElementById("tipoFiltro");
-  if (selectTipo) {
-    selectTipo.addEventListener("change", () => window.aplicarFiltros());
-  }
-
-  const inputCedula = document.getElementById("cedulaFiltro");
-  if (inputCedula) {
-    inputCedula.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        window.aplicarFiltros();
-      }
+// ===== NAV =====
+  function go(page){
+    document.querySelectorAll(".navBtn").forEach(b => {
+      b.classList.toggle("active", b.dataset.page === page);
     });
-  }
 
-  const btnEjecutar = document.getElementById("btnEjecutarBorrado");
-  if (btnEjecutar) {
-    btnEjecutar.addEventListener("click", async () => {
-      if (typeof window._accionConfirmadaBorrado === "function") {
-        const accion = window._accionConfirmadaBorrado;
-        window.cerrarModalConfirmarBorrado();
-        await accion();
-      }
-    });
-  }
-});
+    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+    const target = document.getElementById("page-" + page);
+    if(!target){ console.warn("No existe la página:", "page-" + page); return; }
+    target.classList.add("active");
 
-// ==========================================================================
-// SELECCIÓN Y MARCAR TODAS LAS CASILLAS
-// ==========================================================================
-window.toggleSelectAllHist = (checked) => {
-  const todasLasFilas = document.querySelectorAll("#tablaHistorial tr");
-  todasLasFilas.forEach(tr => {
-    const chk = tr.querySelector(".chkHist");
-    if (chk) chk.checked = checked;
-    if (checked) {
-      tr.classList.add("fila-activa");
-    } else {
-      tr.classList.remove("fila-activa", "misma-raiz");
+    const title = document.getElementById("pageTitle");
+    const sub = document.getElementById("pageSub");
+    const map = {
+      historial: ["Historial", "Consulta y reutiliza limpiezas guardadas."],
+      home: ["Inicio", "Panel de control y accesos rápidos."],
+      "gen-nc": ["Generador NC", "Genera el formato NC (CM,908,...)."],
+      "gen-nd": ["Generador ND", "Genera el formato ND (IN,911,...)."],
+      "gen-acometida": ["Generador Acometida", "Genera formatos para acometidas."],
+      help: ["Ayuda", "Guía rápida de uso."],
+      plantillas: ["Plantillas", "Plantillas para OneMarketer y más."],
+      estadisticas: ["Estadísticas", "Visualiza estadísticas de uso."],
+    };
+    if(map[page]){
+      title.textContent = map[page][0];
+      sub.textContent = map[page][1];
     }
-  });
-};
-
-// ==========================================================================
-// RESALTAR FILAS Y AGRUPACIÓN POR RAÍZ (Toggle)
-// ==========================================================================
-document.addEventListener("click", (e) => {
-  const fila = e.target.closest("#tablaHistorial tr");
-
-  // Ignorar clics fuera de filas del cuerpo o clics directos al checkbox o botón de borrar
-  if (!fila || e.target.classList.contains("chkHist") || e.target.closest(".btn-del-row")) return;
-
-  const raizSeleccionada = fila.children[4]?.textContent.trim();
-  if (!raizSeleccionada) return;
-
-  const todasLasFilas = document.querySelectorAll("#tablaHistorial tr");
-  const yaEstabaActiva = fila.classList.contains("fila-activa");
-
-  // Desmarcar todo
-  todasLasFilas.forEach(tr => {
-    tr.classList.remove("fila-activa", "misma-raiz");
-    const chk = tr.querySelector(".chkHist");
-    if (chk) chk.checked = false;
+  }
+  
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".navBtn").forEach(b => {
+      b.addEventListener("click", () => go(b.dataset.page));
+    });
+    go("home");
   });
 
-  const chkAll = document.getElementById("chkSelectAllHist");
-  if (chkAll) chkAll.checked = false;
+  /**
+ * Alterna el estado colapsado/expandido del Sidebar
+ */
+function toggleSidebar() {
+  const app = document.getElementById("appContainer") || document.querySelector(".app");
+  const overlay = document.getElementById("sidebarOverlay");
+  const isMobile = window.innerWidth <= 768;
 
-  // Si no estaba activa, seleccionar todas las que compartan la misma raíz
-  if (!yaEstabaActiva) {
-    const facturasVistas = new Set();
-
-    todasLasFilas.forEach(tr => {
-      const r = tr.children[4]?.textContent.trim();
-      const factura = tr.children[1]?.textContent.trim();
-      const chk = tr.querySelector(".chkHist");
-
-      if (r === raizSeleccionada && chk && !facturasVistas.has(factura)) {
-        chk.checked = true;
-        tr.classList.add("fila-activa", "misma-raiz");
-        facturasVistas.add(factura);
-      }
-    });
-  }
-});
-
-// ==========================================================================
-// ENVIAR REGISTROS A GENERADOR ND
-// ==========================================================================
-window.usarSeleccionParaND = () => {
-  const checks = document.querySelectorAll("#tablaHistorial .chkHist:checked");
-
-  if (!checks.length) {
-    if (typeof showToast === "function") {
-      showToast("warn", "Nada seleccionado", "Marca al menos un registro del historial.");
+  if (isMobile) {
+    // Modo móvil: abrir/cerrar menú flotante
+    const isOpen = app.classList.toggle("sidebar-mobile-open");
+    if (overlay) {
+      overlay.classList.toggle("active", isOpen);
     }
-    return;
-  }
-
-  let resultado = "";
-
-  checks.forEach(chk => {
-    try {
-      const data = JSON.parse(decodeURIComponent(chk.dataset.json));
-      resultado += `${data.raiz || ""} ${data.billingid || ""} ${data.monto || ""} ${data.factura || ""} ${data.cedula || ""}\n`.trimStart();
-    } catch (err) {
-      console.error("Error parseando data-json:", err);
-    }
-  });
-
-  const nd = document.getElementById("data_nd");
-  if (nd) nd.value = resultado;
-
-  if (typeof go === "function") go("gen-nd");
-  if (typeof showToast === "function") showToast("success", "Listo", "Datos enviados al generador ND.");
-};
-
-// ==========================================================================
-// ALERTAS DE CONFIRMACIÓN Y BORRADO DE LIMPIEZAS
-// ==========================================================================
-window._accionConfirmadaBorrado = null;
-
-window.mostrarAlertaConfirmacion = (mensajeHtml, onConfirmar) => {
-  const modal = document.getElementById("modalConfirmarBorrado");
-  const texto = document.getElementById("modalConfirmarTexto");
-
-  if (modal && texto) {
-    texto.innerHTML = mensajeHtml;
-    window._accionConfirmadaBorrado = onConfirmar;
-    modal.style.display = "grid";
   } else {
-    // Fallback con confirm nativo si no existe el modal en DOM
-    const textoPlano = mensajeHtml.replace(/<[^>]*>/g, "");
-    if (window.confirm(textoPlano)) {
-      onConfirmar();
+    // Modo escritorio: colapsar/expandir ancho
+    const isCollapsed = app.classList.toggle("sidebar-collapsed");
+    localStorage.setItem("sidebarCollapsed", isCollapsed ? "true" : "false");
+  }
+}
+
+// Restaurar estado guardado en escritorio al cargar
+document.addEventListener("DOMContentLoaded", () => {
+  const isMobile = window.innerWidth <= 768;
+  const isCollapsed = localStorage.getItem("sidebarCollapsed") === "true";
+  const app = document.getElementById("appContainer") || document.querySelector(".app");
+
+  if (!isMobile && isCollapsed && app) {
+    app.classList.add("sidebar-collapsed");
+  }
+});
+
+// Auto-cerrar sidebar en móvil al seleccionar una página
+const originalGo = window.go;
+window.go = function(pageId) {
+  if (typeof originalGo === "function") {
+    originalGo(pageId);
+
+               // Si navegan a estadísticas, cargar datos automáticamente
+    if (pageId === 'estadisticas' && typeof cargarEstadisticas === 'function') {
+      cargarEstadisticas();
     }
   }
-};
-
-window.cerrarModalConfirmarBorrado = () => {
-  const modal = document.getElementById("modalConfirmarBorrado");
-  if (modal) modal.style.display = "none";
-  window._accionConfirmadaBorrado = null;
-};
-
-// Borrar registros seleccionados por casillas
-window.confirmarBorrarLimpiezas = () => {
-  const checks = document.querySelectorAll("#tablaHistorial .chkHist:checked");
-
-  if (!checks.length) {
-    if (typeof showToast === "function") {
-      showToast("warn", "Sin selección", "Marca al menos una casilla en el historial para borrar.");
-    } else {
-      alert("Marca al menos una limpieza para eliminar.");
-    }
-    return;
+  // Si está en pantalla pequeña, cerrar el sidebar tras hacer clic
+  if (window.innerWidth <= 768) {
+    const app = document.getElementById("appContainer") || document.querySelector(".app");
+    const overlay = document.getElementById("sidebarOverlay");
+    if (app) app.classList.remove("sidebar-mobile-open");
+    if (overlay) overlay.classList.remove("active");
   }
-
-  const items = [];
-  checks.forEach(chk => {
-    try {
-      const data = JSON.parse(decodeURIComponent(chk.dataset.json));
-      items.push(data);
-    } catch (e) {
-      console.error(e);
-    }
-  });
-
-  const cantidad = items.length;
-  const mensaje = cantidad === 1
-    ? `¿Estás seguro de que deseas eliminar <b>1 registro de limpieza</b> (Factura: <code>${items[0].factura || "N/A"}</code>)? Se borrará permanentemente de la base de datos.`
-    : `¿Estás seguro de que deseas eliminar los <b>${cantidad} registros de limpiezas</b> seleccionados? Se borrarán permanentemente de la base de datos.`;
-
-  window.mostrarAlertaConfirmacion(mensaje, async () => {
-    if (typeof window.ejecutarBorradoLimpiezas === "function") {
-      await window.ejecutarBorradoLimpiezas(items);
-    }
-  });
-};
-
-// Borrar un registro individual desde el botón de la fila
-window.confirmarBorrarUna = (id, factura) => {
-  const mensaje = `¿Estás seguro de que deseas eliminar la limpieza con factura <code>${factura || "N/A"}</code>? Se borrará permanentemente de la base de datos.`;
-  window.mostrarAlertaConfirmacion(mensaje, async () => {
-    if (typeof window.ejecutarBorradoLimpiezas === "function") {
-      await window.ejecutarBorradoLimpiezas([{ id, factura }]);
-    }
-  });
 };
