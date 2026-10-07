@@ -1,230 +1,501 @@
 // ==========================================================================
-// GESTIÓN DE FILTROS
+// GENERATORS.JS
 // ==========================================================================
-window.aplicarFiltros = () => {
-  if (typeof cargarHistorial === "function") {
-    cargarHistorial(true);
+
+// ===== Parse NC con header =====
+function parseTablaNC(texto) {
+  const lines = (texto || "").trim().split("\n").filter(l => l.trim());
+  if (lines.length < 2) return [];
+
+  const splitRow = (row) => row.trim().split(/\t|\s{2,}/).filter(Boolean);
+  const header = splitRow(lines[0]).map(h => h.toLowerCase());
+
+  const idxFactura = header.findIndex(h => h.includes("factura"));
+  const idxBilling = header.findIndex(h => h.includes("billing"));
+  let idxMonto = header.findIndex(h => h.includes("monto") && h.includes("pagar"));
+  if (idxMonto === -1) idxMonto = header.findIndex(h => h.includes("monto") && h.includes("factura"));
+
+  if (idxFactura === -1 || idxBilling === -1 || idxMonto === -1) return [];
+
+  const out = [];
+  for (let i = 1; i < lines.length; i++) {
+    const cols = splitRow(lines[i]);
+    if (cols.length <= Math.max(idxFactura, idxBilling, idxMonto)) continue;
+
+    const factura = cols[idxFactura].trim();
+    const billingid = cols[idxBilling].trim();
+    const monto = normalizarMonto(cols[idxMonto]);
+    if (!factura || !billingid || !monto) continue;
+    out.push({ factura, billingid, monto });
   }
-};
+  return out;
+}
 
-window.limpiarFiltros = () => {
-  const inputFecha = document.getElementById("fechaFiltro");
-  const selectTipo = document.getElementById("tipoFiltro");
-  const inputCedula = document.getElementById("cedulaFiltro");
+// ===== Parse ND por fila =====
+function parseTablaND(texto) {
+  const lines = (texto || "").trim().split("\n").filter(l => l.trim());
+  if (lines.length === 0) return [];
 
-  if (inputFecha) {
-    if (inputFecha._flatpickr) {
-      inputFecha._flatpickr.clear();
-    }
-    inputFecha.value = "";
-  }
+  const splitRow = (row) => row.trim().split(/\t|\s{2,}|\s+/).filter(Boolean);
 
-  if (selectTipo) {
-    selectTipo.value = "";
-  }
+  const IDX_RAIZ    = 0;
+  const IDX_BILLING = 1;
+  const IDX_MONTO   = 2;
+  const IDX_FACTURA = 3;
+  const IDX_CEDULA  = 4;
 
-  if (inputCedula) {
-    inputCedula.value = "";
-  }
+  let start = 0;
+  const first = splitRow(lines[0])[0]?.toLowerCase() || "";
+  if (first.includes("raiz") || first.includes("factura")) start = 1;
 
-  const chkAll = document.getElementById("chkSelectAllHist");
-  if (chkAll) {
-    chkAll.checked = false;
-  }
+  const out = [];
+  for (let i = start; i < lines.length; i++) {
+    const cols = splitRow(lines[i]);
+    if (cols.length <= Math.max(IDX_RAIZ, IDX_BILLING, IDX_MONTO, IDX_FACTURA)) continue;
 
-  if (typeof cargarHistorial === "function") {
-    cargarHistorial(true);
-  }
-};
+    const raiz = cols[IDX_RAIZ].trim();
+    const billingid = cols[IDX_BILLING].trim();
+    const monto = normalizarMonto(cols[IDX_MONTO]);
+    const factura = cols[IDX_FACTURA].trim();
+    const cedula = cols[IDX_CEDULA]?.trim() || "";
 
-// Filtrar automáticamente cuando se cambia el selector o se presiona Enter en cédula
-document.addEventListener("DOMContentLoaded", () => {
-  const selectTipo = document.getElementById("tipoFiltro");
-  if (selectTipo) {
-    selectTipo.addEventListener("change", () => window.aplicarFiltros());
-  }
+    if (!raiz || !billingid || !monto || !factura) continue;
 
-  const inputCedula = document.getElementById("cedulaFiltro");
-  if (inputCedula) {
-    inputCedula.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        window.aplicarFiltros();
-      }
+    out.push({
+      raiz,
+      billingid,
+      monto,
+      factura,
+      cedula
     });
   }
+  return out;
+}
 
-  const btnEjecutar = document.getElementById("btnEjecutarBorrado");
-  if (btnEjecutar) {
-    btnEjecutar.addEventListener("click", async () => {
-      if (typeof window._accionConfirmadaBorrado === "function") {
-        const accion = window._accionConfirmadaBorrado;
-        window.cerrarModalConfirmarBorrado();
-        await accion();
-      }
-    });
-  }
-});
+// ===== Reglas extras =====
+function agregarRegla(mode) {
+  const rules = document.getElementById(`rules_${mode}`);
+  if (!rules) return;
 
-// ==========================================================================
-// SELECCIÓN Y MARCAR TODAS LAS CASILLAS
-// ==========================================================================
-window.toggleSelectAllHist = (checked) => {
-  const todasLasFilas = document.querySelectorAll("#tablaHistorial tr");
-  todasLasFilas.forEach(tr => {
-    const chk = tr.querySelector(".chkHist");
-    if (chk) chk.checked = checked;
-    if (checked) {
-      tr.classList.add("fila-activa");
-    } else {
-      tr.classList.remove("fila-activa", "misma-raiz");
-    }
-  });
-};
+  const item = document.createElement("div");
+  item.className = "ruleItem";
 
-// ==========================================================================
-// RESALTAR FILAS Y AGRUPACIÓN POR RAÍZ (Toggle)
-// ==========================================================================
-document.addEventListener("click", (e) => {
-  const fila = e.target.closest("#tablaHistorial tr");
+  item.innerHTML = `
+    <div class="ruleTop">
+      <div style="flex:1;">
+        <label style="margin:0 0 6px;">Raíz extra</label>
+        <input class="ruleRaiz" type="text" placeholder="Ej: 1.2270038">
+      </div>
 
-  // Ignorar clics fuera de filas del cuerpo o clics directos al checkbox o botón de borrar
-  if (!fila || e.target.classList.contains("chkHist") || e.target.closest(".btn-del-row")) return;
+      <div style="flex:1;">
+        <label style="margin:0 0 6px;">Cédula</label>
+        <input class="ruleCedula" type="text" placeholder="Ej: 702840496">
+      </div>
 
-  const raizSeleccionada = fila.children[4]?.textContent.trim();
-  if (!raizSeleccionada) return;
+      <button class="btn btnGhost" type="button" onclick="eliminarRegla(this)">
+        🗑️ Quitar
+      </button>
+    </div>
 
-  const todasLasFilas = document.querySelectorAll("#tablaHistorial tr");
-  const yaEstabaActiva = fila.classList.contains("fila-activa");
+    <div class="ruleGrid">
+      <div>
+        <label style="margin:0 0 6px;">Tabla de esta raíz</label>
+        <textarea class="ruleTabla" rows="6" placeholder="Pega aquí la tabla completa..."></textarea>
+        <div class="hintText">Debe traer factura, billing account y monto.</div>
+      </div>
+    </div>
+  `;
+  rules.prepend(item);
+}
+window.agregarRegla = agregarRegla;
 
-  // Desmarcar todo
-  todasLasFilas.forEach(tr => {
-    tr.classList.remove("fila-activa", "misma-raiz");
-    const chk = tr.querySelector(".chkHist");
-    if (chk) chk.checked = false;
-  });
+function pasarRaizAExtra(mode) {
+  const raizEl = document.getElementById(`raiz_${mode}`);
+  const cedulaEl = document.getElementById("cedula");
+  const tablaEl = document.getElementById(`data_${mode}`);
 
-  const chkAll = document.getElementById("chkSelectAllHist");
-  if (chkAll) chkAll.checked = false;
+  if (!raizEl || !tablaEl) return;
 
-  // Si no estaba activa, seleccionar todas las que compartan la misma raíz
-  if (!yaEstabaActiva) {
-    const facturasVistas = new Set();
+  const raiz = raizEl.value.trim();
+  const cedula = cedulaEl?.value.trim() || "";
+  const tabla = tablaEl.value.trim();
 
-    todasLasFilas.forEach(tr => {
-      const r = tr.children[4]?.textContent.trim();
-      const factura = tr.children[1]?.textContent.trim();
-      const chk = tr.querySelector(".chkHist");
-
-      if (r === raizSeleccionada && chk && !facturasVistas.has(factura)) {
-        chk.checked = true;
-        tr.classList.add("fila-activa", "misma-raiz");
-        facturasVistas.add(factura);
-      }
-    });
-  }
-});
-
-// ==========================================================================
-// ENVIAR REGISTROS A GENERADOR ND
-// ==========================================================================
-window.usarSeleccionParaND = () => {
-  const checks = document.querySelectorAll("#tablaHistorial .chkHist:checked");
-
-  if (!checks.length) {
-    if (typeof showToast === "function") {
-      showToast("warn", "Nada seleccionado", "Marca al menos un registro del historial.");
-    }
+  // Validar que haya algo que pasar
+  if (!raiz && !tabla) {
+    showToast(
+      "warn",
+      "Sin datos",
+      "Primero coloca la raíz y los datos."
+    );
     return;
   }
+
+  // Crear la nueva regla
+  const rules = document.getElementById(`rules_${mode}`);
+  if (!rules) return;
+
+  const item = document.createElement("div");
+  item.className = "ruleItem";
+
+  item.innerHTML = `
+    <div class="ruleTop">
+      <div style="flex:1;">
+        <label style="margin:0 0 6px;">Raíz extra</label>
+        <input
+          class="ruleRaiz"
+          type="text"
+          value="${raiz}"
+          placeholder="Ej: 1.2270038"
+        >
+      </div>
+
+      <div style="flex:1;">
+        <label style="margin:0 0 6px;">Cédula</label>
+        <input
+          class="ruleCedula"
+          type="text"
+          value="${cedula}"
+          placeholder="Ej: 702840496"
+        >
+      </div>
+
+      <button
+        class="btn btnGhost"
+        type="button"
+        onclick="eliminarRegla(this)"
+      >
+        🗑️ Quitar
+      </button>
+    </div>
+
+    <div class="ruleGrid">
+      <div>
+        <label style="margin:0 0 6px;">Tabla de esta raíz</label>
+        <textarea
+          class="ruleTabla"
+          rows="6"
+          placeholder="Pega aquí la tabla completa..."
+        >${tabla}</textarea>
+        <div class="hintText">
+          Debe traer factura, billing account y monto.
+        </div>
+      </div>
+    </div>
+  `;
+
+  rules.prepend(item);
+
+  // ============================
+  // LIMPIAR RAÍZ PRINCIPAL
+  // ============================
+  raizEl.value = "";
+  if (cedulaEl) {
+    cedulaEl.value = "";
+  }
+  tablaEl.value = "";
+
+  showToast(
+    "success",
+    "Raíz extra agregada",
+    `La raíz ${raiz || "extra"} fue movida a raíces extras.`
+  );
+}
+window.pasarRaizAExtra = pasarRaizAExtra;
+
+function eliminarRegla(btn) {
+  const item = btn.closest(".ruleItem");
+  if (item) item.remove();
+}
+window.eliminarRegla = eliminarRegla;
+
+// ===== Generar plantilla NC/ND =====
+const COMENTARIOS_ND = {
+  reversion: "IN,911,200_Se aplico reversión por proyecto de Venta Servicio Móvil Limpieza de Saldos",
+  reversionIncu: "IN,911,ND300",
+  limpieza: "CM,908,200_Limpieza de Saldos Proyecto de Ventas Móvil"
+};
+
+let archivoND = null;
+let archivoNC = null;
+
+async function generarPlantilla(mode) {
+  const raizDefault = (mode === "nc")
+    ? (document.getElementById(`raiz_${mode}`)?.value.trim() || "")
+    : "";
+
+  const textoPrincipal = document.getElementById(`data_${mode}`)?.value.trim() || "";
+  const cedulaPrincipal = document.getElementById("cedula")?.value.trim() || "";
+  const rules = document.querySelectorAll(`#rules_${mode} .ruleItem`);
+
+  // 1. Parsear la tabla principal solo si el usuario pegó texto en ella
+  const tuplasPrincipal = textoPrincipal
+    ? (mode === "nc" ? parseTablaNC(textoPrincipal) : parseTablaND(textoPrincipal))
+    : [];
+
+  // 2. Validar raíz y cédula principal SOLO si hay datos en la tabla principal
+  if (tuplasPrincipal.length > 0) {
+    if (mode === "nc" && !raizDefault) {
+      showToast("warn", "Falta raíz", "Escribe la raíz principal para los datos pegados.");
+      return;
+    }
+    if (mode === "nc" && !cedulaPrincipal) {
+      showToast("warn", "Falta la cédula", "Debes ingresar la cédula de la raíz principal.");
+      return;
+    }
+  }
+
+  // 3. Validar si no hay nada en la tabla principal ni reglas extras
+  if (tuplasPrincipal.length === 0 && rules.length === 0) {
+    showToast("warn", "Sin datos", "Ingresa datos en la tabla principal o agrega una raíz extra.");
+    return;
+  }
+
+  const ahora = new Date();
+  const dia = String(ahora.getDate()).padStart(2, '0');
+  const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+  const anio = ahora.getFullYear();
+  const fecha = `${dia}/${mes}/${anio}`;
+
+  let descripcion;
+  if (mode === "nc") {
+    descripcion = "CM,908,200_Recuperacion de Clientes Proyecto de Ventas Móvil";
+  } else {
+    const tipo = document.getElementById("tipo_nd").value;
+    descripcion = COMENTARIOS_ND[tipo];
+  }
+
+  const userTag = getUsuarioActual();
 
   let resultado = "";
+  let count = 0;
+  let registrosGuardar = [];
 
-  checks.forEach(chk => {
-    try {
-      const data = JSON.parse(decodeURIComponent(chk.dataset.json));
-      resultado += `${data.raiz || ""} ${data.billingid || ""} ${data.monto || ""} ${data.factura || ""} ${data.cedula || ""}\n`.trimStart();
-    } catch (err) {
-      console.error("Error parseando data-json:", err);
+  const tipoND = document.getElementById("tipo_nd")?.value || "";
+  const tipoLimpieza =
+    mode === "nc"
+      ? "NC200"
+      : tipoND === "limpieza"
+        ? "NC200"
+        : tipoND === "reversion"
+          ? "ND200"
+          : "ND300";
+
+  // 4. Procesar tabla principal si trae registros válidos
+  for (const r of tuplasPrincipal) {
+    const raizUsar = (mode === "nc") ? raizDefault : r.raiz;
+
+    resultado += `${raizUsar},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${userTag},,02\n`;
+
+    registrosGuardar.push({
+      factura: r.factura,
+      billingid: r.billingid,
+      monto: r.monto,
+      raiz: raizUsar,
+      cedula: mode === "nd" ? r.cedula : cedulaPrincipal,
+      tipo_limpieza: tipoLimpieza
+    });
+
+    count++;
+  }
+
+  // 5. Procesar reglas extras
+  for (const rule of rules) {
+    const raizExtra = rule.querySelector(".ruleRaiz")?.value.trim();
+    const cedulaExtra = rule.querySelector(".ruleCedula")?.value.trim();
+    const tablaExtra = rule.querySelector(".ruleTabla")?.value || "";
+
+    // Si la regla no tiene texto en su tabla, se omite
+    if (!tablaExtra.trim()) continue;
+
+    if (mode === "nc" && !raizExtra) {
+      showToast("warn", "Falta raíz extra", "Hay una raíz extra sin número de raíz.");
+      return;
     }
-  });
 
-  const nd = document.getElementById("data_nd");
-  if (nd) nd.value = resultado;
+    if (mode === "nc" && !cedulaExtra) {
+      showToast("warn", "Falta la cédula", `La raíz ${raizExtra} no tiene una cédula asignada.`);
+      return;
+    }
 
-  if (typeof go === "function") go("gen-nd");
-  if (typeof showToast === "function") showToast("success", "Listo", "Datos enviados al generador ND.");
-};
+    const tuplasExtra = (mode === "nc")
+      ? parseTablaNC(tablaExtra)
+      : parseTablaND(tablaExtra);
 
-// ==========================================================================
-// ALERTAS DE CONFIRMACIÓN Y BORRADO DE LIMPIEZAS
-// ==========================================================================
-window._accionConfirmadaBorrado = null;
+    for (const r of tuplasExtra) {
+      const raizUsar = (mode === "nc") ? raizExtra : r.raiz;
 
-window.mostrarAlertaConfirmacion = (mensajeHtml, onConfirmar) => {
-  const modal = document.getElementById("modalConfirmarBorrado");
-  const texto = document.getElementById("modalConfirmarTexto");
+      resultado += `${raizUsar},${r.billingid},${descripcion},${r.monto},${fecha},${fecha},I,${r.factura},,0,,${userTag},,02\n`;
 
-  if (modal && texto) {
-    texto.innerHTML = mensajeHtml;
-    window._accionConfirmadaBorrado = onConfirmar;
-    modal.style.display = "grid";
-  } else {
-    // Fallback con confirm nativo si no existe el modal en DOM
-    const textoPlano = mensajeHtml.replace(/<[^>]*>/g, "");
-    if (window.confirm(textoPlano)) {
-      onConfirmar();
+      registrosGuardar.push({
+        factura: r.factura,
+        billingid: r.billingid,
+        monto: r.monto,
+        raiz: raizUsar,
+        cedula: mode === "nd" ? r.cedula : cedulaExtra,
+        tipo_limpieza: tipoLimpieza
+      });
+
+      count++;
     }
   }
-};
 
-window.cerrarModalConfirmarBorrado = () => {
-  const modal = document.getElementById("modalConfirmarBorrado");
-  if (modal) modal.style.display = "none";
-  window._accionConfirmadaBorrado = null;
-};
+  document.getElementById(`resultado_${mode}`).value = resultado;
+  document.getElementById(`count_${mode}`).textContent = String(count);
 
-// Borrar registros seleccionados por casillas
-window.confirmarBorrarLimpiezas = () => {
-  const checks = document.querySelectorAll("#tablaHistorial .chkHist:checked");
-
-  if (!checks.length) {
-    if (typeof showToast === "function") {
-      showToast("warn", "Sin selección", "Marca al menos una casilla en el historial para borrar.");
-    } else {
-      alert("Marca al menos una limpieza para eliminar.");
-    }
+  if (count === 0) {
+    showToast("error", "Sin datos", "Pega tablas válidas con encabezados.");
     return;
   }
 
-  const items = [];
-  checks.forEach(chk => {
-    try {
-      const data = JSON.parse(decodeURIComponent(chk.dataset.json));
-      items.push(data);
-    } catch (e) {
-      console.error(e);
-    }
-  });
+  try {
+    await navigator.clipboard.writeText(resultado);
+    showToast("success", "Generado y copiado", `Usuario: ${userTag} | Total: ${count}`);
+  } catch {
+    showToast("error", "No se pudo copiar", "Usa https o localhost.");
+  }
 
-  const cantidad = items.length;
-  const mensaje = cantidad === 1
-    ? `¿Estás seguro de que deseas eliminar <b>1 registro de limpieza</b> (Factura: <code>${items[0].factura || "N/A"}</code>)? Se borrará permanentemente de la base de datos.`
-    : `¿Estás seguro de que deseas eliminar los <b>${cantidad} registros de limpiezas</b> seleccionados? Se borrarán permanentemente de la base de datos.`;
+  // Guardar/Sobrescribir el TXT
+  try {
+    await guardarArchivoTXT(resultado, mode);
+  } catch (err) {
+    console.error(err);
+  }
 
-  window.mostrarAlertaConfirmacion(mensaje, async () => {
-    if (typeof window.ejecutarBorradoLimpiezas === "function") {
-      await window.ejecutarBorradoLimpiezas(items);
+  // Solo guardamos en base de datos si es una NC nueva (para no duplicar en ND)
+  if (window.guardarLimpiezaBatch && mode === "nc") {
+    setTimeout(async () => {
+      await window.guardarLimpiezaBatch(registrosGuardar);
+      if (typeof cargarHistorial === "function") {
+        cargarHistorial();
+      }
+    }, 50);
+  }
+}
+window.generarPlantilla = generarPlantilla;
+
+async function guardarArchivoTXT(resultado, mode) {
+  let archivo = mode === "nd" ? archivoND : archivoNC;
+
+  if (!archivo) {
+    archivo = await window.showSaveFilePicker({
+      suggestedName: mode.toUpperCase() + ".txt",
+      types: [{
+        description: "Archivo de texto",
+        accept: {
+          "text/plain": [".txt"]
+        }
+      }]
+    });
+
+    if (mode === "nd") {
+      archivoND = archivo;
+    } else {
+      archivoNC = archivo;
     }
-  });
+  }
+
+  const writable = await archivo.createWritable();
+  await writable.write(resultado);
+  await writable.close();
+}
+
+// ============================
+// AUTOCARGA ND POR CÉDULA
+// ============================
+window.buscarRaicesNDAutomatico = async function() {
+  const textarea = document.getElementById("data_nd");
+  if (!textarea) return;
+
+  const texto = textarea.value.trim();
+  if (!texto) return;
+
+  const lineas = texto
+    .split("\n")
+    .map(x => x.trim())
+    .filter(Boolean);
+
+  const soloRaices = lineas.every(
+    x => x.split(/\s+/).length === 1
+  );
+
+  if (!soloRaices) return;
+
+  try {
+    const registros = await buscarPorCedulasND(lineas);
+
+    if (!registros.length) {
+      showToast(
+        "warn",
+        "Sin resultados",
+        "No se encontraron cédulas"
+      );
+      return;
+    }
+
+    textarea.value =
+      registros.map(r =>
+        `${r.raiz} ${r.billingid} ${r.monto} ${r.factura} ${r.cedula}`
+      ).join("\n");
+
+  } catch (err) {
+    showToast(
+      "error",
+      "Error",
+      err.message
+    );
+  }
 };
 
-// Borrar un registro individual desde el botón de la fila
-window.confirmarBorrarUna = (id, factura) => {
-  const mensaje = `¿Estás seguro de que deseas eliminar la limpieza con factura <code>${factura || "N/A"}</code>? Se borrará permanentemente de la base de datos.`;
-  window.mostrarAlertaConfirmacion(mensaje, async () => {
-    if (typeof window.ejecutarBorradoLimpiezas === "function") {
-      await window.ejecutarBorradoLimpiezas([{ id, factura }]);
-    }
-  });
-};
+// ===== Generador Acometida =====
+function generarAcometidaUltra() {
+  const texto = document.getElementById("data_acometida").value || "";
+  const lineas = texto.split("\n").map(l => l.trim()).filter(Boolean);
+
+  const cedulasVistas = new Set();
+  const salida = [];
+
+  for (const linea of lineas) {
+    const limpio = linea.replace(/\s+/g, " ");
+    const partes = limpio.split(" ");
+    if (partes.length < 2) continue;
+
+    const cedula = partes.shift();
+    const nombre = partes.join(" ").trim();
+
+    if (cedulasVistas.has(cedula)) continue;
+    cedulasVistas.add(cedula);
+
+    salida.push(`${cedula}: ${nombre}:`);
+  }
+
+  const resultado = salida.join("\n");
+  document.getElementById("resultado_acometida").value = resultado;
+  document.getElementById("count_acometida").textContent = String(salida.length);
+
+  navigator.clipboard.writeText(resultado).catch(() => {});
+}
+window.generarAcometidaUltra = generarAcometidaUltra;
+
+// ===== Limpieza =====
+function limpiarTodo(mode) {
+  const raizEl = document.getElementById(`raiz_${mode}`);
+  if (raizEl) raizEl.value = "";
+  const dataEl = document.getElementById(`data_${mode}`);
+  if (dataEl) dataEl.value = "";
+  const cedulaEl = document.getElementById("cedula");
+  if (cedulaEl) cedulaEl.value = "";
+
+  const outId = (mode === "acometida") ? "resultado_acometida" : `resultado_${mode}`;
+  const outEl = document.getElementById(outId);
+  if (outEl) outEl.value = "";
+
+  const countId = (mode === "acometida") ? "count_acometida" : `count_${mode}`;
+  const c = document.getElementById(countId);
+  if (c) c.textContent = "0";
+
+  const rules = document.getElementById(`rules_${mode}`);
+  if (rules) rules.innerHTML = "";
+
+  showToast("success", "Limpio", `Se borró el generador ${mode.toUpperCase()}.`);
+}
+window.limpiarTodo = limpiarTodo;

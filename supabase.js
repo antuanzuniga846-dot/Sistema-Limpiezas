@@ -1,87 +1,75 @@
-// ===== NAV =====
-  function go(page){
-    document.querySelectorAll(".navBtn").forEach(b => {
-      b.classList.toggle("active", b.dataset.page === page);
-    });
+// ===== Toast =====
+  let toastTimer = null;
+  function showToast(type, title, msg){
+    const toast = document.getElementById("toast");
+    const icon = document.getElementById("toastIcon");
+    const t = document.getElementById("toastTitle");
+    const m = document.getElementById("toastMsg");
+    if(!toast) return;
 
-    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-    const target = document.getElementById("page-" + page);
-    if(!target){ console.warn("No existe la página:", "page-" + page); return; }
-    target.classList.add("active");
+    toast.classList.remove("success","error","warn");
+    toast.classList.add(type);
 
-    const title = document.getElementById("pageTitle");
-    const sub = document.getElementById("pageSub");
-    const map = {
-      historial: ["Historial", "Consulta y reutiliza limpiezas guardadas."],
-      home: ["Inicio", "Panel de control y accesos rápidos."],
-      "gen-nc": ["Generador NC", "Genera el formato NC (CM,908,...)."],
-      "gen-nd": ["Generador ND", "Genera el formato ND (IN,911,...)."],
-      "gen-acometida": ["Generador Acometida", "Genera formatos para acometidas."],
-      help: ["Ayuda", "Guía rápida de uso."],
-      plantillas: ["Plantillas", "Plantillas para OneMarketer y más."],
-      estadisticas: ["Estadísticas", "Visualiza estadísticas de uso."],
-    };
-    if(map[page]){
-      title.textContent = map[page][0];
-      sub.textContent = map[page][1];
+    icon.textContent = (type === "success") ? "✓" : (type === "warn") ? "!" : "×";
+    t.textContent = title;
+    m.textContent = msg;
+
+    toast.classList.remove("show");
+    void toast.offsetWidth;
+    toast.classList.add("show");
+
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=> toast.classList.remove("show"), 2800);
+  }
+  window.showToast = showToast;
+
+  // ===== Copiar / Limpiar helpers =====
+  function copiarTexto(txt){
+    return navigator.clipboard.writeText(txt);
+  }
+
+  window.copiarResultado = async (mode) => {
+    const id = (mode === "acometida") ? "resultado_acometida" : `resultado_${mode}`;
+    const el = document.getElementById(id);
+    const txt = el?.value || "";
+    if(!txt.trim()) return showToast("warn","Nada que copiar","Genera primero.");
+    try{
+      await copiarTexto(txt);
+      showToast("success","Copiado","Listo en portapapeles.");
+    }catch{
+      showToast("error","No se pudo copiar","Usa https o localhost.");
     }
-  }
-  
-  document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll(".navBtn").forEach(b => {
-      b.addEventListener("click", () => go(b.dataset.page));
-    });
-    go("home");
-  });
+  };
 
-  /**
- * Alterna el estado colapsado/expandido del Sidebar
- */
-function toggleSidebar() {
-  const app = document.getElementById("appContainer") || document.querySelector(".app");
-  const overlay = document.getElementById("sidebarOverlay");
-  const isMobile = window.innerWidth <= 768;
+  // ===== Normalizar monto =====
+  function normalizarMonto(str){
+    let s = String(str || "").replace(/[₡\s]/g,"").trim();
+    if(!s) return "";
 
-  if (isMobile) {
-    // Modo móvil: abrir/cerrar menú flotante
-    const isOpen = app.classList.toggle("sidebar-mobile-open");
-    if (overlay) {
-      overlay.classList.toggle("active", isOpen);
+    const lastComma = s.lastIndexOf(",");
+    const lastDot = s.lastIndexOf(".");
+
+    if(lastComma !== -1 && lastDot !== -1){
+      if(lastComma > lastDot){
+        s = s.replace(/\./g,"").replace(",",".");
+      } else {
+        s = s.replace(/,/g,"");
+      }
+    } else if(lastComma !== -1 && lastDot === -1){
+      const dec = s.split(",").pop();
+      if(dec.length <= 2) s = s.replace(",",".");
+      else s = s.replace(/,/g,"");
+    } else {
+      s = s.replace(/,/g,"");
     }
-  } else {
-    // Modo escritorio: colapsar/expandir ancho
-    const isCollapsed = app.classList.toggle("sidebar-collapsed");
-    localStorage.setItem("sidebarCollapsed", isCollapsed ? "true" : "false");
+    return s.replace(/[^0-9.]/g,"");
   }
-}
-
-// Restaurar estado guardado en escritorio al cargar
-document.addEventListener("DOMContentLoaded", () => {
-  const isMobile = window.innerWidth <= 768;
-  const isCollapsed = localStorage.getItem("sidebarCollapsed") === "true";
-  const app = document.getElementById("appContainer") || document.querySelector(".app");
-
-  if (!isMobile && isCollapsed && app) {
-    app.classList.add("sidebar-collapsed");
-  }
-});
-
-// Auto-cerrar sidebar en móvil al seleccionar una página
-const originalGo = window.go;
-window.go = function(pageId) {
-  if (typeof originalGo === "function") {
-    originalGo(pageId);
-
-               // Si navegan a estadísticas, cargar datos automáticamente
-    if (pageId === 'estadisticas' && typeof cargarEstadisticas === 'function') {
-      cargarEstadisticas();
+  // GLOBAL: usuario actual para "tag"
+  function getUsuarioActual(){
+    if (window.currentUserTag && String(window.currentUserTag).trim()) {
+      return String(window.currentUserTag).trim();
     }
+    const ls = localStorage.getItem("userTag");
+    if (ls && ls.trim()) return ls.trim();
+    return "cm088320"; // fallback
   }
-  // Si está en pantalla pequeña, cerrar el sidebar tras hacer clic
-  if (window.innerWidth <= 768) {
-    const app = document.getElementById("appContainer") || document.querySelector(".app");
-    const overlay = document.getElementById("sidebarOverlay");
-    if (app) app.classList.remove("sidebar-mobile-open");
-    if (overlay) overlay.classList.remove("active");
-  }
-};

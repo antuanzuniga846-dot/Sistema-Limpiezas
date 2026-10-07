@@ -1,370 +1,598 @@
-const THEMES = {
-
-  azul: {
-    accent1: "#00d8f5",
-    accent2: "#0072ff",
-    bg1: "#0b1220",
-    bg2: "#0f2230",
-    card: "rgba(255,255,255,.06)",
-    card2: "rgba(255,255,255,.08)",
-    stroke: "rgba(255,255,255,.12)",
-    text: "#e8f1ff",
-    muted: "rgba(232,241,255,.72)"
-  },
-
-  verde: {
-    accent1: "#22c55e",
-    accent2: "#16a34a",
-    bg1: "#07130b",
-    bg2: "#10241a",
-    card: "rgba(34,197,94,.08)",
-    card2: "rgba(34,197,94,.12)",
-    stroke: "rgba(34,197,94,.20)",
-    text: "#ecfdf5",
-    muted: "rgba(236,253,245,.72)"
-  },
-
-  morado: {
-    accent1: "#c084fc",
-    accent2: "#7c3aed",
-    bg1: "#120b20",
-    bg2: "#21103a",
-    card: "rgba(192,132,252,.08)",
-    card2: "rgba(192,132,252,.12)",
-    stroke: "rgba(192,132,252,.20)",
-    text: "#f5f3ff",
-    muted: "rgba(245,243,255,.72)"
-  },
-
-  rojo: {
-    accent1: "#ef4444",
-    accent2: "#b91c1c",
-    bg1: "#1a0a0a",
-    bg2: "#2b1010",
-    card: "rgba(239,68,68,.08)",
-    card2: "rgba(239,68,68,.12)",
-    stroke: "rgba(239,68,68,.20)",
-    text: "#fef2f2",
-    muted: "rgba(254,242,242,.72)"
-  },
-
-  rosado: {
-    accent1: "#f472b6",
-    accent2: "#ec4899",
-    bg1: "#491249",
-    bg2: "#2b102b",
-    card: "rgba(244,114,182,.08)",
-    card2: "rgba(244,114,182,.12)",
-    stroke: "rgba(244,114,182,.20)",
-    text: "#fdf2f8",
-    muted: "rgba(253,242,248,.72)"
-  },
-
-  amarillo: {
-    accent1: "#facc15",
-    accent2: "#eab308",
-    bg1: "#4a3c0b",
-    bg2: "#2b1f0b",
-    card: "rgba(250,204,21,.08)",
-    card2: "rgba(250,204,21,.12)",
-    stroke: "rgba(250,204,21,.20)",
-    text: "#fefce8",
-    muted: "rgba(254,252,232,.72)"
-  },
-
-  vino: {
-    accent1: "#922053",
-    accent2: "#961d50",
-    bg1: "#2a0f1a",
-    bg2: "#1a0a12",
-    card: "rgba(146,32,83,.10)",
-    card2: "rgba(146,32,83,.14)",
-    stroke: "rgba(146,32,83,.25)",
-    text: "#fdf2f8",
-    muted: "rgba(253,242,248,.72)"
-  },
-
-  naranja: {
-    accent1: "#f97316",
-    accent2: "#ea580c",
-    bg1: "#2a140b",
-    bg2: "#3a1f0b",
-    card: "rgba(249,115,22,.08)",
-    card2: "rgba(249,115,22,.12)",
-    stroke: "rgba(249,115,22,.20)",
-    text: "#fff7ed",
-    muted: "rgba(255,247,237,.72)"
-  },
-
-  beige: { 
-    accent1: "#f5f5dc",
-    accent2: "#e0d8c3",
-    bg1: "#2b2b1f",
-    bg2: "#3a3a2b",
-    card: "rgba(245,245,220,.08)",
-    card2: "rgba(245,245,220,.12)",
-    stroke: "rgba(245,245,220,.20)",
-    text: "#fdfaf0",
-    muted: "rgba(253,250,240,.72)"
-  },
-
-  verde_lima: {
-    accent1: "#a3e635",
-    accent2: "#84cc16",
-    bg1: "#1a2b0a",
-    bg2: "#2b3a0b",
-    card: "rgba(163,230,53,.08)",
-    card2: "rgba(163,230,53,.12)",
-    stroke: "rgba(163,230,53,.20)",
-    text: "#f7fee7",
-    muted: "rgba(247,254,231,.72)"
-  },
-
-  rgb: {
-    rgb: true
-  }
-
-};
-
-let rgbInterval;
-
-function applyThemeByName(themeName) {
-
-  clearInterval(rgbInterval);
-
-  const theme = THEMES[themeName];
-
-  if (!theme) return;
-
-  // Si es RGB, inicia la animación y termina aquí
-  if (theme.rgb) {
-    iniciarRGB();
-    return;
-  }
-
-  const root = document.documentElement;
-
-  root.style.setProperty("--accent1", theme.accent1);
-  root.style.setProperty("--accent2", theme.accent2);
-
-  root.style.setProperty("--bg1", theme.bg1);
-  root.style.setProperty("--bg2", theme.bg2);
-
-  root.style.setProperty("--card", theme.card);
-  root.style.setProperty("--card2", theme.card2);
-
-  root.style.setProperty("--stroke", theme.stroke);
-
-  root.style.setProperty("--text", theme.text);
-  root.style.setProperty("--muted", theme.muted);
-}
-
-function iniciarRGB(){
-
-    let hue = 0;
-
-    rgbInterval = setInterval(()=>{
-
-        hue = (hue + 1) % 360;
-
-        const root = document.documentElement;
-
-        root.style.setProperty("--accent1", `hsl(${hue},100%,55%)`);
-        root.style.setProperty("--accent2", `hsl(${(hue+45)%360},100%,50%)`);
-
-        root.style.setProperty("--bg1", `hsl(${hue},35%,8%)`);
-        root.style.setProperty("--bg2", `hsl(${(hue+25)%360},35%,12%)`);
-
-        root.style.setProperty("--card", `hsla(${hue},100%,50%,0.08)`);
-        root.style.setProperty("--card2", `hsla(${hue},100%,50%,0.12)`);
-
-        root.style.setProperty("--stroke", `hsla(${hue},100%,50%,0.25)`);
-
-        root.style.setProperty("--text", "#ffffff");
-        root.style.setProperty("--muted", "rgba(255,255,255,.72)");
-
-    },25);
-}
-
-async function saveTheme(userId, themeName) {
-
-  const { error } = await window.supabase
-    .from("user_settings")
-    .upsert({
-      user_id: userId,
-      theme_name: themeName,
-      updated_at: new Date().toISOString()
-    });
-
-  console.log("saveTheme:", error);
-}
-
-async function loadTheme(userId) {
-
-  const { data, error } = await window.supabase
-    .from("user_settings")
-    .select("theme_name")
-    .eq("user_id", userId)
-    .single();
-
-  if (error || !data) return;
-
-  applyThemeByName(data.theme_name);
-
-  const selector =
-    document.getElementById("themeSelector");
-
-  if (selector) {
-    selector.value = data.theme_name;
-  }
-}
-
-window.saveTheme = saveTheme;
-window.loadTheme = loadTheme;
-window.applyThemeByName = applyThemeByName;
-
-// ==========================================================================
-// GESTIÓN DE FONDO DE PANTALLA PERSONALIZADO
-// ==========================================================================
-
-/**
- * Procesa la imagen seleccionada, la optimiza y la guarda
- */
-function manejarSubidaFondo(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  // Validar que sea imagen
-  if (!file.type.startsWith("image/")) {
-    if (typeof showToast === "function") {
-      showToast("error", "Formato no válido", "Por favor selecciona un archivo de imagen (PNG, JPG, WebP).");
-    }
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const img = new Image();
-    img.onload = function() {
-      // Redimensionar / optimizar la imagen con un Canvas para no saturar memoria
-      const canvas = document.createElement("canvas");
-      let width = img.width;
-      let height = img.height;
-
-      // Limitar a máximo 1920px de ancho/alto (calidad Full HD)
-      const MAX_SIZE = 1920;
-      if (width > MAX_SIZE || height > MAX_SIZE) {
-        if (width > height) {
-          height = Math.round((height * MAX_SIZE) / width);
-          width = MAX_SIZE;
-        } else {
-          width = Math.round((width * MAX_SIZE) / height);
-          height = MAX_SIZE;
-        }
-      }
-
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0, width, height);
-
-      // Convertir a JPEG comprimido
-      const dataUrlOptimizado = canvas.toDataURL("image/jpeg", 0.85);
-
-      try {
-        // Guardar en localStorage
-        localStorage.setItem("customBgImage", dataUrlOptimizado);
-        const oscuridad = localStorage.getItem("customBgDarkness") || "75";
-
-        aplicarFondoEnDOM(dataUrlOptimizado, oscuridad);
-
-        if (typeof showToast === "function") {
-          showToast("success", "Fondo actualizado", "La imagen de fondo se ha guardado correctamente.");
-        }
-      } catch (err) {
-        console.error("Error guardando imagen:", err);
-        if (typeof showToast === "function") {
-          showToast("warn", "Imagen muy grande", "Intenta con una imagen de menor tamaño.");
-        }
-      }
-    };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
-
-  // Limpiar input para permitir volver a subir el mismo archivo si se desea
-  event.target.value = "";
-}
-
-/**
- * Aplica la imagen y la opacidad al DOM
- */
-function aplicarFondoEnDOM(dataUrl, oscuridad = "75") {
-  const oscuridadDecimal = (parseInt(oscuridad, 10) / 100).toFixed(2);
-
-  document.documentElement.style.setProperty("--custom-bg-url", `url("${dataUrl}")`);
-  document.documentElement.style.setProperty("--bg-darkness", oscuridadDecimal);
-  document.body.classList.add("has-custom-bg");
-
-  // Mostrar controles de quitar y slider si existen
-  const removeBtn = document.getElementById("removeBgBtn");
-  const adjustWrap = document.getElementById("bgAdjustWrap");
-  const slider = document.getElementById("bgDarknessSlider");
-  const valText = document.getElementById("bgDarknessVal");
-
-  if (removeBtn) removeBtn.style.display = "inline-flex";
-  if (adjustWrap) adjustWrap.style.display = "block";
-  if (slider) slider.value = oscuridad;
-  if (valText) valText.textContent = `${oscuridad}%`;
-}
-
-/**
- * Ajusta la capa oscura en tiempo real desde el slider
- */
-function ajustarOscuridadFondo(valor) {
-  const oscuridadDecimal = (parseInt(valor, 10) / 100).toFixed(2);
-  document.documentElement.style.setProperty("--bg-darkness", oscuridadDecimal);
-  localStorage.setItem("customBgDarkness", valor);
-
-  const valText = document.getElementById("bgDarknessVal");
-  if (valText) valText.textContent = `${valor}%`;
-}
-
-/**
- * Restablece el fondo por defecto
- */
-function quitarFondoPersonalizado() {
-  localStorage.removeItem("customBgImage");
-  localStorage.removeItem("customBgDarkness");
-
-  document.body.classList.remove("has-custom-bg");
-  document.documentElement.style.removeProperty("--custom-bg-url");
-  document.documentElement.style.removeProperty("--bg-darkness");
-
-  const removeBtn = document.getElementById("removeBgBtn");
-  const adjustWrap = document.getElementById("bgAdjustWrap");
-
-  if (removeBtn) removeBtn.style.display = "none";
-  if (adjustWrap) adjustWrap.style.display = "none";
-
-  if (typeof showToast === "function") {
-    showToast("success", "Fondo restablecido", "Se ha vuelto al fondo original.");
-  }
-}
-
-/**
- * Cargar fondo guardado al iniciar la página
- */
-function inicializarFondoPersonalizado() {
-  const bgGuardado = localStorage.getItem("customBgImage");
-  const oscuridadGuardada = localStorage.getItem("customBgDarkness") || "75";
-
-  if (bgGuardado) {
-    aplicarFondoEnDOM(bgGuardado, oscuridadGuardada);
-  }
-}
-
-// Ejecutar al cargar la página
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema de Limpiezas</title>
+  <!-- Favicon normal -->
+  <link rel="icon" type="image/png" href="img/favicon.png">
+  <!-- Styles CSS -->
+  <link rel="stylesheet" href="css/styles.css">
+  <!-- Para iPhone / Apple -->
+  <link rel="apple-touch-icon" href="img/favicon.png">
+</head>
+
+<body>
+<!-- AUTH GATE -->
+<div id="authGate" style="position:fixed; inset:0; display:none; place-items:center; padding:18px; background:rgba(0,0,0,.55); backdrop-filter: blur(10px); z-index:99999;">
+  <div style="width:min(520px, 100%); border:1px solid rgba(255,255,255,.14); border-radius:18px; padding:16px; background:rgba(255,255,255,.08); box-shadow: 0 18px 55px rgba(0,0,0,.55);">
+    <h3 style="margin:0 0 6px;">Iniciar sesión</h3>
+    <p style="margin:0 0 14px; color:rgba(232,241,255,.72); font-size:12px;">Acceso al Sistema de Limpiezas</p>
+
+    <label>Usuario</label>
+    <input id="authUser" type="text" placeholder="Usuario">
+
+    <label style="margin-top:10px;">Contraseña</label>
+    <input id="authPass" type="password" placeholder="••••••••" />
+
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+      <button class="btn btnPrimary" type="button" onclick="authLogin()">Entrar</button>
+      <button class="btn btnPrimary" type="button" onclick="authRegister()">Crear cuenta</button>
+      <button class="btn btnPrimary" type="button" onclick="authLogout()">Salir</button>
+    </div>
+
+    <div style="margin-top:10px; color:rgba(232,241,255,.72); font-size:12px;" id="authMsg"></div>
+  </div>
+</div>
+
+<!-- BACKDROP OVERLAY PARA MÓVILES -->
+<div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+  <div class="app" id="appContainer">
+
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="logo">
+          <img src="img/favicon.png" alt="Logo">
+          <span class="brand-text">Sistema de Limpiezas</span>
+        </div>
+        <!-- Botón para cerrar en móvil / contraer -->
+        <button type="button" class="btn-sidebar-close" onclick="toggleSidebar()" title="Ocultar menú">✕</button>
+      </div>
+
+      <div class="nav">
+        <button type="button" class="navBtn active" data-page="home" onclick="go('home')">
+          <span class="icon">🏠</span> <span class="nav-text">Inicio</span>
+        </button>
+
+        <button type="button" class="navBtn" data-page="gen-nc" onclick="go('gen-nc')">
+          <span class="icon">🧾</span> <span class="nav-text">Generador NC</span>
+        </button>
+
+        <button type="button" class="navBtn" data-page="gen-nd" onclick="go('gen-nd')">
+          <span class="icon">📄</span> <span class="nav-text">Generador ND</span>
+        </button>
+
+        <button type="button" class="navBtn" data-page="gen-acometida" onclick="go('gen-acometida')">
+          <span class="icon">📄</span> <span class="nav-text">Acometidas</span>
+        </button>
+
+        <button type="button" class="navBtn" data-page="historial" onclick="go('historial')">
+          <span class="icon">📂</span> <span class="nav-text">Historial</span>
+        </button>
+
+        <button type="button" class="navBtn" data-page="estadisticas" onclick="go('estadisticas')">
+          <span class="icon">📊</span> <span class="nav-text">Estadísticas</span>
+        </button>
+
+        <button type="button" class="navBtn" data-page="plantillas" onclick="go('plantillas')">
+          <span class="icon">📁</span> <span class="nav-text">Plantillas</span>
+        </button>
+
+        <button type="button" class="navBtn" data-page="help" onclick="go('help')">
+          <span class="icon">❓</span> <span class="nav-text">Ayuda</span>
+        </button>
+      </div>
+
+      <div class="sideFooter">
+        <div class="pill"><span class="dot"></span><span class="footer-status">Estado: Listo</span></div>
+        <div class="footer-copy" style="margin-top:10px;">Antuan Mora Zuñiga © 2026.</div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <!-- BOTÓN HAMBURGUESA / DESPLEGAR -->
+          <button type="button" class="btn-toggle-sidebar" id="toggleSidebarBtn" onclick="toggleSidebar()" aria-label="Alternar menú lateral" title="Menú lateral">
+            <span class="toggle-icon">☰</span>
+          </button>
+          <div>
+            <h2 id="pageTitle">Inicio</h2>
+            <div class="sub" id="pageSub">Panel de control y accesos rápidos.</div>
+          </div>
+        </div>
+        <div class="meta">
+          <div id="metaFecha">Fecha: --/--/----</div>
+          <div id="metaHora">Hora: --:--</div>
+        </div>
+      </div>
+
+      <div class="content">
+        <section class="page active" id="page-home">
+          <div class="grid">
+            <div class="kpi">
+              <div class="label">Registros generados</div>
+              <div class="value" id="kpiTotal">0</div>
+              <div class="hint">Total de líneas generadas en la última ejecución.</div>
+            </div>
+
+            <div class="kpi">
+              <div class="label">Raíces extras</div>
+              <div class="value" id="kpiExtras">0</div>
+              <div class="hint">Cantidad de reglas extras activas.</div>
+            </div>
+
+            <div class="kpi">
+              <div class="label">Estado</div>
+              <div class="value">OK</div>
+              <div class="hint">Todo listo para generar y copiar.</div>
+            </div>
+
+            <div class="card">
+              <div class="cardHeader">
+                <h3>Accesos rápidos</h3>
+                <span>Ir directo a tareas</span>
+              </div>
+              <div class="cardBody">
+                <div class="btnRow">
+                  <button class="btn btnPrimary" onclick="go('gen-nc')">⚡ Ir al Generador NC</button>
+                  <button class="btn btnPrimary" onclick="go('gen-nd')">⚡ Ir al Generador ND</button>
+                  <button class="btn btnPrimary" onclick="go('gen-acometida')">⚡ Ir al Generador Acometida</button>
+                  <button class="btn btnPrimary" onclick="go('historial')">⚡ Ir al Historial</button>
+                </div>
+                <div class="hintText" style="margin-top:10px;">
+                  * El usuario actual se verá arriba a la derecha.
+                </div>
+                <div style="margin-top:20px;">
+                  <label>🎨 Tema visual</label>
+
+                  <select id="themeSelector">
+                    <option value="azul">🔵 Azul</option>
+                    <option value="verde">🟢 Verde</option>
+                    <option value="morado">🟣 Morado</option>
+                    <option value="rojo">🔴 Rojo</option>
+                    <option value="rosado">🌸 Rosado</option>
+                    <option value="amarillo">🟡 Amarillo</option>
+                    <option value="vino">🍷 Vino</option>
+                    <option value="naranja">🟠 Naranja</option>
+                    <option value="beige">🍦 Beige</option>
+                    <option value="verde_lima">🍋 Lima</option>
+                    <option value="rgb">🎮 RGB</option>
+                  </select>
+                  <!-- PERSONALIZADOR DE FONDO DE PANTALLA -->
+                  <div style="margin-top:24px; padding-top:18px; border-top:1px solid var(--stroke);">
+                    <label>🖼️ Imagen de fondo personalizada</label>
+                    <div class="hintText" style="margin-bottom:12px;">Sube una imagen de tu equipo para usarla como fondo.</div>
+
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                      <!-- Input oculto para seleccionar archivo -->
+                      <input type="file" id="bgImageInput" accept="image/*" style="display:none;" onchange="manejarSubidaFondo(event)">
+                      
+                      <button class="btn btnPrimary" type="button" onclick="document.getElementById('bgImageInput').click()">
+                        📁 Seleccionar imagen
+                      </button>
+
+                      <button class="btn btnGhost" type="button" id="removeBgBtn" onclick="quitarFondoPersonalizado()" style="display:none;">
+                        🗑️ Quitar imagen de fondo
+                      </button>
+                    </div>
+
+                    <!-- Control deslizante de oscuridad/legibilidad -->
+                    <div id="bgAdjustWrap" style="margin-top:14px; display:none;">
+                      <div style="display:flex; justify-content:space-between; max-width:280px; margin-bottom:4px;">
+                        <label style="font-size:11.5px; margin:0;">Oscuridad del fondo:</label>
+                        <span id="bgDarknessVal" style="font-size:11.5px; color:var(--accent1); font-weight:700;">75%</span>
+                      </div>
+                      <input 
+                        type="range" 
+                        id="bgDarknessSlider" 
+                        min="20" 
+                        max="95" 
+                        value="75" 
+                        oninput="ajustarOscuridadFondo(this.value)" 
+                        style="width:100%; max-width:280px; accent-color:var(--accent1); cursor:pointer;"
+                      >
+                      <div class="hintText" style="font-size:11px;">Aumenta la oscuridad si el texto te cuesta leer.</div>
+                    </div>
+                  </div>
+
+                  <div style="margin-top:10px;">
+                    <button id="saveThemeBtn" class="btn btnPrimary">
+                      Guardar tema
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="page" id="page-gen-acometida">
+          <div class="card">
+            <div class="cardHeader">
+              <h3>Generador Acometida</h3>
+              <span>Formato Acometida</span>
+            </div>
+
+            <div class="cardBody">
+              <div class="formGrid">
+                <div style="grid-column: 1 / -1;">
+                  <label>Acometida Completa</label>
+                  <textarea id="data_acometida"></textarea>
+                </div>
+
+                <div style="grid-column: 1 / -1;">
+                  <label>Resultado (Acometida)</label>
+                  <textarea id="resultado_acometida" readonly></textarea>
+                </div>
+              </div>
+
+              <div class="actions">
+                <div class="btnRow">
+                  <button class="btn btnPrimary" onclick="generarAcometidaUltra()">⚡ Generar y Copiar</button>
+                  <button class="btn btnPrimary" onclick="copiarResultado('acometida')">📋 Copiar</button>
+                  <button class="btn btnPrimary" onclick="limpiarTodo('acometida')">🧹 Limpiar</button>
+                </div>
+                <div class="statLine">
+                  <span class="pill"><span class="dot"></span>Registros: <b id="count_acometida">0</b></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="page" id="page-gen-nc">
+          <div class="card">
+            <div class="cardHeader">
+              <h3>Generador NC</h3>
+              <span>CM,908,... (Recuperación)</span>
+            </div>
+
+            <div class="cardBody">
+              <div class="formGrid">
+                <div>
+                  <label>Raíz principal</label>
+                  <input id="raiz_nc" type="text" placeholder="Ej: 1.1180330">
+                </div>
+
+                <div>
+                  <label>Cédula</label>
+                  <input id="cedula" type="text" placeholder="Ej: 702840496">
+                </div>
+
+                <div style="grid-column: 1 / -1;">
+                  <label>Tabla principal (NC)</label>
+                  <textarea id="data_nc"></textarea>
+                </div>
+
+                <div style="grid-column: 1 / -1;">
+                  <div style="display: flex; align-items: center; justify-content: end; gap: 10px; margin-bottom: 10px;">
+                    <button class="btn btnPrimary" onclick="generarPlantilla('nc')">⚡ Generar y Copiar</button>
+                    <button class="btn btnPrimary" onclick="limpiarTodo('nc')">🧹 Limpiar</button>
+                    <button class="btn btnPrimary" onclick="pasarRaizAExtra('nc')">➕ Agregar raíz extra</button>
+                  </div>
+                  <div class="ruleTop">
+                    <div>
+                      <label style="margin:0;">Raíces extras (NC)</label>
+                      <div class="hintText">Cada raíz extra trae su propia tabla completa.</div>
+                    </div>
+                  </div>
+                  <div class="rulesWrap" id="rules_nc"></div>
+                </div>
+
+                <div style="grid-column: 1 / -1;">
+                  <label>Resultado (NC)</label>
+                  <textarea id="resultado_nc" readonly></textarea>
+                </div>
+              </div>
+
+              <div class="actions">
+                <div class="statLine">
+                  <span class="pill"><span class="dot"></span>Registros: <b id="count_nc">0</b></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="page" id="page-gen-nd">
+          <div class="card">
+            <div class="cardHeader">
+              <h3>Generador ND</h3>
+              <span>IN,911,... (Reversión)</span>
+            </div>
+
+            <div class="cardBody">
+              <div class="formGrid">
+                <div>
+                  <label>Tipo</label>
+                  <input value="ND" disabled>
+                  <div class="hintText">Este generador siempre crea ND.</div>
+                </div>
+
+                <div>
+                  <label>Comentario ND</label>
+                  <select id="tipo_nd">
+                    <option value="reversion">Reversión Proyecto Venta Servicio Móvil</option>
+                    <option value="reversionIncu">Reversiones Hibridos, Incubadora, etc...</option>
+                    <option value="limpieza">Limpieza NC 200</option>
+                  </select>
+                </div>
+
+                <div style="grid-column: 1 / -1;">
+                  <label>Tabla principal (ND)</label>
+                  <textarea id="data_nd"
+                    onblur="buscarRaicesNDAutomatico()"
+                    placeholder="1.1180330 1235446 28809.00 00012020303203 119760472"></textarea>
+                </div>
+
+                <div style="grid-column: 1 / -1;">
+                  <div class="ruleTop">
+                    <div>
+                      <label style="margin:0;">Raíces extras (ND)</label>
+                      <div class="hintText">Cada raíz extra trae su propia tabla completa.</div>
+                    </div>
+                    <button class="btn btnPrimary" onclick="agregarRegla('nd')">➕ Agregar raíz extra</button>
+                  </div>
+                  <div class="rulesWrap" id="rules_nd"></div>
+                </div>
+
+                <div style="grid-column: 1 / -1;">
+                  <label>Resultado (ND)</label>
+                  <textarea id="resultado_nd" readonly></textarea>
+                </div>
+              </div>
+
+              <div class="actions">
+                <div class="btnRow">
+                  <button class="btn btnPrimary" onclick="generarPlantilla('nd')">⚡ Generar y Copiar</button>
+                  <button class="btn btnPrimary" onclick="copiarResultado('nd')">📋 Copiar</button>
+                  <button class="btn btnPrimary" onclick="limpiarTodo('nd')">🧹 Limpiar</button>
+                </div>
+                <div class="statLine">
+                  <span class="pill"><span class="dot"></span>Registros: <b id="count_nd">0</b></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="page" id="page-historial">
+          <div class="card">
+            <div class="cardHeader">
+              <h3>Historial de Limpiezas</h3>
+              <span>Selecciona y reutiliza para ND</span>
+            </div>
+
+            <div class="cardBody">
+              <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:14px;">
+                <input id="fechaFiltro" style="max-width:180px;" placeholder="📅 Seleccionar fecha" />
+
+                <select id="tipoFiltro" onchange="cargarHistorial(true)" style="max-width:160px;">
+                  <option value="">Todos los tipos</option>
+                  <option value="NC200">NC200</option>
+                  <option value="ND200">ND200</option>
+                  <option value="ND300">ND300</option>
+                </select>
+
+                <input id="cedulaFiltro" style="max-width:180px;" placeholder="🔍 Filtrar por cédula(s)..." />
+
+                <button class="btn btnPrimary" type="button" onclick="aplicarFiltros()">Filtrar</button>
+                <button class="btn btnGhost" type="button" onclick="limpiarFiltros()">🧹 Limpiar</button>
+                <button class="btn btnGhost" type="button" onclick="cargarHistorial(true)">🔄 Recargar</button>
+                <button class="btn btnPrimary" type="button" onclick="usarSeleccionParaND()">➡️ Usar en ND</button>
+                <button class="btn btnDanger" type="button" id="btnBorrarLimpiezas" onclick="confirmarBorrarLimpiezas()">🗑️ Borrar limpiezas</button>
+              </div>
+
+              <div style="max-height:450px; overflow:auto;">
+                <table id="tablaHistorialContenedor" style="width:100%; font-size:12px; border-collapse:collapse;">
+                  <thead>
+                    <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.2);">
+                      <th style="width:36px; padding:8px 4px; text-align:center;">
+                        <input type="checkbox" id="chkSelectAllHist" title="Seleccionar todas" onchange="toggleSelectAllHist(this.checked)">
+                      </th>
+                      <th>Factura</th>
+                      <th>Billing</th>
+                      <th>Monto</th>
+                      <th>Raíz</th>
+                      <th>Tipo</th>
+                      <th>Fecha</th>
+                      <th>Cédula</th>
+                      <th>Usuario</th>
+                      <th style="text-align:center; width:50px;">Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tablaHistorial"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="page" id="page-estadisticas">
+  <div class="grid">
+    <div class="card" style="grid-column: span 12;">
+      <div class="cardHeader">
+        <div>
+          <h3>🏆 Ranking de Limpiezas (Cédulas Únicas)</h3>
+          <span>Calculado en tiempo real desde Supabase</span>
+        </div>
+        <div>
+          <button class="btn btnGhost" type="button" onclick="cargarEstadisticas(true)">🔄 Recargar Datos</button>
+        </div>
+      </div>
+      
+      <div class="cardBody">
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:14px; margin-bottom: 20px;">
+          <div class="kpi" style="grid-column:auto;">
+            <div class="label">🥇 Agente Líder</div>
+            <div class="value" id="kpiLider" style="font-size:20px;">--</div>
+            <div class="hint" id="kpiLiderCount">0 cédulas únicas</div>
+          </div>
+          <div class="kpi" style="grid-column:auto;">
+            <div class="label">👥 Agentes Activos</div>
+            <div class="value" id="kpiTotalAgentes">0</div>
+            <div class="hint">Con limpiezas registradas</div>
+          </div>
+          <div class="kpi" style="grid-column:auto;">
+            <div class="label">📄 Cédulas Únicas Procesadas</div>
+            <div class="value" id="kpiTotalCedulas">0</div>
+            <div class="hint">Total sumado de agentes</div>
+          </div>
+        </div>
+
+        <!-- Podio Top 3 -->
+        <div id="podiumContainer" class="podium-grid"></div>
+      </div>
+    </div>
+
+    <!-- Gráfica -->
+    <div class="card" style="grid-column: span 12;">
+      <div class="cardHeader">
+        <h3>📊 Gráfica Comparativa</h3>
+        <span>Cédulas únicas vs Total de registros</span>
+      </div>
+      <div class="cardBody" style="position: relative; height: 360px; width: 100%;">
+        <canvas id="chartRanking"></canvas>
+      </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="card" style="grid-column: span 12;">
+      <div class="cardHeader">
+        <h3>📋 Tabla de Posiciones Completa</h3>
+        <span>Desglose por usuario</span>
+      </div>
+      <div class="cardBody" style="max-height: 400px; overflow: auto;">
+        <table style="width:100%; font-size:13px; border-collapse:collapse;" id="tablaRanking">
+          <thead>
+            <tr style="text-align:left; border-bottom:1px solid var(--stroke); color:var(--muted); background:var(--card2);">
+              <th style="padding:10px 14px;">Posición</th>
+              <th style="padding:10px 14px;">Agente / Usuario</th>
+              <th style="padding:10px 14px;">Cédulas Únicas</th>
+              <th style="padding:10px 14px;">Total Registros</th>
+              <th style="padding:10px 14px;">Efectividad</th>
+            </tr>
+          </thead>
+          <tbody id="tablaRankingBody">
+            <tr>
+              <td colspan="5" style="text-align:center; padding:20px; color:var(--muted);">Cargando...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+        <section class="page" id="page-plantillas">
+          <div class="card">
+            <div class="cardHeader">
+              <h3>Plantillas</h3>
+              <span>Plantillas para OneMarketer</span>
+            </div>
+            <div class="cardBody">
+              <div class="plantillas-lista">
+                <button class="btn btnPrimary" onclick="mostrarPlantilla('nc')">📋 Notas de Crédito</button>
+                <button class="btn btnPrimary" onclick="mostrarPlantilla('autorizacion')">📋 Autorización</button>
+                <button class="btn btnPrimary" onclick="mostrarPlantilla('cancelacion')">📋 Cancelación</button>
+                <button class="btn btnPrimary" onclick="mostrarPlantilla('despacho')">📋 Despacho</button>
+                <button class="btn btnPrimary" onclick="mostrarPlantilla('errordeaprovisionamiento')">📋 Error de Aprovisionamiento</button>
+                <button class="btn btnPrimary" onclick="mostrarPlantilla('cambiodesim')">📋 Cambio de SIM</button>
+                <button class="btn btnPrimary" onclick="mostrarPlantilla('qflow')">📋 Casos Q-flow</button>
+                <button class="btn btnPrimary" onclick="mostrarPlantilla('rechazos')">📋 Rechazos</button>
+              </div>
+
+              <div id="contenidoPlantilla" style="margin-top:20px;">
+                Selecciona una plantilla...
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="page" id="page-help">
+          <div class="card">
+            <div class="cardHeader">
+              <h3>Ayuda</h3>
+              <span>Cómo pegar y generar</span>
+            </div>
+            <div class="cardBody" style="color:var(--muted);">
+              <ul>
+                <li>Pega la tabla con encabezados: <b>Factura</b>, <b>Billing Account</b>, <b>Monto a Pagar</b>.</li>
+                <li>Si usas raíces extras: agrega una regla y pega una tabla completa ahí.</li>
+                <li>El resultado sale todo seguido.</li>
+                <li>Si no copia, abre en <b>https</b> o <b>localhost</b>.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+<!-- MODAL DE CONFIRMACIÓN PARA BORRAR -->
+<div id="modalConfirmarBorrado" style="position:fixed; inset:0; display:none; place-items:center; padding:18px; background:rgba(0,0,0,.65); backdrop-filter:blur(8px); z-index:99998;">
+  <div style="width:min(450px, 100%); background:var(--card); border:1px solid rgba(239,68,68,0.4); border-radius:18px; padding:22px; box-shadow:0 20px 50px rgba(0,0,0,0.6);">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+      <div style="width:42px; height:42px; border-radius:10px; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); display:grid; place-items:center; font-size:20px;">
+        ⚠️
+      </div>
+      <div>
+        <h3 style="margin:0; font-size:16px;">Confirmar eliminación</h3>
+        <span style="font-size:12px; color:var(--muted);">Esta acción es irreversible</span>
+      </div>
+    </div>
+    <div id="modalConfirmarTexto" style="margin:14px 0 20px; font-size:13.5px; line-height:1.5; color:var(--text);">
+      ¿Estás seguro de que deseas eliminar las limpiezas seleccionadas?
+    </div>
+    <div style="display:flex; justify-content:flex-end; gap:10px;">
+      <button class="btn btnGhost" type="button" onclick="cerrarModalConfirmarBorrado()">Cancelar</button>
+      <button class="btn btnDanger" type="button" id="btnEjecutarBorrado">Sí, eliminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast" aria-live="polite" aria-atomic="true">
+  <div class="toastIcon" id="toastIcon">✓</div>
+  <div class="toastText">
+    <strong id="toastTitle">Listo</strong>
+    <span id="toastMsg">Acción completada.</span>
+  </div>
+</div>
+
+<!-- Flatpickr CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+<!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
 document.addEventListener("DOMContentLoaded", () => {
-  inicializarFondoPersonalizado();
+  flatpickr("#fechaFiltro", {
+    dateFormat: "Y-m-d",
+    allowInput: false,
+    onChange: function(selectedDates, dateStr) {
+      window.fechaSeleccionada = dateStr;
+      if (typeof cargarHistorial === "function") {
+        cargarHistorial(true);
+      }
+    }
+  });
 });
+</script>
+
+<script src="js/helpers.js"></script>
+<script src="js/navigation.js"></script>
+<script src="js/generators.js"></script>
+<script src="js/historial.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/plantillas.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="js/estadisticas.js"></script>
+<script src="js/app.js"></script>
+<script type="module" src="js/supabase.js"></script>
+
+</body>
+</html>

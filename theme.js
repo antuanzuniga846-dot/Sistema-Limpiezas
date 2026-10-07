@@ -1,124 +1,230 @@
-window.mostrarPlantilla = function(tipo){
+// ==========================================================================
+// GESTIÓN DE FILTROS
+// ==========================================================================
+window.aplicarFiltros = () => {
+  if (typeof cargarHistorial === "function") {
+    cargarHistorial(true);
+  }
+};
 
-  const plantillas = {
+window.limpiarFiltros = () => {
+  const inputFecha = document.getElementById("fechaFiltro");
+  const selectTipo = document.getElementById("tipoFiltro");
+  const inputCedula = document.getElementById("cedulaFiltro");
 
-    nc: `
-<h3>Plantilla Nota de Crédito</h3>
-<textarea style="width:100%;height:300px;">
-200_Recuperacion de Clientes Proyecto de Ventas Móvil
+  if (inputFecha) {
+    if (inputFecha._flatpickr) {
+      inputFecha._flatpickr.clear();
+    }
+    inputFecha.value = "";
+  }
 
-200_ Se aplica limpieza de saldos por el monto de
-VB Operaciones Comerciales
+  if (selectTipo) {
+    selectTipo.value = "";
+  }
 
-200_Se aplico reversión por proyecto de Venta Servicio Móvil Limpieza de Saldos
+  if (inputCedula) {
+    inputCedula.value = "";
+  }
 
-Se procede para la reversión de nota de crédito.
-</textarea>
-    `,
+  const chkAll = document.getElementById("chkSelectAllHist");
+  if (chkAll) {
+    chkAll.checked = false;
+  }
 
-    autorizacion: `
-<h3>Plantilla Autorización</h3>
-<textarea style="width:100%;height:300px;">
-Se procede con la autorización, por favor validar, cualquier consulta adicional quedamos a su disposición.
+  if (typeof cargarHistorial === "function") {
+    cargarHistorial(true);
+  }
+};
 
-Se solicita prioridad, cualquier consulta adicional quedamos a su disposición.
+// Filtrar automáticamente cuando se cambia el selector o se presiona Enter en cédula
+document.addEventListener("DOMContentLoaded", () => {
+  const selectTipo = document.getElementById("tipoFiltro");
+  if (selectTipo) {
+    selectTipo.addEventListener("change", () => window.aplicarFiltros());
+  }
 
-Compañeros su apoyo dando prioridad y autorización a la orden en CRM.
-</textarea>
-    `,
+  const inputCedula = document.getElementById("cedulaFiltro");
+  if (inputCedula) {
+    inputCedula.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        window.aplicarFiltros();
+      }
+    });
+  }
 
-    cancelacion: `
-<h3>Plantilla Cancelación</h3>
-<textarea style="width:100%;height:300px;">
-Compañeros no podemos cancelar orden debido a que directriz de claro no podemos cancelar ordenes si tienen orden pendiente a instalación en ETA.
+  const btnEjecutar = document.getElementById("btnEjecutarBorrado");
+  if (btnEjecutar) {
+    btnEjecutar.addEventListener("click", async () => {
+      if (typeof window._accionConfirmadaBorrado === "function") {
+        const accion = window._accionConfirmadaBorrado;
+        window.cerrarModalConfirmarBorrado();
+        await accion();
+      }
+    });
+  }
+});
 
-${window.currentUserInitials} // C300 // Se cancela orden por solicitud del Agente Autorizado.
+// ==========================================================================
+// SELECCIÓN Y MARCAR TODAS LAS CASILLAS
+// ==========================================================================
+window.toggleSelectAllHist = (checked) => {
+  const todasLasFilas = document.querySelectorAll("#tablaHistorial tr");
+  todasLasFilas.forEach(tr => {
+    const chk = tr.querySelector(".chkHist");
+    if (chk) chk.checked = checked;
+    if (checked) {
+      tr.classList.add("fila-activa");
+    } else {
+      tr.classList.remove("fila-activa", "misma-raiz");
+    }
+  });
+};
 
-Se procede con la cancelación, por favor validar, cualquier consulta adicional quedamos a su disposición.
+// ==========================================================================
+// RESALTAR FILAS Y AGRUPACIÓN POR RAÍZ (Toggle)
+// ==========================================================================
+document.addEventListener("click", (e) => {
+  const fila = e.target.closest("#tablaHistorial tr");
 
-En este momento no se puede realizar la cancelación, ya que fue creada por otro Agente autorizado hace menos de 24 horas.
+  // Ignorar clics fuera de filas del cuerpo o clics directos al checkbox o botón de borrar
+  if (!fila || e.target.classList.contains("chkHist") || e.target.closest(".btn-del-row")) return;
 
-En este momento no se puede realizar la cancelación, ya que fue creada por otro Agente autorizado hace menos de 72 horas.
+  const raizSeleccionada = fila.children[4]?.textContent.trim();
+  if (!raizSeleccionada) return;
 
-No procede para la cancelación ya que la orden está en aprovisionamiento.
-</textarea>
-    `,
+  const todasLasFilas = document.querySelectorAll("#tablaHistorial tr");
+  const yaEstabaActiva = fila.classList.contains("fila-activa");
 
-    despacho: `
-<h3>Plantilla Despacho</h3>
-<textarea style="width:100%;height:300px;">
-Buen día, por favor su ayuda con la prioridad de la ordenes:
+  // Desmarcar todo
+  todasLasFilas.forEach(tr => {
+    tr.classList.remove("fila-activa", "misma-raiz");
+    const chk = tr.querySelector(".chkHist");
+    if (chk) chk.checked = false;
+  });
 
-Orden se encuentra en despacho a la espera de asignación.
+  const chkAll = document.getElementById("chkSelectAllHist");
+  if (chkAll) chkAll.checked = false;
 
-Se solicita prioridad con el área encargada.
-</textarea>
-    `,
+  // Si no estaba activa, seleccionar todas las que compartan la misma raíz
+  if (!yaEstabaActiva) {
+    const facturasVistas = new Set();
 
-        errordeaprovisionamiento: `
-<h3>Plantilla Error de Aprovisionamiento</h3>
-<textarea style="width:100%;height:300px;">
-Nombre: 
-Número de teléfono: 
-Cédula: 
-ID Cliente: 
-Orden CRM: 
-Orden EOM: 
-Versión CRM: 9.0
-Error: [SYNCERR?] Error
-Detalle: Error de aprovisionamiento
-</textarea>
-    `,
+    todasLasFilas.forEach(tr => {
+      const r = tr.children[4]?.textContent.trim();
+      const factura = tr.children[1]?.textContent.trim();
+      const chk = tr.querySelector(".chkHist");
 
-        cambiodesim: `
-<h3>Plantilla Cambio de SIM</h3>
-<textarea style="width:100%;height:300px;">
-Nombre: 
-Cedula: 
-Numero: 
-Solicitud(eSim/Sim):
-Sim Nuevo: 
+      if (r === raizSeleccionada && chk && !facturasVistas.has(factura)) {
+        chk.checked = true;
+        tr.classList.add("fila-activa", "misma-raiz");
+        facturasVistas.add(factura);
+      }
+    });
+  }
+});
 
-Compañeros ya su solicitud fue realizada, por favor validar, cualquier consulta adicional quedamos a su disposición.
+// ==========================================================================
+// ENVIAR REGISTROS A GENERADOR ND
+// ==========================================================================
+window.usarSeleccionParaND = () => {
+  const checks = document.querySelectorAll("#tablaHistorial .chkHist:checked");
 
-Buen día, le atiende Antuan Mora del equipo Soporte Comercial. Compañeros el documento de solicitud de cambio de SIM debe estar indexado y este cliente no lo tiene en OnBase.
-</textarea>
-    `,
-
-        qflow: `
-<h3>Plantilla Qflow</h3>
-<textarea style="width:100%;height:300px;">
-Bo Fijo: multimediacr@claro.cr 
-
-Bo Móvil: backofficemasivo@claro.cr
-
-Sistemas:   operaciones_sistemascr@claro.cr 
-</textarea>
-    `,
-
-    rechazos: `
-<h3>Plantilla Rechazos</h3>
-<textarea style="width:100%;height:300px;">
-Buen día, debes comunicarte con servicio al cliente al 7002-7002.
-
-Compañeros, estan seleccionando la opción equivocada, deben elegir "análisis de clientes desactivos", no la de soporte comercial, en caso de seguir derivando a este se les cerrara el caso, favor elegir la opción correcta.
-
-Compañeros no podemos cancelar orden debido a que directriz de claro no podemos cancelar ordenes si tienen orden pendiente a instalación en ETA.
-
-Lo sentimos, el tiempo de espera ha finalizado, si aún necesitas ayuda vuelve a contactarnos. ¡Gracias por comunicarte con nosotros!
-✨ ¡Claro que sí!
-</textarea>
-    `,
-  };
-
-  const contenedor = document.getElementById("contenidoPlantilla");
-
-  if (!contenedor) {
-    console.error("No existe #contenidoPlantilla");
+  if (!checks.length) {
+    if (typeof showToast === "function") {
+      showToast("warn", "Nada seleccionado", "Marca al menos un registro del historial.");
+    }
     return;
   }
 
-  contenedor.innerHTML =
-    plantillas[tipo] || "Plantilla no encontrada";
+  let resultado = "";
+
+  checks.forEach(chk => {
+    try {
+      const data = JSON.parse(decodeURIComponent(chk.dataset.json));
+      resultado += `${data.raiz || ""} ${data.billingid || ""} ${data.monto || ""} ${data.factura || ""} ${data.cedula || ""}\n`.trimStart();
+    } catch (err) {
+      console.error("Error parseando data-json:", err);
+    }
+  });
+
+  const nd = document.getElementById("data_nd");
+  if (nd) nd.value = resultado;
+
+  if (typeof go === "function") go("gen-nd");
+  if (typeof showToast === "function") showToast("success", "Listo", "Datos enviados al generador ND.");
 };
 
+// ==========================================================================
+// ALERTAS DE CONFIRMACIÓN Y BORRADO DE LIMPIEZAS
+// ==========================================================================
+window._accionConfirmadaBorrado = null;
+
+window.mostrarAlertaConfirmacion = (mensajeHtml, onConfirmar) => {
+  const modal = document.getElementById("modalConfirmarBorrado");
+  const texto = document.getElementById("modalConfirmarTexto");
+
+  if (modal && texto) {
+    texto.innerHTML = mensajeHtml;
+    window._accionConfirmadaBorrado = onConfirmar;
+    modal.style.display = "grid";
+  } else {
+    // Fallback con confirm nativo si no existe el modal en DOM
+    const textoPlano = mensajeHtml.replace(/<[^>]*>/g, "");
+    if (window.confirm(textoPlano)) {
+      onConfirmar();
+    }
+  }
+};
+
+window.cerrarModalConfirmarBorrado = () => {
+  const modal = document.getElementById("modalConfirmarBorrado");
+  if (modal) modal.style.display = "none";
+  window._accionConfirmadaBorrado = null;
+};
+
+// Borrar registros seleccionados por casillas
+window.confirmarBorrarLimpiezas = () => {
+  const checks = document.querySelectorAll("#tablaHistorial .chkHist:checked");
+
+  if (!checks.length) {
+    if (typeof showToast === "function") {
+      showToast("warn", "Sin selección", "Marca al menos una casilla en el historial para borrar.");
+    } else {
+      alert("Marca al menos una limpieza para eliminar.");
+    }
+    return;
+  }
+
+  const items = [];
+  checks.forEach(chk => {
+    try {
+      const data = JSON.parse(decodeURIComponent(chk.dataset.json));
+      items.push(data);
+    } catch (e) {
+      console.error(e);
+    }
+  });
+
+  const cantidad = items.length;
+  const mensaje = cantidad === 1
+    ? `¿Estás seguro de que deseas eliminar <b>1 registro de limpieza</b> (Factura: <code>${items[0].factura || "N/A"}</code>)? Se borrará permanentemente de la base de datos.`
+    : `¿Estás seguro de que deseas eliminar los <b>${cantidad} registros de limpiezas</b> seleccionados? Se borrarán permanentemente de la base de datos.`;
+
+  window.mostrarAlertaConfirmacion(mensaje, async () => {
+    if (typeof window.ejecutarBorradoLimpiezas === "function") {
+      await window.ejecutarBorradoLimpiezas(items);
+    }
+  });
+};
+
+// Borrar un registro individual desde el botón de la fila
+window.confirmarBorrarUna = (id, factura) => {
+  const mensaje = `¿Estás seguro de que deseas eliminar la limpieza con factura <code>${factura || "N/A"}</code>? Se borrará permanentemente de la base de datos.`;
+  window.mostrarAlertaConfirmacion(mensaje, async () => {
+    if (typeof window.ejecutarBorradoLimpiezas === "function") {
+      await window.ejecutarBorradoLimpiezas([{ id, factura }]);
+    }
+  });
+};
