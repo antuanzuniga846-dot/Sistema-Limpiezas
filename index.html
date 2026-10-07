@@ -1,598 +1,124 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sistema de Limpiezas</title>
-  <!-- Favicon normal -->
-  <link rel="icon" type="image/png" href="img/favicon.png">
-  <!-- Styles CSS -->
-  <link rel="stylesheet" href="css/styles.css">
-  <!-- Para iPhone / Apple -->
-  <link rel="apple-touch-icon" href="img/favicon.png">
-</head>
-
-<body>
-<!-- AUTH GATE -->
-<div id="authGate" style="position:fixed; inset:0; display:none; place-items:center; padding:18px; background:rgba(0,0,0,.55); backdrop-filter: blur(10px); z-index:99999;">
-  <div style="width:min(520px, 100%); border:1px solid rgba(255,255,255,.14); border-radius:18px; padding:16px; background:rgba(255,255,255,.08); box-shadow: 0 18px 55px rgba(0,0,0,.55);">
-    <h3 style="margin:0 0 6px;">Iniciar sesión</h3>
-    <p style="margin:0 0 14px; color:rgba(232,241,255,.72); font-size:12px;">Acceso al Sistema de Limpiezas</p>
-
-    <label>Usuario</label>
-    <input id="authUser" type="text" placeholder="Usuario">
-
-    <label style="margin-top:10px;">Contraseña</label>
-    <input id="authPass" type="password" placeholder="••••••••" />
-
-    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
-      <button class="btn btnPrimary" type="button" onclick="authLogin()">Entrar</button>
-      <button class="btn btnPrimary" type="button" onclick="authRegister()">Crear cuenta</button>
-      <button class="btn btnPrimary" type="button" onclick="authLogout()">Salir</button>
-    </div>
-
-    <div style="margin-top:10px; color:rgba(232,241,255,.72); font-size:12px;" id="authMsg"></div>
-  </div>
-</div>
-
-<!-- BACKDROP OVERLAY PARA MÓVILES -->
-<div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
-
-  <div class="app" id="appContainer">
-
-    <aside class="sidebar" id="sidebar">
-      <div class="brand">
-        <div class="logo">
-          <img src="img/favicon.png" alt="Logo">
-          <span class="brand-text">Sistema de Limpiezas</span>
-        </div>
-        <!-- Botón para cerrar en móvil / contraer -->
-        <button type="button" class="btn-sidebar-close" onclick="toggleSidebar()" title="Ocultar menú">✕</button>
-      </div>
-
-      <div class="nav">
-        <button type="button" class="navBtn active" data-page="home" onclick="go('home')">
-          <span class="icon">🏠</span> <span class="nav-text">Inicio</span>
-        </button>
-
-        <button type="button" class="navBtn" data-page="gen-nc" onclick="go('gen-nc')">
-          <span class="icon">🧾</span> <span class="nav-text">Generador NC</span>
-        </button>
-
-        <button type="button" class="navBtn" data-page="gen-nd" onclick="go('gen-nd')">
-          <span class="icon">📄</span> <span class="nav-text">Generador ND</span>
-        </button>
-
-        <button type="button" class="navBtn" data-page="gen-acometida" onclick="go('gen-acometida')">
-          <span class="icon">📄</span> <span class="nav-text">Acometidas</span>
-        </button>
-
-        <button type="button" class="navBtn" data-page="historial" onclick="go('historial')">
-          <span class="icon">📂</span> <span class="nav-text">Historial</span>
-        </button>
-
-        <button type="button" class="navBtn" data-page="estadisticas" onclick="go('estadisticas')">
-          <span class="icon">📊</span> <span class="nav-text">Estadísticas</span>
-        </button>
-
-        <button type="button" class="navBtn" data-page="plantillas" onclick="go('plantillas')">
-          <span class="icon">📁</span> <span class="nav-text">Plantillas</span>
-        </button>
-
-        <button type="button" class="navBtn" data-page="help" onclick="go('help')">
-          <span class="icon">❓</span> <span class="nav-text">Ayuda</span>
-        </button>
-      </div>
-
-      <div class="sideFooter">
-        <div class="pill"><span class="dot"></span><span class="footer-status">Estado: Listo</span></div>
-        <div class="footer-copy" style="margin-top:10px;">Antuan Mora Zuñiga © 2026.</div>
-      </div>
-    </aside>
-
-    <main class="main">
-      <div class="topbar">
-        <div style="display:flex; align-items:center; gap:12px;">
-          <!-- BOTÓN HAMBURGUESA / DESPLEGAR -->
-          <button type="button" class="btn-toggle-sidebar" id="toggleSidebarBtn" onclick="toggleSidebar()" aria-label="Alternar menú lateral" title="Menú lateral">
-            <span class="toggle-icon">☰</span>
-          </button>
-          <div>
-            <h2 id="pageTitle">Inicio</h2>
-            <div class="sub" id="pageSub">Panel de control y accesos rápidos.</div>
-          </div>
-        </div>
-        <div class="meta">
-          <div id="metaFecha">Fecha: --/--/----</div>
-          <div id="metaHora">Hora: --:--</div>
-        </div>
-      </div>
-
-      <div class="content">
-        <section class="page active" id="page-home">
-          <div class="grid">
-            <div class="kpi">
-              <div class="label">Registros generados</div>
-              <div class="value" id="kpiTotal">0</div>
-              <div class="hint">Total de líneas generadas en la última ejecución.</div>
-            </div>
-
-            <div class="kpi">
-              <div class="label">Raíces extras</div>
-              <div class="value" id="kpiExtras">0</div>
-              <div class="hint">Cantidad de reglas extras activas.</div>
-            </div>
-
-            <div class="kpi">
-              <div class="label">Estado</div>
-              <div class="value">OK</div>
-              <div class="hint">Todo listo para generar y copiar.</div>
-            </div>
-
-            <div class="card">
-              <div class="cardHeader">
-                <h3>Accesos rápidos</h3>
-                <span>Ir directo a tareas</span>
-              </div>
-              <div class="cardBody">
-                <div class="btnRow">
-                  <button class="btn btnPrimary" onclick="go('gen-nc')">⚡ Ir al Generador NC</button>
-                  <button class="btn btnPrimary" onclick="go('gen-nd')">⚡ Ir al Generador ND</button>
-                  <button class="btn btnPrimary" onclick="go('gen-acometida')">⚡ Ir al Generador Acometida</button>
-                  <button class="btn btnPrimary" onclick="go('historial')">⚡ Ir al Historial</button>
-                </div>
-                <div class="hintText" style="margin-top:10px;">
-                  * El usuario actual se verá arriba a la derecha.
-                </div>
-                <div style="margin-top:20px;">
-                  <label>🎨 Tema visual</label>
-
-                  <select id="themeSelector">
-                    <option value="azul">🔵 Azul</option>
-                    <option value="verde">🟢 Verde</option>
-                    <option value="morado">🟣 Morado</option>
-                    <option value="rojo">🔴 Rojo</option>
-                    <option value="rosado">🌸 Rosado</option>
-                    <option value="amarillo">🟡 Amarillo</option>
-                    <option value="vino">🍷 Vino</option>
-                    <option value="naranja">🟠 Naranja</option>
-                    <option value="beige">🍦 Beige</option>
-                    <option value="verde_lima">🍋 Lima</option>
-                    <option value="rgb">🎮 RGB</option>
-                  </select>
-                  <!-- PERSONALIZADOR DE FONDO DE PANTALLA -->
-                  <div style="margin-top:24px; padding-top:18px; border-top:1px solid var(--stroke);">
-                    <label>🖼️ Imagen de fondo personalizada</label>
-                    <div class="hintText" style="margin-bottom:12px;">Sube una imagen de tu equipo para usarla como fondo.</div>
-
-                    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-                      <!-- Input oculto para seleccionar archivo -->
-                      <input type="file" id="bgImageInput" accept="image/*" style="display:none;" onchange="manejarSubidaFondo(event)">
-                      
-                      <button class="btn btnPrimary" type="button" onclick="document.getElementById('bgImageInput').click()">
-                        📁 Seleccionar imagen
-                      </button>
-
-                      <button class="btn btnGhost" type="button" id="removeBgBtn" onclick="quitarFondoPersonalizado()" style="display:none;">
-                        🗑️ Quitar imagen de fondo
-                      </button>
-                    </div>
-
-                    <!-- Control deslizante de oscuridad/legibilidad -->
-                    <div id="bgAdjustWrap" style="margin-top:14px; display:none;">
-                      <div style="display:flex; justify-content:space-between; max-width:280px; margin-bottom:4px;">
-                        <label style="font-size:11.5px; margin:0;">Oscuridad del fondo:</label>
-                        <span id="bgDarknessVal" style="font-size:11.5px; color:var(--accent1); font-weight:700;">75%</span>
-                      </div>
-                      <input 
-                        type="range" 
-                        id="bgDarknessSlider" 
-                        min="20" 
-                        max="95" 
-                        value="75" 
-                        oninput="ajustarOscuridadFondo(this.value)" 
-                        style="width:100%; max-width:280px; accent-color:var(--accent1); cursor:pointer;"
-                      >
-                      <div class="hintText" style="font-size:11px;">Aumenta la oscuridad si el texto te cuesta leer.</div>
-                    </div>
-                  </div>
-
-                  <div style="margin-top:10px;">
-                    <button id="saveThemeBtn" class="btn btnPrimary">
-                      Guardar tema
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="page" id="page-gen-acometida">
-          <div class="card">
-            <div class="cardHeader">
-              <h3>Generador Acometida</h3>
-              <span>Formato Acometida</span>
-            </div>
-
-            <div class="cardBody">
-              <div class="formGrid">
-                <div style="grid-column: 1 / -1;">
-                  <label>Acometida Completa</label>
-                  <textarea id="data_acometida"></textarea>
-                </div>
-
-                <div style="grid-column: 1 / -1;">
-                  <label>Resultado (Acometida)</label>
-                  <textarea id="resultado_acometida" readonly></textarea>
-                </div>
-              </div>
-
-              <div class="actions">
-                <div class="btnRow">
-                  <button class="btn btnPrimary" onclick="generarAcometidaUltra()">⚡ Generar y Copiar</button>
-                  <button class="btn btnPrimary" onclick="copiarResultado('acometida')">📋 Copiar</button>
-                  <button class="btn btnPrimary" onclick="limpiarTodo('acometida')">🧹 Limpiar</button>
-                </div>
-                <div class="statLine">
-                  <span class="pill"><span class="dot"></span>Registros: <b id="count_acometida">0</b></span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="page" id="page-gen-nc">
-          <div class="card">
-            <div class="cardHeader">
-              <h3>Generador NC</h3>
-              <span>CM,908,... (Recuperación)</span>
-            </div>
-
-            <div class="cardBody">
-              <div class="formGrid">
-                <div>
-                  <label>Raíz principal</label>
-                  <input id="raiz_nc" type="text" placeholder="Ej: 1.1180330">
-                </div>
-
-                <div>
-                  <label>Cédula</label>
-                  <input id="cedula" type="text" placeholder="Ej: 702840496">
-                </div>
-
-                <div style="grid-column: 1 / -1;">
-                  <label>Tabla principal (NC)</label>
-                  <textarea id="data_nc"></textarea>
-                </div>
-
-                <div style="grid-column: 1 / -1;">
-                  <div style="display: flex; align-items: center; justify-content: end; gap: 10px; margin-bottom: 10px;">
-                    <button class="btn btnPrimary" onclick="generarPlantilla('nc')">⚡ Generar y Copiar</button>
-                    <button class="btn btnPrimary" onclick="limpiarTodo('nc')">🧹 Limpiar</button>
-                    <button class="btn btnPrimary" onclick="pasarRaizAExtra('nc')">➕ Agregar raíz extra</button>
-                  </div>
-                  <div class="ruleTop">
-                    <div>
-                      <label style="margin:0;">Raíces extras (NC)</label>
-                      <div class="hintText">Cada raíz extra trae su propia tabla completa.</div>
-                    </div>
-                  </div>
-                  <div class="rulesWrap" id="rules_nc"></div>
-                </div>
-
-                <div style="grid-column: 1 / -1;">
-                  <label>Resultado (NC)</label>
-                  <textarea id="resultado_nc" readonly></textarea>
-                </div>
-              </div>
-
-              <div class="actions">
-                <div class="statLine">
-                  <span class="pill"><span class="dot"></span>Registros: <b id="count_nc">0</b></span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="page" id="page-gen-nd">
-          <div class="card">
-            <div class="cardHeader">
-              <h3>Generador ND</h3>
-              <span>IN,911,... (Reversión)</span>
-            </div>
-
-            <div class="cardBody">
-              <div class="formGrid">
-                <div>
-                  <label>Tipo</label>
-                  <input value="ND" disabled>
-                  <div class="hintText">Este generador siempre crea ND.</div>
-                </div>
-
-                <div>
-                  <label>Comentario ND</label>
-                  <select id="tipo_nd">
-                    <option value="reversion">Reversión Proyecto Venta Servicio Móvil</option>
-                    <option value="reversionIncu">Reversiones Hibridos, Incubadora, etc...</option>
-                    <option value="limpieza">Limpieza NC 200</option>
-                  </select>
-                </div>
-
-                <div style="grid-column: 1 / -1;">
-                  <label>Tabla principal (ND)</label>
-                  <textarea id="data_nd"
-                    onblur="buscarRaicesNDAutomatico()"
-                    placeholder="1.1180330 1235446 28809.00 00012020303203 119760472"></textarea>
-                </div>
-
-                <div style="grid-column: 1 / -1;">
-                  <div class="ruleTop">
-                    <div>
-                      <label style="margin:0;">Raíces extras (ND)</label>
-                      <div class="hintText">Cada raíz extra trae su propia tabla completa.</div>
-                    </div>
-                    <button class="btn btnPrimary" onclick="agregarRegla('nd')">➕ Agregar raíz extra</button>
-                  </div>
-                  <div class="rulesWrap" id="rules_nd"></div>
-                </div>
-
-                <div style="grid-column: 1 / -1;">
-                  <label>Resultado (ND)</label>
-                  <textarea id="resultado_nd" readonly></textarea>
-                </div>
-              </div>
-
-              <div class="actions">
-                <div class="btnRow">
-                  <button class="btn btnPrimary" onclick="generarPlantilla('nd')">⚡ Generar y Copiar</button>
-                  <button class="btn btnPrimary" onclick="copiarResultado('nd')">📋 Copiar</button>
-                  <button class="btn btnPrimary" onclick="limpiarTodo('nd')">🧹 Limpiar</button>
-                </div>
-                <div class="statLine">
-                  <span class="pill"><span class="dot"></span>Registros: <b id="count_nd">0</b></span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="page" id="page-historial">
-          <div class="card">
-            <div class="cardHeader">
-              <h3>Historial de Limpiezas</h3>
-              <span>Selecciona y reutiliza para ND</span>
-            </div>
-
-            <div class="cardBody">
-              <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:14px;">
-                <input id="fechaFiltro" style="max-width:180px;" placeholder="📅 Seleccionar fecha" />
-
-                <select id="tipoFiltro" onchange="cargarHistorial(true)" style="max-width:160px;">
-                  <option value="">Todos los tipos</option>
-                  <option value="NC200">NC200</option>
-                  <option value="ND200">ND200</option>
-                  <option value="ND300">ND300</option>
-                </select>
-
-                <input id="cedulaFiltro" style="max-width:180px;" placeholder="🔍 Filtrar por cédula(s)..." />
-
-                <button class="btn btnPrimary" type="button" onclick="aplicarFiltros()">Filtrar</button>
-                <button class="btn btnGhost" type="button" onclick="limpiarFiltros()">🧹 Limpiar</button>
-                <button class="btn btnGhost" type="button" onclick="cargarHistorial(true)">🔄 Recargar</button>
-                <button class="btn btnPrimary" type="button" onclick="usarSeleccionParaND()">➡️ Usar en ND</button>
-                <button class="btn btnDanger" type="button" id="btnBorrarLimpiezas" onclick="confirmarBorrarLimpiezas()">🗑️ Borrar limpiezas</button>
-              </div>
-
-              <div style="max-height:450px; overflow:auto;">
-                <table id="tablaHistorialContenedor" style="width:100%; font-size:12px; border-collapse:collapse;">
-                  <thead>
-                    <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.2);">
-                      <th style="width:36px; padding:8px 4px; text-align:center;">
-                        <input type="checkbox" id="chkSelectAllHist" title="Seleccionar todas" onchange="toggleSelectAllHist(this.checked)">
-                      </th>
-                      <th>Factura</th>
-                      <th>Billing</th>
-                      <th>Monto</th>
-                      <th>Raíz</th>
-                      <th>Tipo</th>
-                      <th>Fecha</th>
-                      <th>Cédula</th>
-                      <th>Usuario</th>
-                      <th style="text-align:center; width:50px;">Acción</th>
-                    </tr>
-                  </thead>
-                  <tbody id="tablaHistorial"></tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="page" id="page-estadisticas">
-  <div class="grid">
-    <div class="card" style="grid-column: span 12;">
-      <div class="cardHeader">
-        <div>
-          <h3>🏆 Ranking de Limpiezas (Cédulas Únicas)</h3>
-          <span>Calculado en tiempo real desde Supabase</span>
-        </div>
-        <div>
-          <button class="btn btnGhost" type="button" onclick="cargarEstadisticas(true)">🔄 Recargar Datos</button>
-        </div>
-      </div>
-      
-      <div class="cardBody">
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:14px; margin-bottom: 20px;">
-          <div class="kpi" style="grid-column:auto;">
-            <div class="label">🥇 Agente Líder</div>
-            <div class="value" id="kpiLider" style="font-size:20px;">--</div>
-            <div class="hint" id="kpiLiderCount">0 cédulas únicas</div>
-          </div>
-          <div class="kpi" style="grid-column:auto;">
-            <div class="label">👥 Agentes Activos</div>
-            <div class="value" id="kpiTotalAgentes">0</div>
-            <div class="hint">Con limpiezas registradas</div>
-          </div>
-          <div class="kpi" style="grid-column:auto;">
-            <div class="label">📄 Cédulas Únicas Procesadas</div>
-            <div class="value" id="kpiTotalCedulas">0</div>
-            <div class="hint">Total sumado de agentes</div>
-          </div>
-        </div>
-
-        <!-- Podio Top 3 -->
-        <div id="podiumContainer" class="podium-grid"></div>
-      </div>
-    </div>
-
-    <!-- Gráfica -->
-    <div class="card" style="grid-column: span 12;">
-      <div class="cardHeader">
-        <h3>📊 Gráfica Comparativa</h3>
-        <span>Cédulas únicas vs Total de registros</span>
-      </div>
-      <div class="cardBody" style="position: relative; height: 360px; width: 100%;">
-        <canvas id="chartRanking"></canvas>
-      </div>
-    </div>
-
-    <!-- Tabla -->
-    <div class="card" style="grid-column: span 12;">
-      <div class="cardHeader">
-        <h3>📋 Tabla de Posiciones Completa</h3>
-        <span>Desglose por usuario</span>
-      </div>
-      <div class="cardBody" style="max-height: 400px; overflow: auto;">
-        <table style="width:100%; font-size:13px; border-collapse:collapse;" id="tablaRanking">
-          <thead>
-            <tr style="text-align:left; border-bottom:1px solid var(--stroke); color:var(--muted); background:var(--card2);">
-              <th style="padding:10px 14px;">Posición</th>
-              <th style="padding:10px 14px;">Agente / Usuario</th>
-              <th style="padding:10px 14px;">Cédulas Únicas</th>
-              <th style="padding:10px 14px;">Total Registros</th>
-              <th style="padding:10px 14px;">Efectividad</th>
-            </tr>
-          </thead>
-          <tbody id="tablaRankingBody">
-            <tr>
-              <td colspan="5" style="text-align:center; padding:20px; color:var(--muted);">Cargando...</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</section>
-
-        <section class="page" id="page-plantillas">
-          <div class="card">
-            <div class="cardHeader">
-              <h3>Plantillas</h3>
-              <span>Plantillas para OneMarketer</span>
-            </div>
-            <div class="cardBody">
-              <div class="plantillas-lista">
-                <button class="btn btnPrimary" onclick="mostrarPlantilla('nc')">📋 Notas de Crédito</button>
-                <button class="btn btnPrimary" onclick="mostrarPlantilla('autorizacion')">📋 Autorización</button>
-                <button class="btn btnPrimary" onclick="mostrarPlantilla('cancelacion')">📋 Cancelación</button>
-                <button class="btn btnPrimary" onclick="mostrarPlantilla('despacho')">📋 Despacho</button>
-                <button class="btn btnPrimary" onclick="mostrarPlantilla('errordeaprovisionamiento')">📋 Error de Aprovisionamiento</button>
-                <button class="btn btnPrimary" onclick="mostrarPlantilla('cambiodesim')">📋 Cambio de SIM</button>
-                <button class="btn btnPrimary" onclick="mostrarPlantilla('qflow')">📋 Casos Q-flow</button>
-                <button class="btn btnPrimary" onclick="mostrarPlantilla('rechazos')">📋 Rechazos</button>
-              </div>
-
-              <div id="contenidoPlantilla" style="margin-top:20px;">
-                Selecciona una plantilla...
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="page" id="page-help">
-          <div class="card">
-            <div class="cardHeader">
-              <h3>Ayuda</h3>
-              <span>Cómo pegar y generar</span>
-            </div>
-            <div class="cardBody" style="color:var(--muted);">
-              <ul>
-                <li>Pega la tabla con encabezados: <b>Factura</b>, <b>Billing Account</b>, <b>Monto a Pagar</b>.</li>
-                <li>Si usas raíces extras: agrega una regla y pega una tabla completa ahí.</li>
-                <li>El resultado sale todo seguido.</li>
-                <li>Si no copia, abre en <b>https</b> o <b>localhost</b>.</li>
-              </ul>
-            </div>
-          </div>
-        </section>
-
-      </div>
-    </main>
-  </div>
-
-<!-- MODAL DE CONFIRMACIÓN PARA BORRAR -->
-<div id="modalConfirmarBorrado" style="position:fixed; inset:0; display:none; place-items:center; padding:18px; background:rgba(0,0,0,.65); backdrop-filter:blur(8px); z-index:99998;">
-  <div style="width:min(450px, 100%); background:var(--card); border:1px solid rgba(239,68,68,0.4); border-radius:18px; padding:22px; box-shadow:0 20px 50px rgba(0,0,0,0.6);">
-    <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
-      <div style="width:42px; height:42px; border-radius:10px; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); display:grid; place-items:center; font-size:20px;">
-        ⚠️
-      </div>
-      <div>
-        <h3 style="margin:0; font-size:16px;">Confirmar eliminación</h3>
-        <span style="font-size:12px; color:var(--muted);">Esta acción es irreversible</span>
-      </div>
-    </div>
-    <div id="modalConfirmarTexto" style="margin:14px 0 20px; font-size:13.5px; line-height:1.5; color:var(--text);">
-      ¿Estás seguro de que deseas eliminar las limpiezas seleccionadas?
-    </div>
-    <div style="display:flex; justify-content:flex-end; gap:10px;">
-      <button class="btn btnGhost" type="button" onclick="cerrarModalConfirmarBorrado()">Cancelar</button>
-      <button class="btn btnDanger" type="button" id="btnEjecutarBorrado">Sí, eliminar</button>
-    </div>
-  </div>
-</div>
-
-<!-- Toast -->
-<div id="toast" class="toast" aria-live="polite" aria-atomic="true">
-  <div class="toastIcon" id="toastIcon">✓</div>
-  <div class="toastText">
-    <strong id="toastTitle">Listo</strong>
-    <span id="toastMsg">Acción completada.</span>
-  </div>
-</div>
-
-<!-- Flatpickr CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-
-<!-- Flatpickr JS -->
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  flatpickr("#fechaFiltro", {
-    dateFormat: "Y-m-d",
-    allowInput: false,
-    onChange: function(selectedDates, dateStr) {
-      window.fechaSeleccionada = dateStr;
-      if (typeof cargarHistorial === "function") {
-        cargarHistorial(true);
-      }
-    }
-  });
-});
-</script>
-
-<script src="js/helpers.js"></script>
-<script src="js/navigation.js"></script>
-<script src="js/generators.js"></script>
-<script src="js/historial.js"></script>
-<script src="js/theme.js"></script>
-<script src="js/plantillas.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="js/estadisticas.js"></script>
-<script src="js/app.js"></script>
-<script type="module" src="js/supabase.js"></script>
-
-</body>
-</html>
+window.mostrarPlantilla = function(tipo){
+
+  const plantillas = {
+
+    nc: `
+<h3>Plantilla Nota de Crédito</h3>
+<textarea style="width:100%;height:300px;">
+200_Recuperacion de Clientes Proyecto de Ventas Móvil
+
+200_ Se aplica limpieza de saldos por el monto de
+VB Operaciones Comerciales
+
+200_Se aplico reversión por proyecto de Venta Servicio Móvil Limpieza de Saldos
+
+Se procede para la reversión de nota de crédito.
+</textarea>
+    `,
+
+    autorizacion: `
+<h3>Plantilla Autorización</h3>
+<textarea style="width:100%;height:300px;">
+Se procede con la autorización, por favor validar, cualquier consulta adicional quedamos a su disposición.
+
+Se solicita prioridad, cualquier consulta adicional quedamos a su disposición.
+
+Compañeros su apoyo dando prioridad y autorización a la orden en CRM.
+</textarea>
+    `,
+
+    cancelacion: `
+<h3>Plantilla Cancelación</h3>
+<textarea style="width:100%;height:300px;">
+Compañeros no podemos cancelar orden debido a que directriz de claro no podemos cancelar ordenes si tienen orden pendiente a instalación en ETA.
+
+${window.currentUserInitials} // C300 // Se cancela orden por solicitud del Agente Autorizado.
+
+Se procede con la cancelación, por favor validar, cualquier consulta adicional quedamos a su disposición.
+
+En este momento no se puede realizar la cancelación, ya que fue creada por otro Agente autorizado hace menos de 24 horas.
+
+En este momento no se puede realizar la cancelación, ya que fue creada por otro Agente autorizado hace menos de 72 horas.
+
+No procede para la cancelación ya que la orden está en aprovisionamiento.
+</textarea>
+    `,
+
+    despacho: `
+<h3>Plantilla Despacho</h3>
+<textarea style="width:100%;height:300px;">
+Buen día, por favor su ayuda con la prioridad de la ordenes:
+
+Orden se encuentra en despacho a la espera de asignación.
+
+Se solicita prioridad con el área encargada.
+</textarea>
+    `,
+
+        errordeaprovisionamiento: `
+<h3>Plantilla Error de Aprovisionamiento</h3>
+<textarea style="width:100%;height:300px;">
+Nombre: 
+Número de teléfono: 
+Cédula: 
+ID Cliente: 
+Orden CRM: 
+Orden EOM: 
+Versión CRM: 9.0
+Error: [SYNCERR?] Error
+Detalle: Error de aprovisionamiento
+</textarea>
+    `,
+
+        cambiodesim: `
+<h3>Plantilla Cambio de SIM</h3>
+<textarea style="width:100%;height:300px;">
+Nombre: 
+Cedula: 
+Numero: 
+Solicitud(eSim/Sim):
+Sim Nuevo: 
+
+Compañeros ya su solicitud fue realizada, por favor validar, cualquier consulta adicional quedamos a su disposición.
+
+Buen día, le atiende Antuan Mora del equipo Soporte Comercial. Compañeros el documento de solicitud de cambio de SIM debe estar indexado y este cliente no lo tiene en OnBase.
+</textarea>
+    `,
+
+        qflow: `
+<h3>Plantilla Qflow</h3>
+<textarea style="width:100%;height:300px;">
+Bo Fijo: multimediacr@claro.cr 
+
+Bo Móvil: backofficemasivo@claro.cr
+
+Sistemas:   operaciones_sistemascr@claro.cr 
+</textarea>
+    `,
+
+    rechazos: `
+<h3>Plantilla Rechazos</h3>
+<textarea style="width:100%;height:300px;">
+Buen día, debes comunicarte con servicio al cliente al 7002-7002.
+
+Compañeros, estan seleccionando la opción equivocada, deben elegir "análisis de clientes desactivos", no la de soporte comercial, en caso de seguir derivando a este se les cerrara el caso, favor elegir la opción correcta.
+
+Compañeros no podemos cancelar orden debido a que directriz de claro no podemos cancelar ordenes si tienen orden pendiente a instalación en ETA.
+
+Lo sentimos, el tiempo de espera ha finalizado, si aún necesitas ayuda vuelve a contactarnos. ¡Gracias por comunicarte con nosotros!
+✨ ¡Claro que sí!
+</textarea>
+    `,
+  };
+
+  const contenedor = document.getElementById("contenidoPlantilla");
+
+  if (!contenedor) {
+    console.error("No existe #contenidoPlantilla");
+    return;
+  }
+
+  contenedor.innerHTML =
+    plantillas[tipo] || "Plantilla no encontrada";
+};
+
