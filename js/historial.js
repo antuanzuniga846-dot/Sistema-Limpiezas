@@ -248,3 +248,12 @@ window.confirmarBorrarUna = (id, factura) => {
     }
   });
 };
+
+// Depurar raíces duplicadas conservando únicamente el lote más reciente
+window.confirmarDepurarRaicesDuplicadas = () => {
+  if (typeof window.depurarRaicesDuplicadas === "function") {
+    window.depurarRaicesDuplicadas();
+  } else {
+    alert("La función de depuración aún se está inicializando. Por favor intenta de nuevo en un segundo.");
+  }
+};

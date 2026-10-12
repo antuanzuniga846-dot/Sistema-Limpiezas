@@ -212,7 +212,7 @@ window.eliminarRegla = eliminarRegla;
 const COMENTARIOS_ND = {
   reversion: "IN,911,200_Se aplico reversión por proyecto de Venta Servicio Móvil Limpieza de Saldos",
   reversionIncu: "IN,911,ND300",
-  limpieza: "CM,908,200_Limpieza de Saldos Proyecto de Ventas Móvil"
+  limpieza: "CM,908,200_Recuperacion de Clientes Proyecto de Ventas Móvil"
 };
 
 let archivoND = null;
@@ -361,8 +361,10 @@ async function generarPlantilla(mode) {
     console.error(err);
   }
 
-  // Solo guardamos en base de datos si es una NC nueva (para no duplicar en ND)
-  if (window.guardarLimpiezaBatch && mode === "nc") {
+  // Guardar en base de datos si es NC (NC200) o si es ND300 (única ND permitida).
+  // Las reversiones regulares (ND200) NO se guardan.
+  const debeGuardarse = (tipoLimpieza === "NC200") || (tipoLimpieza === "ND300");
+  if (window.guardarLimpiezaBatch && debeGuardarse) {
     setTimeout(async () => {
       await window.guardarLimpiezaBatch(registrosGuardar);
       if (typeof cargarHistorial === "function") {
