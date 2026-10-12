@@ -351,26 +351,72 @@
         const ids = items.map(it => it.id).filter(Boolean);
         const facturas = items.map(it => it.factura).filter(Boolean);
 
+        let eliminados = 0;
         let resError = null;
 
+        // 1. Intentar borrar por ID con .select() para confirmar borrado real en Supabase
         if (ids.length > 0) {
-          const { error } = await client.from("limpiezas").delete().in("id", ids);
-          resError = error;
-        } else if (facturas.length > 0) {
-          const { error } = await client.from("limpiezas").delete().in("factura", facturas);
-          resError = error;
+          try {
+            const { data, error } = await client
+              .from("limpiezas")
+              .delete()
+              .in("id", ids)
+              .select("id, factura");
+
+            if (error) {
+              resError = error;
+            } else if (Array.isArray(data) && data.length > 0) {
+              eliminados = data.length;
+            }
+          } catch (e) {
+            resError = e;
+          }
         }
 
+        // 2. Si no se borró nada por ID (o no había IDs), intentar borrar por Factura
+        if (eliminados === 0 && facturas.length > 0) {
+          try {
+            const { data, error } = await client
+              .from("limpiezas")
+              .delete()
+              .in("factura", facturas)
+              .select("id, factura");
+
+            if (error) {
+              if (!resError) resError = error;
+            } else if (Array.isArray(data) && data.length > 0) {
+              eliminados = data.length;
+            }
+          } catch (e) {
+            if (!resError) resError = e;
+          }
+        }
+
+        // 3. Evaluar resultado real
         if (resError) {
           console.error("Error al borrar limpiezas en Supabase:", resError);
-          alert("❌ No se pudo eliminar de la base de datos: " + (resError.message || "Error de permisos"));
+          alert("❌ Error de Supabase al borrar: " + (resError.message || JSON.stringify(resError)));
           if (typeof showToast === "function") {
-            showToast("error", "Error al borrar", resError.message || "No se pudo eliminar los registros.");
+            showToast("error", "Error al borrar", resError.message || "Error en la base de datos.");
           }
           return;
         }
 
-        const msj = items.length === 1 ? "1 limpieza eliminada con éxito." : `${items.length} limpiezas eliminadas con éxito.`;
+        if (eliminados === 0) {
+          console.warn("Supabase devolvió 0 filas eliminadas. Bloqueado por RLS o no encontrado.");
+          const explicacion = 
+            "⚠️ No se pudo eliminar el registro de la base de datos (0 filas eliminadas).\n\n" +
+            "Motivo: Supabase tiene activada la seguridad RLS (Row Level Security) en la tabla 'limpiezas' y no cuenta con una política que autorice la eliminación (DELETE).\n\n" +
+            "Para solucionarlo de inmediato, abre tu panel de Supabase > SQL Editor y ejecuta esta consulta:\n\n" +
+            "CREATE POLICY \"Permitir borrar limpiezas\" ON public.limpiezas FOR DELETE TO authenticated USING (true);";
+          alert(explicacion);
+          if (typeof showToast === "function") {
+            showToast("warn", "No eliminado", "Bloqueado por permisos RLS de Supabase.");
+          }
+          return;
+        }
+
+        const msj = eliminados === 1 ? "1 limpieza eliminada con éxito." : `${eliminados} limpiezas eliminadas con éxito.`;
         if (typeof showToast === "function") {
           showToast("success", "Eliminado", msj);
         }
