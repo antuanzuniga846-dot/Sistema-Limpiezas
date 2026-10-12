@@ -145,21 +145,66 @@
                   * El usuario actual se verá arriba a la derecha.
                 </div>
                 <div style="margin-top:20px;">
-                  <label>🎨 Tema visual</label>
+                  <!-- MODO CLARO / OSCURO -->
+                  <div style="margin-bottom:14px;">
+                    <label style="font-size:11.5px; font-weight:800; letter-spacing:0.5px; text-transform:uppercase; color:var(--text); margin-bottom:8px;">
+                      TEMA
+                    </label>
+                    <div style="display:flex; gap:20px; align-items:center;">
+                      <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; font-size:13.5px; font-weight:600; margin:0;">
+                        <input type="radio" name="themeMode" id="themeModeClaro" value="claro" onchange="cambiarModoTema('claro')" style="width:auto; cursor:pointer; accent-color:var(--accent1);">
+                        <span>🟡 Claro</span>
+                      </label>
+                      <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; font-size:13.5px; font-weight:600; margin:0;">
+                        <input type="radio" name="themeMode" id="themeModeOscuro" value="oscuro" checked onchange="cambiarModoTema('oscuro')" style="width:auto; cursor:pointer; accent-color:var(--accent1);">
+                        <span>🌙 Oscuro</span>
+                      </label>
+                    </div>
+                  </div>
 
-                  <select id="themeSelector">
-                    <option value="azul">🔵 Azul</option>
-                    <option value="verde">🟢 Verde</option>
-                    <option value="morado">🟣 Morado</option>
-                    <option value="rojo">🔴 Rojo</option>
-                    <option value="rosado">🌸 Rosado</option>
-                    <option value="amarillo">🟡 Amarillo</option>
-                    <option value="vino">🍷 Vino</option>
-                    <option value="naranja">🟠 Naranja</option>
-                    <option value="beige">🍦 Beige</option>
-                    <option value="verde_lima">🍋 Lima</option>
-                    <option value="rgb">🎮 RGB</option>
-                  </select>
+                  <!-- COLOR DE ACENTO MANUAL -->
+                  <div style="margin-bottom:14px;">
+                    <label style="font-size:11.5px; font-weight:800; letter-spacing:0.5px; text-transform:uppercase; color:var(--text); margin-bottom:8px;">
+                      COLOR DE ACENTO
+                    </label>
+                    <div style="display:flex; align-items:center; gap:10px; max-width:280px;">
+                      <!-- Muestra interactiva de color -->
+                      <div style="position:relative; width:44px; height:40px; flex-shrink:0;">
+                        <div id="colorSwatchPreview" style="width:100%; height:100%; border-radius:8px; border:2px solid var(--stroke); background-color:var(--accent1); cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.25); transition:transform 0.15s ease, border-color 0.15s ease;" title="Haz clic para elegir color"></div>
+                        <input type="color" id="accentColorPicker" value="#00d8f5" style="position:absolute; inset:0; opacity:0; width:100%; height:100%; cursor:pointer;" oninput="actualizarColorAcento(this.value)">
+                      </div>
+
+                      <!-- Input de texto hexadecimal -->
+                      <div style="flex:1;">
+                        <input 
+                          type="text" 
+                          id="accentColorInput" 
+                          value="#00D8F5" 
+                          maxlength="7" 
+                          placeholder="#00D8F5" 
+                          style="font-family:ui-monospace, monospace; font-size:13.5px; font-weight:700; text-transform:uppercase; padding:9px 12px; height:40px; letter-spacing:0.5px;"
+                          oninput="actualizarColorDesdeTexto(this.value)"
+                        >
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- PALETA RÁPIDA DE COLORES POPULARES -->
+                  <div style="margin-bottom:18px;">
+                    <span style="font-size:11px; color:var(--muted); font-weight:600; display:block; margin-bottom:8px;">Colores sugeridos:</span>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                      <button type="button" class="color-preset-btn" style="background:#00d8f5;" title="Cyan" onclick="seleccionarPresetColor('#00d8f5')"></button>
+                      <button type="button" class="color-preset-btn" style="background:#22c55e;" title="Verde" onclick="seleccionarPresetColor('#22c55e')"></button>
+                      <button type="button" class="color-preset-btn" style="background:#c084fc;" title="Morado" onclick="seleccionarPresetColor('#c084fc')"></button>
+                      <button type="button" class="color-preset-btn" style="background:#ef4444;" title="Rojo" onclick="seleccionarPresetColor('#ef4444')"></button>
+                      <button type="button" class="color-preset-btn" style="background:#f472b6;" title="Rosado" onclick="seleccionarPresetColor('#f472b6')"></button>
+                      <button type="button" class="color-preset-btn" style="background:#facc15;" title="Amarillo" onclick="seleccionarPresetColor('#facc15')"></button>
+                      <button type="button" class="color-preset-btn" style="background:#f97316;" title="Naranja" onclick="seleccionarPresetColor('#f97316')"></button>
+                      <button type="button" class="color-preset-btn" style="background:#6D573D;" title="Café / Marrón" onclick="seleccionarPresetColor('#6D573D')"></button>
+                      <button type="button" class="color-preset-btn" style="background:#922053;" title="Vino" onclick="seleccionarPresetColor('#922053')"></button>
+                      <button type="button" class="color-preset-btn" style="background:#a3e635;" title="Lima" onclick="seleccionarPresetColor('#a3e635')"></button>
+                    </div>
+                  </div>
                   <!-- PERSONALIZADOR DE FONDO DE PANTALLA -->
                   <div style="margin-top:24px; padding-top:18px; border-top:1px solid var(--stroke);">
                     <label>🖼️ Imagen de fondo personalizada</label>

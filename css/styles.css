@@ -520,9 +520,54 @@ button.btn {
 }
 
 .btnPrimary {
-  color: #040810;
+  color: var(--accent-text, #040810);
   background: linear-gradient(135deg, var(--accent1), var(--accent2));
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.color-preset-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--stroke);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.color-preset-btn:hover {
+  transform: scale(1.22);
+  border-color: #ffffff;
+  box-shadow: 0 0 10px var(--accent1);
+}
+
+.color-preset-btn:active {
+  transform: scale(0.95);
+}
+
+[data-theme="light"] body {
+  background-image:
+    radial-gradient(1000px 600px at 15% 0%, rgba(255, 255, 255, 0.8), transparent 60%),
+    radial-gradient(900px 700px at 85% 10%, rgba(255, 255, 255, 0.6), transparent 65%),
+    linear-gradient(180deg, var(--bg1), var(--bg2));
+}
+
+[data-theme="light"] .card {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] input, 
+[data-theme="light"] select, 
+[data-theme="light"] textarea {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.15);
+  color: #0f172a;
+}
+
+[data-theme="light"] input::placeholder, 
+[data-theme="light"] textarea::placeholder {
+  color: rgba(15, 23, 42, 0.45);
 }
 
 .btnPrimary:hover {

@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
   window.addEventListener("supabase-ready", inicializarTemaUsuario);
   if (window.supabase) inicializarTemaUsuario();
 
-  // 1. Vista previa instantánea al cambiar el selector
+  // 1. Selector de tema (compatibilidad si existe)
   const themeSelector = document.getElementById("themeSelector");
   if (themeSelector) {
     themeSelector.addEventListener("change", (e) => {
@@ -55,32 +55,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 2. Guardar tema en base de datos
+  // 2. Guardar tema (localStorage y Supabase)
   const saveBtn = document.getElementById("saveThemeBtn");
   if (saveBtn) {
     saveBtn.addEventListener("click", async () => {
-      try {
-        if (!window.supabase) return;
-        const { data: { session } } = await window.supabase.auth.getSession();
-
-        if (!session?.user) {
-          if (typeof showToast === "function") {
-            showToast("warn", "Atención", "Debes iniciar sesión para guardar tu tema.");
-          }
-          return;
-        }
-
-        const themeName = document.getElementById("themeSelector").value;
-        await saveTheme(session.user.id, themeName);
-
-        if (typeof showToast === "function") {
-          showToast("success", "Tema guardado", `Preferencia "${themeName}" actualizada.`);
-        }
-      } catch (err) {
-        console.error("Error guardando tema:", err);
-        if (typeof showToast === "function") {
-          showToast("error", "Error", "No se pudo guardar el tema.");
-        }
+      if (typeof guardarConfiguracionTema === "function") {
+        await guardarConfiguracionTema();
       }
     });
   }

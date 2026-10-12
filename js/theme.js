@@ -1,224 +1,287 @@
-const THEMES = {
+// ==========================================================================
+// THEME.JS - SISTEMA DE PERSONALIZACIÓN MANUAL DE COLOR Y MODO
+// ==========================================================================
 
-  azul: {
-    accent1: "#00d8f5",
-    accent2: "#0072ff",
+// Estado actual del tema
+let currentThemeMode = "oscuro";
+let currentAccentColor = "#00d8f5";
+
+// Paletas base para modo claro y oscuro
+const BASE_MODES = {
+  oscuro: {
     bg1: "#0b1220",
-    bg2: "#0f2230",
-    card: "rgba(255,255,255,.06)",
-    card2: "rgba(255,255,255,.08)",
-    stroke: "rgba(255,255,255,.12)",
+    bg2: "#0f172a",
+    card: "rgba(255, 255, 255, 0.06)",
+    card2: "rgba(255, 255, 255, 0.08)",
+    stroke: "rgba(255, 255, 255, 0.12)",
     text: "#e8f1ff",
-    muted: "rgba(232,241,255,.72)"
+    muted: "rgba(232, 241, 255, 0.72)"
   },
-
-  verde: {
-    accent1: "#22c55e",
-    accent2: "#16a34a",
-    bg1: "#07130b",
-    bg2: "#10241a",
-    card: "rgba(34,197,94,.08)",
-    card2: "rgba(34,197,94,.12)",
-    stroke: "rgba(34,197,94,.20)",
-    text: "#ecfdf5",
-    muted: "rgba(236,253,245,.72)"
-  },
-
-  morado: {
-    accent1: "#c084fc",
-    accent2: "#7c3aed",
-    bg1: "#120b20",
-    bg2: "#21103a",
-    card: "rgba(192,132,252,.08)",
-    card2: "rgba(192,132,252,.12)",
-    stroke: "rgba(192,132,252,.20)",
-    text: "#f5f3ff",
-    muted: "rgba(245,243,255,.72)"
-  },
-
-  rojo: {
-    accent1: "#ef4444",
-    accent2: "#b91c1c",
-    bg1: "#1a0a0a",
-    bg2: "#2b1010",
-    card: "rgba(239,68,68,.08)",
-    card2: "rgba(239,68,68,.12)",
-    stroke: "rgba(239,68,68,.20)",
-    text: "#fef2f2",
-    muted: "rgba(254,242,242,.72)"
-  },
-
-  rosado: {
-    accent1: "#f472b6",
-    accent2: "#ec4899",
-    bg1: "#491249",
-    bg2: "#2b102b",
-    card: "rgba(244,114,182,.08)",
-    card2: "rgba(244,114,182,.12)",
-    stroke: "rgba(244,114,182,.20)",
-    text: "#fdf2f8",
-    muted: "rgba(253,242,248,.72)"
-  },
-
-  amarillo: {
-    accent1: "#facc15",
-    accent2: "#eab308",
-    bg1: "#4a3c0b",
-    bg2: "#2b1f0b",
-    card: "rgba(250,204,21,.08)",
-    card2: "rgba(250,204,21,.12)",
-    stroke: "rgba(250,204,21,.20)",
-    text: "#fefce8",
-    muted: "rgba(254,252,232,.72)"
-  },
-
-  vino: {
-    accent1: "#922053",
-    accent2: "#961d50",
-    bg1: "#2a0f1a",
-    bg2: "#1a0a12",
-    card: "rgba(146,32,83,.10)",
-    card2: "rgba(146,32,83,.14)",
-    stroke: "rgba(146,32,83,.25)",
-    text: "#fdf2f8",
-    muted: "rgba(253,242,248,.72)"
-  },
-
-  naranja: {
-    accent1: "#f97316",
-    accent2: "#ea580c",
-    bg1: "#2a140b",
-    bg2: "#3a1f0b",
-    card: "rgba(249,115,22,.08)",
-    card2: "rgba(249,115,22,.12)",
-    stroke: "rgba(249,115,22,.20)",
-    text: "#fff7ed",
-    muted: "rgba(255,247,237,.72)"
-  },
-
-  beige: { 
-    accent1: "#f5f5dc",
-    accent2: "#e0d8c3",
-    bg1: "#2b2b1f",
-    bg2: "#3a3a2b",
-    card: "rgba(245,245,220,.08)",
-    card2: "rgba(245,245,220,.12)",
-    stroke: "rgba(245,245,220,.20)",
-    text: "#fdfaf0",
-    muted: "rgba(253,250,240,.72)"
-  },
-
-  verde_lima: {
-    accent1: "#a3e635",
-    accent2: "#84cc16",
-    bg1: "#1a2b0a",
-    bg2: "#2b3a0b",
-    card: "rgba(163,230,53,.08)",
-    card2: "rgba(163,230,53,.12)",
-    stroke: "rgba(163,230,53,.20)",
-    text: "#f7fee7",
-    muted: "rgba(247,254,231,.72)"
-  },
-
-  rgb: {
-    rgb: true
+  claro: {
+    bg1: "#f1f5f9",
+    bg2: "#e2e8f0",
+    card: "rgba(255, 255, 255, 0.82)",
+    card2: "rgba(255, 255, 255, 0.94)",
+    stroke: "rgba(15, 23, 42, 0.12)",
+    text: "#0f172a",
+    muted: "rgba(15, 23, 42, 0.65)"
   }
-
 };
 
-let rgbInterval;
+// ==========================================================================
+// UTILIDADES DE COLOR
+// ==========================================================================
 
-function applyThemeByName(themeName) {
+function hexToRgb(hex) {
+  let c = String(hex || "").replace(/^#/, "").trim();
+  if (c.length === 3) c = c.split("").map(x => x + x).join("");
+  const num = parseInt(c, 16);
+  if (isNaN(num) || c.length !== 6) return { r: 0, g: 216, b: 245 };
+  return {
+    r: (num >> 16) & 255,
+    g: (num >> 8) & 255,
+    b: num & 255
+  };
+}
 
-  clearInterval(rgbInterval);
+function rgbToHex(r, g, b) {
+  const toHex = (n) => Math.max(0, Math.min(255, Math.round(n))).toString(16).padStart(2, "0");
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
 
-  const theme = THEMES[themeName];
+// Ajusta el brillo para generar automáticamente el segundo tono de degradado
+function adjustBrightness(hex, percent) {
+  const { r, g, b } = hexToRgb(hex);
+  const factor = percent / 100;
+  return rgbToHex(
+    r + (factor < 0 ? r * factor : (255 - r) * factor),
+    g + (factor < 0 ? g * factor : (255 - g) * factor),
+    b + (factor < 0 ? b * factor : (255 - b) * factor)
+  );
+}
 
-  if (!theme) return;
+// Calcula contraste para texto de botones principales (blanco si es oscuro, negro si es claro)
+function getContrastTextColor(hex) {
+  const { r, g, b } = hexToRgb(hex);
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance > 0.55 ? "#040810" : "#ffffff";
+}
 
-  // Si es RGB, inicia la animación y termina aquí
-  if (theme.rgb) {
-    iniciarRGB();
-    return;
-  }
+// ==========================================================================
+// APLICAR MODO (CLARO / OSCURO)
+// ==========================================================================
+
+function cambiarModoTema(modo, guardar = true) {
+  const modoFinal = (modo === "claro") ? "claro" : "oscuro";
+  currentThemeMode = modoFinal;
 
   const root = document.documentElement;
+  const palette = BASE_MODES[modoFinal];
 
-  root.style.setProperty("--accent1", theme.accent1);
-  root.style.setProperty("--accent2", theme.accent2);
+  root.style.setProperty("--bg1", palette.bg1);
+  root.style.setProperty("--bg2", palette.bg2);
+  root.style.setProperty("--card", palette.card);
+  root.style.setProperty("--card2", palette.card2);
+  root.style.setProperty("--stroke", palette.stroke);
+  root.style.setProperty("--text", palette.text);
+  root.style.setProperty("--muted", palette.muted);
 
-  root.style.setProperty("--bg1", theme.bg1);
-  root.style.setProperty("--bg2", theme.bg2);
+  root.setAttribute("data-theme", modoFinal === "claro" ? "light" : "dark");
 
-  root.style.setProperty("--card", theme.card);
-  root.style.setProperty("--card2", theme.card2);
+  // Sincronizar radio buttons en el DOM
+  const radioClaro = document.getElementById("themeModeClaro");
+  const radioOscuro = document.getElementById("themeModeOscuro");
+  if (radioClaro && radioOscuro) {
+    radioClaro.checked = (modoFinal === "claro");
+    radioOscuro.checked = (modoFinal === "oscuro");
+  }
 
-  root.style.setProperty("--stroke", theme.stroke);
-
-  root.style.setProperty("--text", theme.text);
-  root.style.setProperty("--muted", theme.muted);
+  if (guardar) {
+    localStorage.setItem("userThemeMode", modoFinal);
+  }
 }
 
-function iniciarRGB(){
+// ==========================================================================
+// APLICAR COLOR DE ACENTO
+// ==========================================================================
 
-    let hue = 0;
+function actualizarColorAcento(hexColor, guardar = true) {
+  if (!hexColor) return;
+  let hex = String(hexColor).trim();
+  if (!hex.startsWith("#")) hex = "#" + hex;
+  if (!/^#[0-9A-Fa-f]{6}$/.test(hex)) return;
 
-    rgbInterval = setInterval(()=>{
+  currentAccentColor = hex;
 
-        hue = (hue + 1) % 360;
+  const root = document.documentElement;
+  const companionColor = adjustBrightness(hex, -20);
+  const textColor = getContrastTextColor(hex);
 
-        const root = document.documentElement;
+  root.style.setProperty("--accent1", hex);
+  root.style.setProperty("--accent2", companionColor);
+  root.style.setProperty("--accent-text", textColor);
 
-        root.style.setProperty("--accent1", `hsl(${hue},100%,55%)`);
-        root.style.setProperty("--accent2", `hsl(${(hue+45)%360},100%,50%)`);
+  // Sincronizar UI de selección de color
+  const picker = document.getElementById("accentColorPicker");
+  const textInput = document.getElementById("accentColorInput");
+  const swatch = document.getElementById("colorSwatchPreview");
 
-        root.style.setProperty("--bg1", `hsl(${hue},35%,8%)`);
-        root.style.setProperty("--bg2", `hsl(${(hue+25)%360},35%,12%)`);
+  if (picker && picker.value.toLowerCase() !== hex.toLowerCase()) {
+    picker.value = hex;
+  }
+  if (textInput && textInput.value.toUpperCase() !== hex.toUpperCase()) {
+    textInput.value = hex.toUpperCase();
+  }
+  if (swatch) {
+    swatch.style.backgroundColor = hex;
+  }
 
-        root.style.setProperty("--card", `hsla(${hue},100%,50%,0.08)`);
-        root.style.setProperty("--card2", `hsla(${hue},100%,50%,0.12)`);
-
-        root.style.setProperty("--stroke", `hsla(${hue},100%,50%,0.25)`);
-
-        root.style.setProperty("--text", "#ffffff");
-        root.style.setProperty("--muted", "rgba(255,255,255,.72)");
-
-    },25);
+  if (guardar) {
+    localStorage.setItem("userAccentColor", hex);
+  }
 }
 
-async function saveTheme(userId, themeName) {
+function actualizarColorDesdeTexto(valor) {
+  let val = String(valor || "").trim();
+  if (!val.startsWith("#")) val = "#" + val;
+  if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+    actualizarColorAcento(val);
+  }
+}
 
-  const { error } = await window.supabase
-    .from("user_settings")
-    .upsert({
-      user_id: userId,
-      theme_name: themeName,
-      updated_at: new Date().toISOString()
-    });
+function seleccionarPresetColor(hex) {
+  actualizarColorAcento(hex);
+}
 
-  console.log("saveTheme:", error);
+// ==========================================================================
+// GUARDAR Y CARGAR TEMA (LOCALSTORAGE + SUPABASE)
+// ==========================================================================
+
+async function guardarConfiguracionTema() {
+  localStorage.setItem("userThemeMode", currentThemeMode);
+  localStorage.setItem("userAccentColor", currentAccentColor);
+
+  const client = window.supabase || window.supabaseClient;
+  if (client) {
+    try {
+      const { data: { session } } = await client.auth.getSession();
+      if (session?.user) {
+        const themeConfig = JSON.stringify({
+          mode: currentThemeMode,
+          accent: currentAccentColor
+        });
+
+        await client
+          .from("user_settings")
+          .upsert({
+            user_id: session.user.id,
+            theme_name: themeConfig,
+            updated_at: new Date().toISOString()
+          });
+      }
+    } catch (err) {
+      console.warn("No se pudo sincronizar tema con Supabase:", err);
+    }
+  }
+
+  if (typeof showToast === "function") {
+    showToast("success", "Tema guardado", `Modo ${currentThemeMode} y color ${currentAccentColor} guardados.`);
+  }
+}
+
+async function saveTheme(userId, themeData) {
+  return guardarConfiguracionTema();
 }
 
 async function loadTheme(userId) {
+  const client = window.supabase || window.supabaseClient;
+  if (!client || !userId) return;
 
-  const { data, error } = await window.supabase
-    .from("user_settings")
-    .select("theme_name")
-    .eq("user_id", userId)
-    .single();
+  try {
+    const { data, error } = await client
+      .from("user_settings")
+      .select("theme_name")
+      .eq("user_id", userId)
+      .maybeSingle();
 
-  if (error || !data) return;
+    if (error || !data || !data.theme_name) return;
 
-  applyThemeByName(data.theme_name);
+    const val = data.theme_name.trim();
 
-  const selector =
-    document.getElementById("themeSelector");
+    // Si viene como JSON con modo y acento
+    if (val.startsWith("{")) {
+      try {
+        const parsed = JSON.parse(val);
+        if (parsed.mode) cambiarModoTema(parsed.mode, true);
+        if (parsed.accent) actualizarColorAcento(parsed.accent, true);
+        return;
+      } catch (e) {}
+    }
 
-  if (selector) {
-    selector.value = data.theme_name;
+    // Si es un código hexadecimal directamente
+    if (val.startsWith("#")) {
+      actualizarColorAcento(val, true);
+      return;
+    }
+
+    // Fallback a temas por nombre antiguo
+    const legacyPresets = {
+      azul: "#00d8f5",
+      verde: "#22c55e",
+      morado: "#c084fc",
+      rojo: "#ef4444",
+      rosado: "#f472b6",
+      amarillo: "#facc15",
+      vino: "#922053",
+      naranja: "#f97316",
+      beige: "#f5f5dc",
+      verde_lima: "#a3e635"
+    };
+
+    if (legacyPresets[val]) {
+      actualizarColorAcento(legacyPresets[val], true);
+    }
+  } catch (err) {
+    console.error("Error al cargar tema de Supabase:", err);
   }
 }
 
+function applyThemeByName(themeName) {
+  const legacyPresets = {
+    azul: "#00d8f5",
+    verde: "#22c55e",
+    morado: "#c084fc",
+    rojo: "#ef4444",
+    rosado: "#f472b6",
+    amarillo: "#facc15",
+    vino: "#922053",
+    naranja: "#f97316",
+    beige: "#f5f5dc",
+    verde_lima: "#a3e635"
+  };
+
+  if (legacyPresets[themeName]) {
+    actualizarColorAcento(legacyPresets[themeName]);
+  }
+}
+
+// Inicialización instantánea desde localStorage
+function inicializarTemaLocal() {
+  const savedMode = localStorage.getItem("userThemeMode") || "oscuro";
+  const savedAccent = localStorage.getItem("userAccentColor") || "#00d8f5";
+
+  cambiarModoTema(savedMode, false);
+  actualizarColorAcento(savedAccent, false);
+}
+
+// Ejecutar inmediatamente para evitar parpadeos visuales
+inicializarTemaLocal();
+
+window.cambiarModoTema = cambiarModoTema;
+window.actualizarColorAcento = actualizarColorAcento;
+window.actualizarColorDesdeTexto = actualizarColorDesdeTexto;
+window.seleccionarPresetColor = seleccionarPresetColor;
+window.guardarConfiguracionTema = guardarConfiguracionTema;
 window.saveTheme = saveTheme;
 window.loadTheme = loadTheme;
 window.applyThemeByName = applyThemeByName;
@@ -227,14 +290,10 @@ window.applyThemeByName = applyThemeByName;
 // GESTIÓN DE FONDO DE PANTALLA PERSONALIZADO
 // ==========================================================================
 
-/**
- * Procesa la imagen seleccionada, la optimiza y la guarda
- */
 function manejarSubidaFondo(event) {
   const file = event.target.files[0];
   if (!file) return;
 
-  // Validar que sea imagen
   if (!file.type.startsWith("image/")) {
     if (typeof showToast === "function") {
       showToast("error", "Formato no válido", "Por favor selecciona un archivo de imagen (PNG, JPG, WebP).");
@@ -246,12 +305,10 @@ function manejarSubidaFondo(event) {
   reader.onload = function(e) {
     const img = new Image();
     img.onload = function() {
-      // Redimensionar / optimizar la imagen con un Canvas para no saturar memoria
       const canvas = document.createElement("canvas");
       let width = img.width;
       let height = img.height;
 
-      // Limitar a máximo 1920px de ancho/alto (calidad Full HD)
       const MAX_SIZE = 1920;
       if (width > MAX_SIZE || height > MAX_SIZE) {
         if (width > height) {
@@ -268,11 +325,9 @@ function manejarSubidaFondo(event) {
       const ctx = canvas.getContext("2d");
       ctx.drawImage(img, 0, 0, width, height);
 
-      // Convertir a JPEG comprimido
       const dataUrlOptimizado = canvas.toDataURL("image/jpeg", 0.85);
 
       try {
-        // Guardar en localStorage
         localStorage.setItem("customBgImage", dataUrlOptimizado);
         const oscuridad = localStorage.getItem("customBgDarkness") || "75";
 
@@ -291,14 +346,9 @@ function manejarSubidaFondo(event) {
     img.src = e.target.result;
   };
   reader.readAsDataURL(file);
-
-  // Limpiar input para permitir volver a subir el mismo archivo si se desea
   event.target.value = "";
 }
 
-/**
- * Aplica la imagen y la opacidad al DOM
- */
 function aplicarFondoEnDOM(dataUrl, oscuridad = "75") {
   const oscuridadDecimal = (parseInt(oscuridad, 10) / 100).toFixed(2);
 
@@ -306,7 +356,6 @@ function aplicarFondoEnDOM(dataUrl, oscuridad = "75") {
   document.documentElement.style.setProperty("--bg-darkness", oscuridadDecimal);
   document.body.classList.add("has-custom-bg");
 
-  // Mostrar controles de quitar y slider si existen
   const removeBtn = document.getElementById("removeBgBtn");
   const adjustWrap = document.getElementById("bgAdjustWrap");
   const slider = document.getElementById("bgDarknessSlider");
@@ -318,9 +367,6 @@ function aplicarFondoEnDOM(dataUrl, oscuridad = "75") {
   if (valText) valText.textContent = `${oscuridad}%`;
 }
 
-/**
- * Ajusta la capa oscura en tiempo real desde el slider
- */
 function ajustarOscuridadFondo(valor) {
   const oscuridadDecimal = (parseInt(valor, 10) / 100).toFixed(2);
   document.documentElement.style.setProperty("--bg-darkness", oscuridadDecimal);
@@ -330,9 +376,6 @@ function ajustarOscuridadFondo(valor) {
   if (valText) valText.textContent = `${valor}%`;
 }
 
-/**
- * Restablece el fondo por defecto
- */
 function quitarFondoPersonalizado() {
   localStorage.removeItem("customBgImage");
   localStorage.removeItem("customBgDarkness");
@@ -352,9 +395,6 @@ function quitarFondoPersonalizado() {
   }
 }
 
-/**
- * Cargar fondo guardado al iniciar la página
- */
 function inicializarFondoPersonalizado() {
   const bgGuardado = localStorage.getItem("customBgImage");
   const oscuridadGuardada = localStorage.getItem("customBgDarkness") || "75";
@@ -364,7 +404,7 @@ function inicializarFondoPersonalizado() {
   }
 }
 
-// Ejecutar al cargar la página
 document.addEventListener("DOMContentLoaded", () => {
+  inicializarTemaLocal();
   inicializarFondoPersonalizado();
 });
