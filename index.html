@@ -147,44 +147,23 @@
                 <div style="margin-top:20px;">
                   <label style="display:block; font-size:12px; font-weight:700; margin-bottom:8px;">🎨 Tema visual y Paleta de colores</label>
 
-                  <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap:14px; margin-bottom:14px;">
-                    <!-- Selector de tema clásico con todos los temas -->
-                    <div>
-                      <span style="font-size:11px; color:var(--muted); font-weight:600; display:block; margin-bottom:6px;">Tema predefinido:</span>
-                      <select id="themeSelector" style="width:100%;">
-                        <option value="azul">🌐 Azul</option>
-                        <option value="verde">🌿 Verde</option>
-                        <option value="morado">🔮 Morado</option>
-                        <option value="rojo">🔥 Rojo</option>
-                        <option value="rosado">🌸 Rosado</option>
-                        <option value="amarillo">⚡ Amarillo</option>
-                        <option value="vino">🍷 Vino</option>
-                        <option value="naranja">🍊 Naranja</option>
-                        <option value="cafe">☕ Café</option>
-                        <option value="beige">📜 Beige</option>
-                        <option value="verde_lima">🍋 Lima</option>
-                        <option value="rgb">🌈 RGB (Animado)</option>
-                      </select>
-                    </div>
-
+                  <div style="margin-bottom:14px; max-width:280px;">
                     <!-- Selector de color personalizado -->
-                    <div>
-                      <span style="font-size:11px; color:var(--muted); font-weight:600; display:block; margin-bottom:6px;">Color personalizado:</span>
-                      <div style="display:flex; align-items:center; gap:8px;">
-                        <div style="position:relative; width:40px; height:38px; flex-shrink:0;">
-                          <div id="colorSwatchPreview" style="width:100%; height:100%; border-radius:8px; border:2px solid var(--stroke); background-color:var(--accent1); cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.25); transition:transform 0.15s ease, border-color 0.15s ease;" title="Haz clic para elegir color"></div>
-                          <input type="color" id="accentColorPicker" value="#00d8f5" style="position:absolute; inset:0; opacity:0; width:100%; height:100%; cursor:pointer;" oninput="actualizarColorAcento(this.value)">
-                        </div>
-                        <input 
-                          type="text" 
-                          id="accentColorInput" 
-                          value="#00D8F5" 
-                          maxlength="7" 
-                          placeholder="#00D8F5" 
-                          style="font-family:ui-monospace, monospace; font-size:13px; font-weight:700; text-transform:uppercase; padding:8px 10px; height:38px; letter-spacing:0.5px; flex:1;"
-                          oninput="actualizarColorDesdeTexto(this.value)"
-                        >
+                    <span style="font-size:11px; color:var(--muted); font-weight:600; display:block; margin-bottom:6px;">Color personalizado:</span>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <div style="position:relative; width:40px; height:38px; flex-shrink:0;">
+                        <div id="colorSwatchPreview" style="width:100%; height:100%; border-radius:8px; border:2px solid var(--stroke); background-color:var(--accent1); cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.25); transition:transform 0.15s ease, border-color 0.15s ease;" title="Haz clic para elegir color"></div>
+                        <input type="color" id="accentColorPicker" value="#00d8f5" style="position:absolute; inset:0; opacity:0; width:100%; height:100%; cursor:pointer;" oninput="actualizarColorAcento(this.value)">
                       </div>
+                      <input 
+                        type="text" 
+                        id="accentColorInput" 
+                        value="#00D8F5" 
+                        maxlength="7" 
+                        placeholder="#00D8F5" 
+                        style="font-family:ui-monospace, monospace; font-size:13px; font-weight:700; text-transform:uppercase; padding:8px 10px; height:38px; letter-spacing:0.5px; flex:1;"
+                        oninput="actualizarColorDesdeTexto(this.value)"
+                      >
                     </div>
                   </div>
 
