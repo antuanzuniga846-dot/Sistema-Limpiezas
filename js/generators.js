@@ -339,6 +339,7 @@ async function generarPlantilla(mode) {
     }
   }
 
+  // Mostrar resultado y actualizar contador
   document.getElementById(`resultado_${mode}`).value = resultado;
   document.getElementById(`count_${mode}`).textContent = String(count);
 
@@ -347,18 +348,16 @@ async function generarPlantilla(mode) {
     return;
   }
 
-  try {
-    await navigator.clipboard.writeText(resultado);
-    showToast("success", "Generado y copiado", `Usuario: ${userTag} | Total: ${count}`);
-  } catch {
-    showToast("error", "No se pudo copiar", "Usa https o localhost.");
-  }
+  // Marcar como generado para habilitar el botón limpiar
+  setEstadoGenerado(mode, true);
 
-  // Guardar/Sobrescribir el TXT
+  // Guardar/Sobrescribir el TXT (Bloc de notas)
   try {
     await guardarArchivoTXT(resultado, mode);
+    showToast("success", "Generado en Bloc de Notas", `Usuario: ${userTag} | Total: ${count}`);
   } catch (err) {
     console.error(err);
+    showToast("info", "Generado", `Usuario: ${userTag} | Total: ${count}`);
   }
 
   // Guardar en base de datos si es NC (NC200) o si es ND300 (única ND permitida).
@@ -474,12 +473,49 @@ function generarAcometidaUltra() {
   document.getElementById("resultado_acometida").value = resultado;
   document.getElementById("count_acometida").textContent = String(salida.length);
 
-  navigator.clipboard.writeText(resultado).catch(() => {});
+  if (salida.length > 0) {
+    setEstadoGenerado("acometida", true);
+  }
 }
 window.generarAcometidaUltra = generarAcometidaUltra;
 
+// ===== Control de estado del botón Limpiar =====
+const estadoGeneracion = {
+  nc: false,
+  nd: false,
+  acometida: false
+};
+
+function setEstadoGenerado(mode, generado) {
+  estadoGeneracion[mode] = !!generado;
+  actualizarBotonLimpiar(mode);
+}
+window.setEstadoGenerado = setEstadoGenerado;
+
+function actualizarBotonLimpiar(mode) {
+  const btn = document.getElementById(`btnLimpiar_${mode}`);
+  if (!btn) return;
+  const generado = !!estadoGeneracion[mode];
+  btn.disabled = !generado;
+  if (!generado) {
+    btn.style.opacity = "0.5";
+    btn.style.cursor = "not-allowed";
+    btn.title = "Primero debes generar para poder limpiar";
+  } else {
+    btn.style.opacity = "1";
+    btn.style.cursor = "pointer";
+    btn.title = "Limpiar campos";
+  }
+}
+window.actualizarBotonLimpiar = actualizarBotonLimpiar;
+
 // ===== Limpieza =====
 function limpiarTodo(mode) {
+  if (!estadoGeneracion[mode]) {
+    showToast("warn", "No generado", "El botón de limpiar solo funciona después de haber generado.");
+    return;
+  }
+
   const raizEl = document.getElementById(`raiz_${mode}`);
   if (raizEl) raizEl.value = "";
   const dataEl = document.getElementById(`data_${mode}`);
@@ -498,6 +534,15 @@ function limpiarTodo(mode) {
   const rules = document.getElementById(`rules_${mode}`);
   if (rules) rules.innerHTML = "";
 
+  // Resetear estado de generación
+  setEstadoGenerado(mode, false);
+
   showToast("success", "Limpio", `Se borró el generador ${mode.toUpperCase()}.`);
 }
 window.limpiarTodo = limpiarTodo;
+
+document.addEventListener("DOMContentLoaded", () => {
+  actualizarBotonLimpiar("nc");
+  actualizarBotonLimpiar("nd");
+  actualizarBotonLimpiar("acometida");
+});

@@ -255,9 +255,9 @@
 
               <div class="actions">
                 <div class="btnRow">
-                  <button class="btn btnPrimary" onclick="generarAcometidaUltra()">⚡ Generar y Copiar</button>
+                  <button class="btn btnPrimary" onclick="generarAcometidaUltra()">⚡ Generar</button>
                   <button class="btn btnPrimary" onclick="copiarResultado('acometida')">📋 Copiar</button>
-                  <button class="btn btnPrimary" onclick="limpiarTodo('acometida')">🧹 Limpiar</button>
+                  <button class="btn btnPrimary" id="btnLimpiar_acometida" onclick="limpiarTodo('acometida')">🧹 Limpiar</button>
                 </div>
                 <div class="statLine">
                   <span class="pill"><span class="dot"></span>Registros: <b id="count_acometida">0</b></span>
@@ -293,8 +293,8 @@
 
                 <div style="grid-column: 1 / -1;">
                   <div style="display: flex; align-items: center; justify-content: end; gap: 10px; margin-bottom: 10px;">
-                    <button class="btn btnPrimary" onclick="generarPlantilla('nc')">⚡ Generar y Copiar</button>
-                    <button class="btn btnPrimary" onclick="limpiarTodo('nc')">🧹 Limpiar</button>
+                    <button class="btn btnPrimary" onclick="generarPlantilla('nc')">⚡ Generar</button>
+                    <button class="btn btnPrimary" id="btnLimpiar_nc" onclick="limpiarTodo('nc')">🧹 Limpiar</button>
                     <button class="btn btnPrimary" onclick="pasarRaizAExtra('nc')">➕ Agregar raíz extra</button>
                   </div>
                   <div class="ruleTop">
@@ -352,14 +352,7 @@
                     placeholder="1.1180330 1235446 28809.00 00012020303203 119760472"></textarea>
                 </div>
 
-                <div style="grid-column: 1 / -1;">
-                  <div class="ruleTop">
-                    <div>
-                      <label style="margin:0;">Raíces extras (ND)</label>
-                      <div class="hintText">Cada raíz extra trae su propia tabla completa.</div>
-                    </div>
-                    <button class="btn btnPrimary" onclick="agregarRegla('nd')">➕ Agregar raíz extra</button>
-                  </div>
+                <div style="grid-column: 1 / -1; display:none;">
                   <div class="rulesWrap" id="rules_nd"></div>
                 </div>
 
@@ -371,9 +364,9 @@
 
               <div class="actions">
                 <div class="btnRow">
-                  <button class="btn btnPrimary" onclick="generarPlantilla('nd')">⚡ Generar y Copiar</button>
+                  <button class="btn btnPrimary" onclick="generarPlantilla('nd')">⚡ Generar</button>
                   <button class="btn btnPrimary" onclick="copiarResultado('nd')">📋 Copiar</button>
-                  <button class="btn btnPrimary" onclick="limpiarTodo('nd')">🧹 Limpiar</button>
+                  <button class="btn btnPrimary" id="btnLimpiar_nd" onclick="limpiarTodo('nd')">🧹 Limpiar</button>
                 </div>
                 <div class="statLine">
                   <span class="pill"><span class="dot"></span>Registros: <b id="count_nd">0</b></span>
@@ -404,11 +397,11 @@
                 <input id="cedulaFiltro" style="max-width:180px;" placeholder="🔍 Filtrar por cédula(s)..." />
 
                 <button class="btn btnPrimary" type="button" onclick="aplicarFiltros()">Filtrar</button>
-                <button class="btn btnGhost" type="button" onclick="limpiarFiltros()">🧹 Limpiar</button>
-                <button class="btn btnGhost" type="button" onclick="cargarHistorial(true)">🔄 Recargar</button>
+                <button class="btn btnPrimary" type="button" onclick="limpiarFiltros()">🧹 Limpiar</button>
+                <button class="btn btnPrimary" type="button" onclick="cargarHistorial(true)">🔄 Recargar</button>
                 <button class="btn btnPrimary" type="button" onclick="usarSeleccionParaND()">➡️ Usar en ND</button>
                 <button class="btn btnDanger" type="button" id="btnBorrarLimpiezas" onclick="confirmarBorrarLimpiezas()">🗑️ Borrar limpiezas</button>
-                <button class="btn btnGhost" type="button" id="btnDepurarRaices" onclick="confirmarDepurarRaicesDuplicadas()" title="Elimina limpiezas antiguas si la misma raíz fue subida después">⚡ Depurar raíces duplicadas</button>
+                <button class="btn btnPrimary" type="button" id="btnDepurarRaices" onclick="confirmarDepurarRaicesDuplicadas()" title="Elimina limpiezas antiguas si la misma raíz fue subida después">⚡ Depurar raíces duplicadas</button>
               </div>
 
               <div style="max-height:450px; overflow:auto;">
