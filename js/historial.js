@@ -257,3 +257,107 @@ window.confirmarDepurarRaicesDuplicadas = () => {
     alert("La función de depuración aún se está inicializando. Por favor intenta de nuevo en un segundo.");
   }
 };
+
+// ==========================================================================
+// DESCARGAR HISTORIAL EN FORMATO CSV
+// ==========================================================================
+window.descargarCSVHistorial = () => {
+  const filas = document.querySelectorAll("#tablaHistorial tr");
+  if (!filas || filas.length === 0) {
+    if (typeof showToast === "function") {
+      showToast("warn", "Sin registros", "No hay datos cargados en el historial para descargar.");
+    } else {
+      alert("No hay registros en el historial para descargar.");
+    }
+    return;
+  }
+
+  // Encabezados del archivo CSV
+  const encabezados = ["Factura", "Billing", "Monto", "Raiz", "Tipo", "Fecha", "Cedula", "Usuario"];
+
+  const escapeCSV = (valor) => {
+    const str = String(valor ?? "").trim();
+    if (str.includes(",") || str.includes('"') || str.includes("\n")) {
+      return `"${str.replace(/"/g, '""')}"`;
+    }
+    return str;
+  };
+
+  const lineasCSV = [encabezados.join(",")];
+
+  filas.forEach(tr => {
+    // Si la fila tiene el checkbox con su data-json completa
+    const chk = tr.querySelector(".chkHist");
+    if (chk && chk.dataset.json) {
+      try {
+        const item = JSON.parse(decodeURIComponent(chk.dataset.json));
+        const usuarioNombre = tr.children[8]?.textContent?.trim() || "Usuario";
+        const fechaFormateada = item.created_at ? new Date(item.created_at).toLocaleString() : (tr.children[6]?.textContent?.trim() || "");
+
+        lineasCSV.push([
+          escapeCSV(item.factura),
+          escapeCSV(item.billingid),
+          escapeCSV(item.monto),
+          escapeCSV(item.raiz),
+          escapeCSV(item.tipo_limpieza),
+          escapeCSV(fechaFormateada),
+          escapeCSV(item.cedula),
+          escapeCSV(usuarioNombre)
+        ].join(","));
+        return;
+      } catch (err) {
+        console.error("Error leyendo data-json de fila:", err);
+      }
+    }
+
+    // Fallback directo a partir del texto en las celdas de la tabla
+    const cols = tr.querySelectorAll("td");
+    if (cols.length >= 9) {
+      lineasCSV.push([
+        escapeCSV(cols[1]?.textContent),
+        escapeCSV(cols[2]?.textContent),
+        escapeCSV(cols[3]?.textContent),
+        escapeCSV(cols[4]?.textContent),
+        escapeCSV(cols[5]?.textContent),
+        escapeCSV(cols[6]?.textContent),
+        escapeCSV(cols[7]?.textContent),
+        escapeCSV(cols[8]?.textContent)
+      ].join(","));
+    }
+  });
+
+  if (lineasCSV.length <= 1) {
+    if (typeof showToast === "function") {
+      showToast("warn", "Sin registros", "No se encontraron datos para exportar.");
+    }
+    return;
+  }
+
+  // Generar nombre descriptivo del archivo según los filtros activos
+  const inputFecha = document.getElementById("fechaFiltro");
+  const selectTipo = document.getElementById("tipoFiltro");
+  const tipoVal = selectTipo ? selectTipo.value.trim() : "";
+  const fechaVal = inputFecha ? inputFecha.value.trim().replace(/\s+to\s+/g, "_al_") : "";
+
+  let nombreArchivo = "historial_limpiezas";
+  if (tipoVal) nombreArchivo += `_${tipoVal}`;
+  if (fechaVal) nombreArchivo += `_${fechaVal}`;
+  nombreArchivo += ".csv";
+
+  // Incluir BOM (\uFEFF) para compatibilidad total con acentos y caracteres especiales en Excel
+  const contenidoCSV = "\uFEFF" + lineasCSV.join("\r\n");
+  const blob = new Blob([contenidoCSV], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+
+  const enlaceDescarga = document.createElement("a");
+  enlaceDescarga.href = url;
+  enlaceDescarga.setAttribute("download", nombreArchivo);
+  document.body.appendChild(enlaceDescarga);
+  enlaceDescarga.click();
+  document.body.removeChild(enlaceDescarga);
+  URL.revokeObjectURL(url);
+
+  if (typeof showToast === "function") {
+    showToast("success", "Descarga lista", `Se descargó "${nombreArchivo}" con ${lineasCSV.length - 1} registros.`);
+  }
+};

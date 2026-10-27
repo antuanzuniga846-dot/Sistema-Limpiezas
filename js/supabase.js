@@ -290,11 +290,20 @@
         const tipoVal = selectTipo ? selectTipo.value.trim() : "";
         const cedulaVal = inputCedula ? inputCedula.value.trim() : "";
 
-        // 2. APLICAR FILTRO DE FECHA
+        // 2. APLICAR FILTRO DE FECHA (Soporta día único o rango 'YYYY-MM-DD to YYYY-MM-DD')
         if (fechaVal) {
-          query = query
-            .gte("created_at", `${fechaVal}T00:00:00`)
-            .lte("created_at", `${fechaVal}T23:59:59`);
+          if (fechaVal.includes(" to ")) {
+            const partes = fechaVal.split(" to ");
+            const desde = partes[0].trim();
+            const hasta = (partes[1] || partes[0]).trim();
+            query = query
+              .gte("created_at", `${desde}T00:00:00`)
+              .lte("created_at", `${hasta}T23:59:59`);
+          } else {
+            query = query
+              .gte("created_at", `${fechaVal}T00:00:00`)
+              .lte("created_at", `${fechaVal}T23:59:59`);
+          }
         }
 
         // 3. APLICAR FILTRO DE TIPO

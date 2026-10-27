@@ -400,6 +400,7 @@
                 <button class="btn btnPrimary" type="button" onclick="limpiarFiltros()">🧹 Limpiar</button>
                 <button class="btn btnPrimary" type="button" onclick="cargarHistorial(true)">🔄 Recargar</button>
                 <button class="btn btnPrimary" type="button" onclick="usarSeleccionParaND()">➡️ Usar en ND</button>
+                <button class="btn btnPrimary" type="button" id="btnDescargarCSV" onclick="descargarCSVHistorial()" title="Descargar como CSV los registros cargados">📥 Descargar CSV</button>
                 <button class="btn btnDanger" type="button" id="btnBorrarLimpiezas" onclick="confirmarBorrarLimpiezas()">🗑️ Borrar limpiezas</button>
                 <button class="btn btnPrimary" type="button" id="btnDepurarRaices" onclick="confirmarDepurarRaicesDuplicadas()" title="Elimina limpiezas antiguas si la misma raíz fue subida después">⚡ Depurar raíces duplicadas</button>
               </div>
@@ -590,6 +591,7 @@
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   flatpickr("#fechaFiltro", {
+    mode: "range",
     dateFormat: "Y-m-d",
     allowInput: false,
     onChange: function(selectedDates, dateStr) {
