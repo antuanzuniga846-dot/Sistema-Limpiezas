@@ -78,10 +78,6 @@
         <button type="button" class="navBtn" data-page="plantillas" onclick="go('plantillas')">
           <span class="icon">📁</span> <span class="nav-text">Plantillas</span>
         </button>
-
-        <button type="button" class="navBtn" data-page="help" onclick="go('help')">
-          <span class="icon">❓</span> <span class="nav-text">Ayuda</span>
-        </button>
       </div>
 
       <div class="sideFooter">
@@ -110,65 +106,110 @@
 
       <div class="content">
         <section class="page active" id="page-home">
-          <div class="grid">
-            <div class="kpi">
-              <div class="label">Registros generados</div>
-              <div class="value" id="kpiTotal">0</div>
-              <div class="hint">Total de líneas generadas en la última ejecución.</div>
+          <div class="home-container">
+            <!-- HERO BANNER BIENVENIDA -->
+            <div class="hero-card">
+              <div class="hero-content">
+                <h1>👋 ¡Bienvenido al Sistema de Limpiezas!</h1>
+                <p>Plataforma integral para la generación de formatos masivos, reversión de notas de débito, acometidas, gestión y control del historial de saldos.</p>
+                <div class="hero-badges">
+                  <span class="hero-badge"><span class="dot"></span>Sistema Operativo</span>
+                  <span class="hero-badge">⚡ Generación Rápida (.txt)</span>
+                  <span class="hero-badge">🔒 Conexión Segura Supabase</span>
+                  <span class="hero-badge">📥 Exportación CSV Disponible</span>
+                </div>
+              </div>
             </div>
 
-            <div class="kpi">
-              <div class="label">Raíces extras</div>
-              <div class="value" id="kpiExtras">0</div>
-              <div class="hint">Cantidad de reglas extras activas.</div>
+            <!-- TARJETAS DE MÓDULOS DE ACCESO RÁPIDO -->
+            <div class="modules-grid">
+              <div class="module-card" onclick="go('gen-nc')">
+                <div>
+                  <div class="module-icon-wrap">🧾</div>
+                  <h4>Generador NC <span style="font-size:12px; color:var(--accent1);">CM,908</span></h4>
+                  <p>Genera el formato de Notas de Crédito para Recuperación de Clientes Proyecto de Ventas Móvil y gestión de raíces extras.</p>
+                </div>
+                <button class="btn btnPrimary module-btn-action" type="button">Abrir Generador NC →</button>
+              </div>
+
+              <div class="module-card" onclick="go('gen-nd')">
+                <div>
+                  <div class="module-icon-wrap">📄</div>
+                  <h4>Generador ND <span style="font-size:12px; color:var(--accent1);">IN,911</span></h4>
+                  <p>Genera formatos de Notas de Débito, reversiones móviles e incubadora y limpiezas ND300 con autocarga por cédula.</p>
+                </div>
+                <button class="btn btnPrimary module-btn-action" type="button">Abrir Generador ND →</button>
+              </div>
+
+              <div class="module-card" onclick="go('gen-acometida')">
+                <div>
+                  <div class="module-icon-wrap">⚡</div>
+                  <h4>Acometidas <span style="font-size:12px; color:var(--accent1);">Formato</span></h4>
+                  <p>Limpia y estructura listados de acometidas con cédula y nombre para un procesamiento ágil y sin duplicados.</p>
+                </div>
+                <button class="btn btnPrimary module-btn-action" type="button">Abrir Acometidas →</button>
+              </div>
+
+              <div class="module-card" onclick="go('historial')">
+                <div>
+                  <div class="module-icon-wrap">📂</div>
+                  <h4>Historial & Filtros <span style="font-size:12px; color:var(--accent1);">CSV</span></h4>
+                  <p>Consulta registros guardados por rangos de fecha, filtra por cédulas, descarga reportes en CSV y envía datos a ND.</p>
+                </div>
+                <button class="btn btnPrimary module-btn-action" type="button">Ver Historial →</button>
+              </div>
+
+              <div class="module-card" onclick="go('estadisticas')">
+                <div>
+                  <div class="module-icon-wrap">📊</div>
+                  <h4>Estadísticas <span style="font-size:12px; color:var(--accent1);">Ranking</span></h4>
+                  <p>Revisa el ranking en tiempo real de cédulas únicas procesadas por agente, podio y gráficas comparativas de rendimiento.</p>
+                </div>
+                <button class="btn btnPrimary module-btn-action" type="button">Ver Ranking →</button>
+              </div>
+
+              <div class="module-card" onclick="go('plantillas')">
+                <div>
+                  <div class="module-icon-wrap">📁</div>
+                  <h4>Plantillas <span style="font-size:12px; color:var(--accent1);">OneMarketer</span></h4>
+                  <p>Accede rápidamente a plantillas oficiales: autorizaciones, cancelaciones, despachos, cambios de SIM y rechazos.</p>
+                </div>
+                <button class="btn btnPrimary module-btn-action" type="button">Ver Plantillas →</button>
+              </div>
             </div>
 
-            <div class="kpi">
-              <div class="label">Estado</div>
-              <div class="value">OK</div>
-              <div class="hint">Todo listo para generar y copiar.</div>
-            </div>
-
-            <div class="card">
+            <!-- PERSONALIZACIÓN VISUAL Y TEMA -->
+            <div class="card" style="margin-top:4px;">
               <div class="cardHeader">
-                <h3>Accesos rápidos</h3>
-                <span>Ir directo a tareas</span>
+                <div>
+                  <h3>🎨 Personalización y Apariencia</h3>
+                  <span>Configura tu paleta de colores preferida y fondo de pantalla</span>
+                </div>
               </div>
               <div class="cardBody">
-                <div class="btnRow">
-                  <button class="btn btnPrimary" onclick="go('gen-nc')">⚡ Ir al Generador NC</button>
-                  <button class="btn btnPrimary" onclick="go('gen-nd')">⚡ Ir al Generador ND</button>
-                  <button class="btn btnPrimary" onclick="go('gen-acometida')">⚡ Ir al Generador Acometida</button>
-                  <button class="btn btnPrimary" onclick="go('historial')">⚡ Ir al Historial</button>
-                </div>
-                <div class="hintText" style="margin-top:10px;">
-                  * El usuario actual se verá arriba a la derecha.
-                </div>
-                <div style="margin-top:20px;">
-                  <label style="display:block; font-size:12px; font-weight:700; margin-bottom:8px;">🎨 Tema visual y Paleta de colores</label>
-
-                  <div style="margin-bottom:14px; max-width:280px;">
-                    <!-- Selector de color personalizado -->
-                    <span style="font-size:11px; color:var(--muted); font-weight:600; display:block; margin-bottom:6px;">Color personalizado:</span>
-                    <div style="display:flex; align-items:center; gap:8px;">
-                      <div style="position:relative; width:40px; height:38px; flex-shrink:0;">
-                        <div id="colorSwatchPreview" style="width:100%; height:100%; border-radius:8px; border:2px solid var(--stroke); background-color:var(--accent1); cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.25); transition:transform 0.15s ease, border-color 0.15s ease;" title="Haz clic para elegir color"></div>
-                        <input type="color" id="accentColorPicker" value="#00d8f5" style="position:absolute; inset:0; opacity:0; width:100%; height:100%; cursor:pointer;" oninput="actualizarColorAcento(this.value)">
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:24px; align-items:start;">
+                  <!-- COLORES -->
+                  <div>
+                    <label style="display:block; font-size:12px; font-weight:700; margin-bottom:8px;">Color personalizado y paleta</label>
+                    <div style="margin-bottom:14px; max-width:280px;">
+                      <span style="font-size:11px; color:var(--muted); font-weight:600; display:block; margin-bottom:6px;">Color personalizado:</span>
+                      <div style="display:flex; align-items:center; gap:8px;">
+                        <div style="position:relative; width:40px; height:38px; flex-shrink:0;">
+                          <div id="colorSwatchPreview" style="width:100%; height:100%; border-radius:8px; border:2px solid var(--stroke); background-color:var(--accent1); cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.25); transition:transform 0.15s ease, border-color 0.15s ease;" title="Haz clic para elegir color"></div>
+                          <input type="color" id="accentColorPicker" value="#00d8f5" style="position:absolute; inset:0; opacity:0; width:100%; height:100%; cursor:pointer;" oninput="actualizarColorAcento(this.value)">
+                        </div>
+                        <input 
+                          type="text" 
+                          id="accentColorInput" 
+                          value="#00D8F5" 
+                          maxlength="7" 
+                          placeholder="#00D8F5" 
+                          style="font-family:ui-monospace, monospace; font-size:13px; font-weight:700; text-transform:uppercase; padding:8px 10px; height:38px; letter-spacing:0.5px; flex:1;"
+                          oninput="actualizarColorDesdeTexto(this.value)"
+                        >
                       </div>
-                      <input 
-                        type="text" 
-                        id="accentColorInput" 
-                        value="#00D8F5" 
-                        maxlength="7" 
-                        placeholder="#00D8F5" 
-                        style="font-family:ui-monospace, monospace; font-size:13px; font-weight:700; text-transform:uppercase; padding:8px 10px; height:38px; letter-spacing:0.5px; flex:1;"
-                        oninput="actualizarColorDesdeTexto(this.value)"
-                      >
                     </div>
-                  </div>
 
-                  <!-- PALETA RÁPIDA DE COLORES (CIRCULAR BUTTONS) -->
-                  <div style="margin-bottom:18px;">
                     <span style="font-size:11px; color:var(--muted); font-weight:600; display:block; margin-bottom:8px;">Paleta de colores sugeridos:</span>
                     <div style="display:flex; gap:9px; flex-wrap:wrap; align-items:center;" id="paletteContainer">
                       <button type="button" class="color-preset-btn" data-theme="azul" style="background:#00d8f5;" title="Azul / Cyan" onclick="seleccionarPresetColor('azul')"></button>
@@ -185,13 +226,13 @@
                       <button type="button" class="color-preset-btn" data-theme="rgb" style="background:linear-gradient(135deg, #ef4444, #facc15, #22c55e, #00d8f5, #c084fc);" title="Arcoíris RGB Animado" onclick="seleccionarPresetColor('rgb')"></button>
                     </div>
                   </div>
-                  <!-- PERSONALIZADOR DE FONDO DE PANTALLA -->
-                  <div style="margin-top:24px; padding-top:18px; border-top:1px solid var(--stroke);">
-                    <label>🖼️ Imagen de fondo personalizada</label>
-                    <div class="hintText" style="margin-bottom:12px;">Sube una imagen de tu equipo para usarla como fondo.</div>
+
+                  <!-- FONDO PERSONALIZADO -->
+                  <div>
+                    <label style="display:block; font-size:12px; font-weight:700; margin-bottom:8px;">🖼️ Imagen de fondo personalizada</label>
+                    <div class="hintText" style="margin-bottom:12px;">Sube una imagen de tu equipo para usarla como fondo del sistema.</div>
 
                     <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-                      <!-- Input oculto para seleccionar archivo -->
                       <input type="file" id="bgImageInput" accept="image/*" style="display:none;" onchange="manejarSubidaFondo(event)">
                       
                       <button class="btn btnPrimary" type="button" onclick="document.getElementById('bgImageInput').click()">
@@ -199,11 +240,10 @@
                       </button>
 
                       <button class="btn btnGhost" type="button" id="removeBgBtn" onclick="quitarFondoPersonalizado()" style="display:none;">
-                        🗑️ Quitar imagen de fondo
+                        🗑️ Quitar fondo
                       </button>
                     </div>
 
-                    <!-- Control deslizante de oscuridad/legibilidad -->
                     <div id="bgAdjustWrap" style="margin-top:14px; display:none;">
                       <div style="display:flex; justify-content:space-between; max-width:280px; margin-bottom:4px;">
                         <label style="font-size:11.5px; margin:0;">Oscuridad del fondo:</label>
@@ -218,15 +258,14 @@
                         oninput="ajustarOscuridadFondo(this.value)" 
                         style="width:100%; max-width:280px; accent-color:var(--accent1); cursor:pointer;"
                       >
-                      <div class="hintText" style="font-size:11px;">Aumenta la oscuridad si el texto te cuesta leer.</div>
                     </div>
                   </div>
+                </div>
 
-                  <div style="margin-top:10px;">
-                    <button id="saveThemeBtn" class="btn btnPrimary">
-                      Guardar tema
-                    </button>
-                  </div>
+                <div style="margin-top:20px; border-top:1px solid var(--stroke); padding-top:14px;">
+                  <button id="saveThemeBtn" class="btn btnPrimary">
+                    💾 Guardar tema
+                  </button>
                 </div>
               </div>
             </div>
@@ -527,23 +566,6 @@
               <div id="contenidoPlantilla" style="margin-top:20px;">
                 Selecciona una plantilla...
               </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="page" id="page-help">
-          <div class="card">
-            <div class="cardHeader">
-              <h3>Ayuda</h3>
-              <span>Cómo pegar y generar</span>
-            </div>
-            <div class="cardBody" style="color:var(--muted);">
-              <ul>
-                <li>Pega la tabla con encabezados: <b>Factura</b>, <b>Billing Account</b>, <b>Monto a Pagar</b>.</li>
-                <li>Si usas raíces extras: agrega una regla y pega una tabla completa ahí.</li>
-                <li>El resultado sale todo seguido.</li>
-                <li>Si no copia, abre en <b>https</b> o <b>localhost</b>.</li>
-              </ul>
             </div>
           </div>
         </section>

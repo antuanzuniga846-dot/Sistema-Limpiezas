@@ -17,7 +17,6 @@
       "gen-nc": ["Generador NC", "Genera el formato NC (CM,908,...)."],
       "gen-nd": ["Generador ND", "Genera el formato ND (IN,911,...)."],
       "gen-acometida": ["Generador Acometida", "Genera formatos para acometidas."],
-      help: ["Ayuda", "Guía rápida de uso."],
       plantillas: ["Plantillas", "Plantillas para OneMarketer y más."],
       estadisticas: ["Estadísticas", "Visualiza estadísticas de uso."],
     };
@@ -72,7 +71,7 @@ window.go = function(pageId) {
   if (typeof originalGo === "function") {
     originalGo(pageId);
 
-               // Si navegan a estadísticas, cargar datos automáticamente
+    // Si navegan a estadísticas, cargar datos automáticamente
     if (pageId === 'estadisticas' && typeof cargarEstadisticas === 'function') {
       cargarEstadisticas();
     }

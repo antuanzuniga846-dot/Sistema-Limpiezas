@@ -998,10 +998,160 @@ body.has-custom-bg {
 }
 
 body.has-custom-bg .card,
-body.has-custom-bg .kpi {
+body.has-custom-bg .kpi,
+body.has-custom-bg .module-card,
+body.has-custom-bg .hero-card {
   background: var(--card);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-color: var(--stroke);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 18px var(--card-glow, transparent);
+}
+
+/* =========================================================
+   DISEÑO MODERNO DE INICIO (HOME REDESIGN)
+   ========================================================= */
+.home-container {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  width: 100%;
+}
+
+.hero-card {
+  background: linear-gradient(135deg, var(--card) 0%, var(--card2) 100%);
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius);
+  padding: 30px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--shadow), 0 0 24px var(--card-glow, transparent);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-card::after {
+  content: "";
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, var(--accent1) 0%, transparent 70%);
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+.hero-content h1 {
+  margin: 0 0 8px;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hero-content p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  max-width: 650px;
+  line-height: 1.5;
+}
+
+.hero-badges {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--card2);
+  border: 1px solid var(--stroke);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.modules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+.module-card {
+  background: var(--card);
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius);
+  padding: 22px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--shadow-sm), 0 0 16px var(--card-glow, transparent);
+  transition: all var(--duration) var(--ease);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.module-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent1);
+  box-shadow: var(--shadow), 0 8px 25px rgba(0, 0, 0, 0.4), 0 0 25px var(--card-glow, transparent);
+}
+
+.module-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--card2);
+  border: 1px solid var(--stroke);
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  margin-bottom: 16px;
+  color: var(--accent1);
+  transition: all var(--duration) var(--ease);
+}
+
+.module-card:hover .module-icon-wrap {
+  transform: scale(1.1);
+  border-color: var(--accent1);
+  box-shadow: 0 0 12px var(--card-glow, transparent);
+}
+
+.module-card h4 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.module-card p {
+  margin: 0 0 18px;
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.45;
+  flex: 1;
+}
+
+.module-btn-action {
+  width: 100%;
+  justify-content: center;
 }
