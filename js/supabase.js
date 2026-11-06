@@ -7,8 +7,8 @@
       ? window.supabase.createClient
       : (window.supabaseLib?.createClient || null);
 
-    const SUPABASE_URL = "https://upxhiylyiebljnpfgmut.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_ctDXquEkqLpXpuzOoRvtXQ_Vazap6tB";
+    const SUPABASE_URL = "https://groovgqinottevexbube.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_9X35eEpRRet9gA46CrHMGA_2JWoT5PR";
 
     const supabaseClient = createClientFn ? createClientFn(SUPABASE_URL, SUPABASE_KEY, {
       auth: {
